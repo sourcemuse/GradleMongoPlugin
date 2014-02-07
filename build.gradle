@@ -1,5 +1,10 @@
 apply plugin: 'groovy'
 apply plugin: 'idea'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+group = 'com.github.?'
+version = '0.1.0'
 
 repositories {
     mavenCentral()
@@ -8,4 +13,66 @@ repositories {
 dependencies {
     compile gradleApi()
     compile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.42'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives jar
+    archives javadocJar
+    archives sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { signing.signPom(it) }
+
+            repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/') {
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+
+            pom.project {
+                name 'embedmongodbplugin'
+                packaging jar
+                description 'Gradle plugin for managing a local instance of MongoDb'
+                url 'https://github.com/roberttaylor426/EmbedMongoDbPlugin'
+
+                scm {
+                    url 'scm:git@github.com:EmbedMongoDbPlugin/EmbedMongoDbPlugin.git'
+                    connection 'scm:git@github.com:EmbedMongoDbPlugin/EmbedMongoDbPlugin.git'
+                    developerConnection 'scm:git@github.com:EmbedMongoDbPlugin/EmbedMongoDbPlugin.git'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        name 'Mashooq Badar'
+                    }
+                    developer {
+                        name 'Robert Taylor'
+                    }
+                }
+            }
+        }
+    }
 }

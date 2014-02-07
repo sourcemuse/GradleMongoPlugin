@@ -17,7 +17,7 @@ class EmbedMongoDbPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.extensions.create('mongodb', EmbedMongoDbPluginExtension)
 
-        project.task(group: 'MongoDb', description: 'Starts a local MongoDb instance', 'startMongoDb') << {
+        project.task(group: 'MongoDb', description: 'Starts a local MongoDb instance which will stop when the build process completes', 'startManagedMongoDb') << {
             IMongodConfig mongodConfig = new MongodConfigBuilder()
                     .version(Version.Main.PRODUCTION)
                     .net(new Net(project.mongodb.port, Network.localhostIsIPv6()))
@@ -39,6 +39,23 @@ class EmbedMongoDbPlugin implements Plugin<Project> {
                         process.stop()
                     }
                 }
+            }
+        }
+        project.task(group: 'MongoDb', description: 'Starts a local MongoDb instance', 'startMongoDb') << {
+            IMongodConfig mongodConfig = new MongodConfigBuilder()
+                    .version(Version.Main.PRODUCTION)
+                    .net(new Net(project.mongodb.port, Network.localhostIsIPv6()))
+                    .build();
+
+            MongodStarter runtime = MongodStarter.getDefaultInstance();
+
+            MongodExecutable mongodExecutable = runtime.prepare(mongodConfig);
+            def process = mongodExecutable.start();
+
+            boolean stopMongoDbTaskPresent = project.gradle.taskGraph.allTasks.find { it.name == 'stopMongoDb' }
+
+            if (stopMongoDbTaskPresent) {
+                project.ext.mongoDbProcess = process
             }
         }
         project.task(group: 'MongoDb', description: 'Stops the local MongoDb instance', 'stopMongoDb') << {
