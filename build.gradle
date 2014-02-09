@@ -3,7 +3,8 @@ apply plugin: 'idea'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
-group = 'com.github.?'
+archivesBaseName = 'gradle-mongo-plugin'
+group = 'com.sourcemuse.gradle.plugin'
 version = '0.1.0'
 
 repositories {
@@ -45,15 +46,15 @@ uploadArchives {
             }
 
             pom.project {
-                name 'embedmongodbplugin'
+                artifactId 'gradle-mongo-plugin'
                 packaging jar
                 description 'Gradle plugin for managing a local instance of MongoDb'
-                url 'https://github.com/roberttaylor426/EmbedMongoDbPlugin'
+                url 'https://github.com/sourcemuse/GradleMongoPlugin'
 
                 scm {
-                    url 'scm:git@github.com:EmbedMongoDbPlugin/EmbedMongoDbPlugin.git'
-                    connection 'scm:git@github.com:EmbedMongoDbPlugin/EmbedMongoDbPlugin.git'
-                    developerConnection 'scm:git@github.com:EmbedMongoDbPlugin/EmbedMongoDbPlugin.git'
+                    url 'scm:git@github.com:sourcemuse/GradleMongoPlugin.git'
+                    connection 'scm:git@github.com:sourcemuse/GradleMongoPlugin.git'
+                    developerConnection 'scm:git@github.com:sourcemuse/GradleMongoPlugin.git'
                 }
 
                 licenses {
