@@ -1,68 +1,91 @@
 package org.roberttaylor.gradle.plugin
 
+import de.flapdoodle.embed.mongo.Command
 import de.flapdoodle.embed.mongo.MongodExecutable
-import de.flapdoodle.embed.mongo.MongodProcess
 import de.flapdoodle.embed.mongo.MongodStarter
 import de.flapdoodle.embed.mongo.config.IMongodConfig
 import de.flapdoodle.embed.mongo.config.MongodConfigBuilder
 import de.flapdoodle.embed.mongo.config.Net
+import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder
 import de.flapdoodle.embed.mongo.distribution.Version
+import de.flapdoodle.embed.mongo.runtime.Mongod
 import de.flapdoodle.embed.process.runtime.Network
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
+import static org.roberttaylor.gradle.plugin.ManageProcessInstruction.CONTINUE_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
+import static org.roberttaylor.gradle.plugin.ManageProcessInstruction.STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
+
 class EmbedMongoDbPlugin implements Plugin<Project> {
+
+    static final String PLUGIN_EXTENSION_NAME = 'mongodb'
+    static final String TASK_GROUP_NAME = 'MongoDb'
 
     @Override
     void apply(Project project) {
-        project.extensions.create('mongodb', EmbedMongoDbPluginExtension)
+        configureTaskProperties(project)
 
-        project.task(group: 'MongoDb', description: 'Starts a local MongoDb instance which will stop when the build process completes', 'startManagedMongoDb') << {
-            IMongodConfig mongodConfig = new MongodConfigBuilder()
-                    .version(Version.Main.PRODUCTION)
-                    .net(new Net(project.mongodb.port, Network.localhostIsIPv6()))
-                    .build();
+        addStartUnmanagedMongoDbTask(project)
+        addStartMongoDbTask(project)
+        addStopMongoDbTask(project)
+    }
 
-            MongodStarter runtime = MongodStarter.getDefaultInstance();
+    private void configureTaskProperties(Project project) {
+        project.extensions.create(PLUGIN_EXTENSION_NAME, EmbedMongoDbPluginExtension)
+    }
 
-            MongodExecutable mongodExecutable = runtime.prepare(mongodConfig);
-            def process = mongodExecutable.start();
+    private void addStartUnmanagedMongoDbTask(Project project) {
+        project.task(group: TASK_GROUP_NAME, description: 'Starts a local MongoDb instance', 'startMongoDb') << {
+            startMongoDb(CONTINUE_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS)
+        }
+    }
 
-            boolean stopMongoDbTaskPresent = project.gradle.taskGraph.allTasks.find { it.name == 'stopMongoDb' }
+    private void startMongoDb(ManageProcessInstruction manageProcessInstruction) {
+        IMongodConfig mongodConfig = new MongodConfigBuilder()
+                .version(Version.Main.PRODUCTION)
+                .net(new Net(project.(PLUGIN_EXTENSION_NAME).port, Network.localhostIsIPv6()))
+                .build();
 
-            if (stopMongoDbTaskPresent) {
-                project.ext.mongoDbProcess = process
-            } else {
-                def lastTask = project.gradle.taskGraph.allTasks[-1]
-                project.gradle.taskGraph.afterTask { task, taskState ->
-                    if (task == lastTask) {
-                        process.stop()
-                    }
+        MongodStarter runtime = MongodStarter.getInstance(new RuntimeConfigBuilder().defaults(Command.MongoD).daemonProcess(manageProcessInstruction == STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS));
+
+        MongodExecutable mongodExecutable = runtime.prepare(mongodConfig);
+        mongodExecutable.start();
+    }
+
+    private void addStartMongoDbTask(Project project) {
+        project.task(group: TASK_GROUP_NAME, description: 'Starts a local MongoDb instance which will stop when the build process completes', 'startManagedMongoDb') << {
+            startMongoDb(STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS)
+
+            addStopMongoDbTaskIfNotPresent(project)
+        }
+    }
+
+    private void addStopMongoDbTaskIfNotPresent(Project project) {
+        boolean stopMongoDbTaskPresent = project.gradle.taskGraph.allTasks.find { it.name == 'stopMongoDb' }
+
+        if (!stopMongoDbTaskPresent) {
+            def lastTask = project.gradle.taskGraph.allTasks[-1]
+            project.gradle.taskGraph.afterTask { task, taskState ->
+                if (task == lastTask) {
+                    stopMongoDb()
                 }
             }
         }
-        project.task(group: 'MongoDb', description: 'Starts a local MongoDb instance', 'startMongoDb') << {
-            IMongodConfig mongodConfig = new MongodConfigBuilder()
-                    .version(Version.Main.PRODUCTION)
-                    .net(new Net(project.mongodb.port, Network.localhostIsIPv6()))
-                    .build();
+    }
 
-            MongodStarter runtime = MongodStarter.getDefaultInstance();
-
-            MongodExecutable mongodExecutable = runtime.prepare(mongodConfig);
-            def process = mongodExecutable.start();
-
-            boolean stopMongoDbTaskPresent = project.gradle.taskGraph.allTasks.find { it.name == 'stopMongoDb' }
-
-            if (stopMongoDbTaskPresent) {
-                project.ext.mongoDbProcess = process
-            }
-        }
-        project.task(group: 'MongoDb', description: 'Stops the local MongoDb instance', 'stopMongoDb') << {
-            MongodProcess process = (MongodProcess)project.ext.mongoDbProcess
-            process.stop()
+    private void addStopMongoDbTask(Project project) {
+        project.task(group: TASK_GROUP_NAME, description: 'Stops the local MongoDb instance', 'stopMongoDb') << {
+            stopMongoDb()
         }
     }
+
+    private void stopMongoDb() {
+        Mongod.sendShutdown(InetAddress.localHost, project.(PLUGIN_EXTENSION_NAME).port)
+    }
+}
+
+enum ManageProcessInstruction {
+    STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS, CONTINUE_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
 }
 
 class EmbedMongoDbPluginExtension {
