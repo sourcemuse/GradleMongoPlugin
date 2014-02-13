@@ -5,7 +5,7 @@ apply plugin: 'signing'
 
 archivesBaseName = 'gradle-mongo-plugin'
 group = 'com.sourcemuse.gradle.plugin'
-version = '0.1.0'
+version = '0.2.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
