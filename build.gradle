@@ -46,7 +46,7 @@ uploadArchives {
             }
 
             pom.project {
-                artifactId 'gradle-mongo-plugin'
+                name 'Gradle Mongo Plugin'
                 packaging jar
                 description 'Gradle plugin for managing a local instance of MongoDb'
                 url 'https://github.com/sourcemuse/GradleMongoPlugin'
