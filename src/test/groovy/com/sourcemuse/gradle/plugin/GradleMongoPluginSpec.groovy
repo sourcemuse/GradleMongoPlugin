@@ -95,8 +95,7 @@ class TestPlugin implements Plugin<Project> {
             if (mongoInstanceRunning())
                 println 'mongo running!'
         }
-        project.task(dependsOn: ['startMongoDb', 'stopMongoDb'], 'testStopMongoDb') << {
-        }
+        project.task(dependsOn: ['startMongoDb', 'stopMongoDb'], 'testStopMongoDb')
     }
 }
 
