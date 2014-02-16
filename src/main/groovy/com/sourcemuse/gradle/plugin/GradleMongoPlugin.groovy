@@ -80,7 +80,7 @@ class GradleMongoPlugin implements Plugin<Project> {
     }
 
     private void stopMongoDb(Project project) {
-        Mongod.sendShutdown(InetAddress.localHost, project."$PLUGIN_EXTENSION_NAME".port)
+        Mongod.sendShutdown(InetAddress.getLoopbackAddress(), project."$PLUGIN_EXTENSION_NAME".port)
     }
 }
 

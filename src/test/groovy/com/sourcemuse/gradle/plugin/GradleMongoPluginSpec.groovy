@@ -70,7 +70,7 @@ class GradleMongoPluginSpec extends Specification {
     }
 
     def ensureMongoIsStopped() {
-        Mongod.sendShutdown(InetAddress.localHost, 27017)
+        Mongod.sendShutdown(InetAddress.getLoopbackAddress(), 27017)
     }
 
     static boolean mongoInstanceRunning() {

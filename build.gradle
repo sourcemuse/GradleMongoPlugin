@@ -7,6 +7,9 @@ archivesBaseName = 'gradle-mongo-plugin'
 group = 'com.sourcemuse.gradle.plugin'
 version = '0.2.0-SNAPSHOT'
 
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
 repositories {
     mavenCentral()
 }
