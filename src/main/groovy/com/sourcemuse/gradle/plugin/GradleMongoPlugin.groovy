@@ -62,9 +62,11 @@ class GradleMongoPlugin implements Plugin<Project> {
     }
 
     private void startMongoDb(Project project, ManageProcessInstruction manageProcessInstruction) {
+        GradleMongoPluginExtension pluginExtension = project."$PLUGIN_EXTENSION_NAME"
+
         IMongodConfig mongodConfig = new MongodConfigBuilder()
                 .version(Version.Main.PRODUCTION)
-                .net(new Net(project."$PLUGIN_EXTENSION_NAME".port, Network.localhostIsIPv6()))
+                .net(new Net(pluginExtension.bindIp, pluginExtension.port, Network.localhostIsIPv6()))
                 .build();
 
         MongodStarter runtime = MongodStarter.getInstance(new RuntimeConfigBuilder().defaults(Command.MongoD).daemonProcess(manageProcessInstruction == STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS).build());
@@ -90,4 +92,5 @@ enum ManageProcessInstruction {
 
 class GradleMongoPluginExtension {
     def port = 27017
+    def bindIp = '127.0.0.1'
 }
