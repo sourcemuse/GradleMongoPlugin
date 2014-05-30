@@ -16,7 +16,7 @@ repositories {
 
 dependencies {
     compile gradleApi()
-    compile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.42'
+    compile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.45'
 
     testCompile files('libs/gradle-test-kit.jar')
     testCompile 'org.spockframework:spock-core:0.7-groovy-1.8'
