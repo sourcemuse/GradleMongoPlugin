@@ -48,8 +48,8 @@ mongo {
 
 The following properties are configurable:
 
-```port```: The port for Mongo to listen on (defaults to 27017)
-```bindIp```: The ip for Mongo to bind itself to (defaults to '127.0.0.1')
-```logging```: The type of logging to be produced: 'console', 'file' or 'none' (defaults to 'file')
-```logFilePath```: The desired log file path (defaults to 'embedded-mongo.log'
+* ```port```: The port Mongo listens on (defaults to **27017**)
+* ```bindIp```: The ip address Mongo binds itself to (defaults to **'127.0.0.1'**)
+* ```logging```: The type of logging to be produced: **'console'**, **'file'** or **'none'** (defaults to **'file'**)
+* ```logFilePath```: The desired log file path (defaults to **'embedded-mongo.log'**)
 
