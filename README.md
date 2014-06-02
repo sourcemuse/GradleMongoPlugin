@@ -36,7 +36,7 @@ stopMongoDb - Stops the local MongoDb instance
 
 ### Configuration ###
 
-Configure your Mongo instance inside a ```mongo``` block as follows:
+Configure your Mongo instance inside a ```mongo``` block:
 
 ```
 mongo {
