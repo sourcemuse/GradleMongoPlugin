@@ -16,7 +16,7 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-class TasksSpec extends Specification {
+class MongoPluginTasksSpec extends Specification {
 
     @Rule TemporaryFolder tmp
     def gradleRunner = GradleRunnerFactory.create()

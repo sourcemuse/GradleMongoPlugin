@@ -64,7 +64,7 @@ class GradleMongoPlugin implements Plugin<Project> {
 
     private void startMongoDb(Project project, ManageProcessInstruction manageProcessInstruction) {
         GradleMongoPluginExtension pluginExtension = project."$PLUGIN_EXTENSION_NAME"
-        ProcessOutput processOutput = new LoggerFactory().getLogger(pluginExtension)
+        ProcessOutput processOutput = new LoggerFactory(project).getLogger(pluginExtension)
 
         IMongodConfig mongodConfig = new MongodConfigBuilder()
                 .version(Version.Main.PRODUCTION)

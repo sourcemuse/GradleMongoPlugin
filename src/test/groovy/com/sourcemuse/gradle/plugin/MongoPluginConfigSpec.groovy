@@ -10,7 +10,7 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-class ConfigSpec extends Specification {
+class MongoPluginConfigSpec extends Specification {
 
     @Rule TemporaryFolder tmp
     def gradleRunner = GradleRunnerFactory.create()
@@ -27,6 +27,18 @@ class ConfigSpec extends Specification {
 
         then:
         mongoRunningOnPort
+    }
+
+    def 'logging can route to the console'() {
+        given:
+        generate(buildScript.withLogging("'console'"))
+        gradleRunner.arguments << TEST_START_MONGO_DB
+
+        when:
+        def executionResult = gradleRunner.run()
+
+        then:
+        executionResult.standardOutput.contains('[mongod output]')
     }
 
     def 'logging can be switched off'() {
@@ -46,11 +58,13 @@ class ConfigSpec extends Specification {
         def tempFile = tmp.newFile()
         generate(buildScript.withLogging("'file'").withFilePath("'${tempFile.absolutePath}'"))
         gradleRunner.arguments << TEST_START_MONGO_DB
+        println gradleRunner.directory
 
         when:
         def executionResult = gradleRunner.run()
 
         then:
+
         !executionResult.standardOutput.contains('[mongod output]')
         tempFile.text.contains('[mongod output]')
     }

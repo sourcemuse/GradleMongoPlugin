@@ -9,9 +9,14 @@ import de.flapdoodle.embed.mongo.config.MongodProcessOutputConfig
 import de.flapdoodle.embed.process.config.io.ProcessOutput
 import de.flapdoodle.embed.process.io.NamedOutputStreamProcessor
 import de.flapdoodle.embed.process.io.NullProcessor
+import groovy.transform.TupleConstructor
 import org.gradle.api.GradleScriptException
+import org.gradle.api.Project
 
+@TupleConstructor
 class LoggerFactory {
+    Project project
+
     ProcessOutput getLogger(GradleMongoPluginExtension pluginExtension) {
         def logDestination = pluginExtension.logging.toUpperCase() as LogDestination
 
@@ -20,7 +25,11 @@ class LoggerFactory {
         }
 
         if (logDestination == FILE) {
-            def fileOutputStreamProcessor = new FileOutputStreamProcessor(pluginExtension.logFilePath)
+            def logFile = new File(pluginExtension.logFilePath)
+            def logFilePath = logFile.isAbsolute() ? logFile.absolutePath :
+                    createRelativeFilePathFromBuildDir(logFile)
+
+            def fileOutputStreamProcessor = new FileOutputStreamProcessor(logFilePath)
 
             return new ProcessOutput(
                     new NamedOutputStreamProcessor('[mongod output]', fileOutputStreamProcessor),
@@ -38,5 +47,9 @@ class LoggerFactory {
                         "Choose one of ${LogDestination.values().collect { it.toString().toLowerCase() }.join(', ')}.",
                 new IllegalArgumentException()
         )
+    }
+
+    private String createRelativeFilePathFromBuildDir(File logFile) {
+        project.buildDir.absolutePath + File.separatorChar + logFile.path
     }
 }

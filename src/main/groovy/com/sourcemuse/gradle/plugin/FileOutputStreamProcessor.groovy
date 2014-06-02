@@ -7,7 +7,9 @@ class FileOutputStreamProcessor implements IStreamProcessor {
 
     FileOutputStreamProcessor(String filePath) {
         logFile = new File(filePath)
-        logFile.mkdirs()
+        if (logFile.parentFile) {
+            logFile.parentFile.mkdirs()
+        }
         logFile.createNewFile()
     }
 
