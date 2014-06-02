@@ -33,3 +33,23 @@ startMongoDb - Starts a local MongoDb instance
 stopMongoDb - Stops the local MongoDb instance
 ...
 ```
+
+### Configuration ###
+
+Configure your Mongo instance inside a ```mongo``` block as follows:
+
+```
+mongo {
+    port: 12345
+    logging: console
+    ...
+}
+```
+
+The following properties are configurable:
+
+```port```: The port for Mongo to listen on (defaults to 27017)
+```bindIp```: The ip for Mongo to bind itself to (defaults to '127.0.0.1')
+```logging```: The type of logging to be produced: 'console', 'file' or 'none' (defaults to 'file')
+```logFilePath```: The desired log file path (defaults to 'embedded-mongo.log'
+
