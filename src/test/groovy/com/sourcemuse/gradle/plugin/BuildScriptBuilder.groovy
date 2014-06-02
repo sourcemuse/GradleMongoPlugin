@@ -40,7 +40,7 @@ class BuildScriptBuilder {
     }
 
     BuildScriptBuilder withFilePath(String filePath) {
-        this.logFilePath = filePath
+        this.logFilePath = filePath.replace('\\', '\\\\')
         this
     }
 
