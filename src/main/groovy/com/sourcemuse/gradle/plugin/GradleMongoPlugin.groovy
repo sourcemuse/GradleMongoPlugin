@@ -2,18 +2,20 @@ package com.sourcemuse.gradle.plugin
 
 import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.CONTINUE_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
 import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
-
 import de.flapdoodle.embed.mongo.Command
 import de.flapdoodle.embed.mongo.MongodExecutable
 import de.flapdoodle.embed.mongo.MongodStarter
+import de.flapdoodle.embed.mongo.config.IMongoCmdOptions;
 import de.flapdoodle.embed.mongo.config.IMongodConfig
 import de.flapdoodle.embed.mongo.config.MongodConfigBuilder
 import de.flapdoodle.embed.mongo.config.Net
 import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder
+import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion;
 import de.flapdoodle.embed.mongo.distribution.Version
 import de.flapdoodle.embed.mongo.runtime.Mongod
 import de.flapdoodle.embed.process.config.io.ProcessOutput
 import de.flapdoodle.embed.process.runtime.Network
+
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -65,9 +67,10 @@ class GradleMongoPlugin implements Plugin<Project> {
     private void startMongoDb(Project project, ManageProcessInstruction manageProcessInstruction) {
         GradleMongoPluginExtension pluginExtension = project."$PLUGIN_EXTENSION_NAME"
         ProcessOutput processOutput = new LoggerFactory(project).getLogger(pluginExtension)
-
+        
+        def version = getVersion(pluginExtension)
         IMongodConfig mongodConfig = new MongodConfigBuilder()
-                .version(Version.Main.PRODUCTION)
+                .version(version)
                 .net(new Net(pluginExtension.bindIp, pluginExtension.port, Network.localhostIsIPv6()))
                 .build();
 
@@ -82,6 +85,15 @@ class GradleMongoPlugin implements Plugin<Project> {
 
         MongodExecutable mongodExecutable = runtime.prepare(mongodConfig);
         mongodExecutable.start();
+    }
+    
+    private IFeatureAwareVersion getVersion(GradleMongoPluginExtension pluginExtension) {
+        // Get the version (looking in Main first and then all of the versions)
+        try {
+            Version.Main.valueOf(pluginExtension.mongoVersion)
+        } catch (IllegalArgumentException e) {
+            Version.valueOf(pluginExtension.mongoVersion)
+        }
     }
 
     private void addStopMongoDbTask(Project project) {
