@@ -58,7 +58,6 @@ class MongoPluginConfigSpec extends Specification {
         def tempFile = tmp.newFile()
         generate(buildScript.withLogging("'file'").withFilePath("'${tempFile.absolutePath}'"))
         gradleRunner.arguments << TEST_START_MONGO_DB
-        println gradleRunner.directory
 
         when:
         def executionResult = gradleRunner.run()
