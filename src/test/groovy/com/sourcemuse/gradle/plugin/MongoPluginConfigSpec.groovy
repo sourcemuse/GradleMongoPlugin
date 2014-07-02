@@ -98,7 +98,7 @@ class MongoPluginConfigSpec extends Specification {
         Version.V2_5_4.asInDownloadPath().equalsIgnoreCase(mongoVersion)
     }
 
-    def 'latest version is configurable'() {
+    def 'latest branch version is configurable'() {
         given:
         generate(buildScript.withMongoVersion("'2.4-LATEST'"))
         gradleRunner.arguments << TEST_START_MONGO_DB
