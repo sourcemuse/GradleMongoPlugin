@@ -15,7 +15,8 @@ import spock.lang.Specification
 
 class MongoPluginConfigSpec extends Specification {
 
-    @Rule TemporaryFolder tmp
+    @Rule
+    TemporaryFolder tmp
     def gradleRunner = GradleRunnerFactory.create()
     def buildScript = new BuildScriptBuilder()
 
@@ -70,16 +71,16 @@ class MongoPluginConfigSpec extends Specification {
         !executionResult.standardOutput.contains('[mongod output]')
         tempFile.text.contains('[mongod output]')
     }
-    
+
     def 'general version is configurable'() {
         given:
         generate(buildScript.withMongoVersion("'DEVELOPMENT'"))
         gradleRunner.arguments << TEST_START_MONGO_DB
-        
+
         when:
         gradleRunner.run()
         def mongoVersion = mongoVersionRunning(DEFAULT_MONGOD_PORT)
-        
+
         then:
         Version.Main.DEVELOPMENT.asInDownloadPath().equalsIgnoreCase(mongoVersion)
     }
@@ -88,11 +89,11 @@ class MongoPluginConfigSpec extends Specification {
         given:
         generate(buildScript.withMongoVersion("'2.5.4'"))
         gradleRunner.arguments << TEST_START_MONGO_DB
-        
+
         when:
         gradleRunner.run()
         def mongoVersion = mongoVersionRunning(DEFAULT_MONGOD_PORT)
-        
+
         then:
         Version.V2_5_4.asInDownloadPath().equalsIgnoreCase(mongoVersion)
     }
@@ -101,11 +102,11 @@ class MongoPluginConfigSpec extends Specification {
         given:
         generate(buildScript.withMongoVersion("'2.4-LATEST'"))
         gradleRunner.arguments << TEST_START_MONGO_DB
-        
+
         when:
         gradleRunner.run()
         def mongoVersion = mongoVersionRunning(DEFAULT_MONGOD_PORT)
-        
+
         then:
         Version.Main.V2_4.asInDownloadPath().equalsIgnoreCase(mongoVersion)
     }
