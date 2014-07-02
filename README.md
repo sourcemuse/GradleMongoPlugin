@@ -14,7 +14,7 @@ buildscript {
       mavenCentral()
    }
    dependencies {
-      classpath 'com.sourcemuse.gradle.plugin:gradle-mongo-plugin:0.2.0'
+      classpath 'com.sourcemuse.gradle.plugin:gradle-mongo-plugin:0.3.0'
    }
 }
 
@@ -52,4 +52,4 @@ The following properties are configurable:
 * ```bindIp```: The ip address Mongo binds itself to (defaults to **'127.0.0.1'**)
 * ```logging```: The type of logging to be produced: **'console'**, **'file'** or **'none'** (defaults to **'file'**)
 * ```logFilePath```: The desired log file path (defaults to **'embedded-mongo.log'**)
-* ```version```: The version of Mongo to run. Can be **'development'** or **'production'** for the latest versions of the respective branch, or take the form **'1.2-LATEST'** or **'1.2.3'** for specific versions
+* ```version```: The version of Mongo to run. Can be **'DEVELOPMENT'** or **'PRODUCTION'** for the latest versions of the respective branch, or take the form **'1.2-LATEST'** or **'1.2.3'** for specific versions
