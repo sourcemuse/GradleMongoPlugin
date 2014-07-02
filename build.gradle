@@ -51,11 +51,11 @@ uploadArchives {
             beforeDeployment { signing.signPom(it) }
 
             repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/') {
-                authentication(userName: getUsername(), password: getPassword())
+                authentication(userName: getSonatypeUsername(), password: getSonatypePassword())
             }
 
             snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots/') {
-                authentication(userName: getUsername(), password: getPassword())
+                authentication(userName: getSonatypeUsername(), password: getSonatypePassword())
             }
 
             pom.project {
@@ -91,10 +91,10 @@ uploadArchives {
     }
 }
 
-String getUsername() {
+String getSonatypeUsername() {
     properties['sonatypeUsername'] ?: 'username'
 }
 
-String getPassword() {
+String getSonatypePassword() {
     properties['sonatypePassword'] ?: 'password'
 }
