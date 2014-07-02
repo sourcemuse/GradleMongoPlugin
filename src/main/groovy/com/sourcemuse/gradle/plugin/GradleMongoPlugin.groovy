@@ -1,28 +1,28 @@
 package com.sourcemuse.gradle.plugin
 
-import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.CONTINUE_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
-import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
+import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.*
+
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+
 import de.flapdoodle.embed.mongo.Command
 import de.flapdoodle.embed.mongo.MongodExecutable
 import de.flapdoodle.embed.mongo.MongodStarter
-import de.flapdoodle.embed.mongo.config.IMongoCmdOptions;
 import de.flapdoodle.embed.mongo.config.IMongodConfig
 import de.flapdoodle.embed.mongo.config.MongodConfigBuilder
 import de.flapdoodle.embed.mongo.config.Net
 import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder
-import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion;
+import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
 import de.flapdoodle.embed.mongo.distribution.Version
 import de.flapdoodle.embed.mongo.runtime.Mongod
 import de.flapdoodle.embed.process.config.io.ProcessOutput
 import de.flapdoodle.embed.process.runtime.Network
 
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-
 class GradleMongoPlugin implements Plugin<Project> {
 
     static final String PLUGIN_EXTENSION_NAME = 'mongo'
     static final String TASK_GROUP_NAME = 'Mongo'
+    static final String LATEST_VERSION = '-LATEST'
 
     @Override
     void apply(Project project) {
@@ -88,11 +88,24 @@ class GradleMongoPlugin implements Plugin<Project> {
     }
     
     private IFeatureAwareVersion getVersion(GradleMongoPluginExtension pluginExtension) {
-        // Get the version (looking in Main first and then all of the versions)
+        def mongoVersion = pluginExtension.mongoVersion
         try {
-            Version.Main.valueOf(pluginExtension.mongoVersion)
+            // Start by just trying the value as-is with Main (to pick up DEV, PROD, etc...)
+            Version.Main.valueOf(mongoVersion)
         } catch (IllegalArgumentException e) {
-            Version.valueOf(pluginExtension.mongoVersion)
+            // At this point we must have a dotted version, add 'V' and switch to '_'
+            mongoVersion = 'V' + mongoVersion
+            mongoVersion = mongoVersion.replace('.', '_')
+            
+            // Do we want to latest version or not
+            if (mongoVersion.endsWith(LATEST_VERSION)) {
+                mongoVersion = 
+                    mongoVersion.substring(0, mongoVersion.length() - LATEST_VERSION.length())
+                Version.Main.valueOf(mongoVersion)
+                
+            } else {
+                Version.valueOf(mongoVersion)
+            }
         }
     }
 
