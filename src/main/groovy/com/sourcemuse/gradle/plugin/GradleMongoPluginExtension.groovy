@@ -7,4 +7,5 @@ class GradleMongoPluginExtension {
     String bindIp = '127.0.0.1'
     String logging = FILE as String
     String logFilePath = 'embedded-mongo.log'
+    String mongoVersion = 'PRODUCTION'
 }

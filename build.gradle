@@ -1,5 +1,6 @@
 apply plugin: 'groovy'
 apply plugin: 'idea'
+apply plugin: 'eclipse'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
@@ -16,11 +17,11 @@ repositories {
 
 dependencies {
     compile gradleApi()
-    compile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.45'
+    compile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.46.0'
 
     testCompile files('libs/gradle-test-kit.jar')
     testCompile 'org.spockframework:spock-core:0.7-groovy-1.8'
-    testCompile 'org.mongodb:mongo-java-driver:2.11.2'
+    testCompile 'org.mongodb:mongo-java-driver:2.12.2'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

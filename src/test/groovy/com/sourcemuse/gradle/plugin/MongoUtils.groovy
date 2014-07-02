@@ -21,4 +21,14 @@ class MongoUtils {
         }
         true
     }
+    
+    static String mongoVersionRunning(int port) {
+        try {
+            MongoClient mongoClient = new MongoClient('127.0.0.1', port)
+            def result = mongoClient.getDB('test').command("buildInfo");
+            return result.getString('version')
+        } catch (Exception e) {
+            return "none"
+        }
+    }
 }
