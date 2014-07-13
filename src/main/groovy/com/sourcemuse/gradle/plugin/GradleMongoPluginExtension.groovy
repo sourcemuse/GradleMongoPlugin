@@ -8,4 +8,5 @@ class GradleMongoPluginExtension {
     String logging = FILE as String
     String logFilePath = 'embedded-mongo.log'
     String mongoVersion = 'PRODUCTION'
+    String storageLocation
 }
