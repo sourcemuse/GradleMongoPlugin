@@ -119,14 +119,9 @@ class MongoPluginConfigSpec extends Specification {
 
         when:
         gradleRunner.run()
-        def folder = new File(storage)
 
         then:
-        folder.exists()
-        folder.isDirectory()
-
-        cleanup:
-        folder.deleteDir()
+        storage.listFiles().size() > 0
     }
 
     def cleanup() {
