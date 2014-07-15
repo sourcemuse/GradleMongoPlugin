@@ -113,15 +113,15 @@ class MongoPluginConfigSpec extends Specification {
 
     def 'replication storage location is configurable'() {
         given:
-        def storage = tmp.newFolder()
-        generate(buildScript.withStorageLocation("'$storage'"))
+        def storageDir = tmp.newFolder()
+        generate(buildScript.withStorageLocation("'$storageDir'"))
         gradleRunner.arguments << TEST_START_MONGO_DB
 
         when:
         gradleRunner.run()
 
         then:
-        storage.listFiles().size() > 0
+        storageDir.listFiles().size() > 0
     }
 
     def cleanup() {
