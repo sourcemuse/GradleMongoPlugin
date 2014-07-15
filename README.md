@@ -53,4 +53,4 @@ The following properties are configurable:
 * ```logging```: The type of logging to be produced: **'console'**, **'file'** or **'none'** (defaults to **'file'**)
 * ```logFilePath```: The desired log file path (defaults to **'embedded-mongo.log'**)
 * ```version```: The version of Mongo to run. Can be **'DEVELOPMENT'** or **'PRODUCTION'** for the latest versions of the respective branch, or take the form **'1.2-LATEST'** or **'1.2.3'** for specific versions
-* ```storageLocation```: The directory location for where embedded Mongo will run, such as ```/tmp/storage``` (defaults to a java temp directory)
+* ```storageLocation```: The directory location from where embedded Mongo will run, such as ```/tmp/storage``` (defaults to a java temp directory)
