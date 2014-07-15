@@ -1,21 +1,18 @@
 package com.sourcemuse.gradle.plugin
 
-import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.CONTINUE_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
-import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
-
 import de.flapdoodle.embed.mongo.Command
 import de.flapdoodle.embed.mongo.MongodExecutable
 import de.flapdoodle.embed.mongo.MongodStarter
-import de.flapdoodle.embed.mongo.config.IMongodConfig
-import de.flapdoodle.embed.mongo.config.MongodConfigBuilder
-import de.flapdoodle.embed.mongo.config.Net
-import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder
+import de.flapdoodle.embed.mongo.config.*
 import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
 import de.flapdoodle.embed.mongo.runtime.Mongod
 import de.flapdoodle.embed.process.config.io.ProcessOutput
 import de.flapdoodle.embed.process.runtime.Network
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+
+import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.CONTINUE_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
+import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
 
 class GradleMongoPlugin implements Plugin<Project> {
 
@@ -66,9 +63,11 @@ class GradleMongoPlugin implements Plugin<Project> {
         GradleMongoPluginExtension pluginExtension = project."$PLUGIN_EXTENSION_NAME"
         ProcessOutput processOutput = new LoggerFactory(project).getLogger(pluginExtension)
         IFeatureAwareVersion version = new VersionFactory().getVersion(pluginExtension)
+        Storage storage = new StorageFactory().getStorage(pluginExtension)
 
         IMongodConfig mongodConfig = new MongodConfigBuilder()
                 .version(version)
+                .replication(storage)
                 .net(new Net(pluginExtension.bindIp, pluginExtension.port, Network.localhostIsIPv6()))
                 .build();
 

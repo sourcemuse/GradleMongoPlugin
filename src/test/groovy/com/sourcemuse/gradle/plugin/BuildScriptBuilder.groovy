@@ -9,6 +9,7 @@ class BuildScriptBuilder {
     String logging
     String logFilePath
     String mongoVersion
+    String storageLocation
 
     static BuildScriptBuilder buildScript() {
         new BuildScriptBuilder()
@@ -18,7 +19,7 @@ class BuildScriptBuilder {
         def mongoConfigBlock = new MongoPluginConfigBlock()
 
         this.properties.each { name, value ->
-            if (value && value in [port, logging, logFilePath, mongoVersion])
+            if (value && value in [port, logging, logFilePath, mongoVersion, storageLocation])
                 mongoConfigBlock.addPropertyConfig(name, "$value")
         }
 
@@ -50,6 +51,10 @@ class BuildScriptBuilder {
         this
     }
 
+    BuildScriptBuilder withStorageLocation(String storage) {
+        this.storageLocation = storage
+        this
+    }
 
     static class MongoPluginConfigBlock {
         String config = ''
