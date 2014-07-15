@@ -4,7 +4,7 @@ import static com.sourcemuse.gradle.plugin.LogDestination.FILE
 
 class GradleMongoPluginExtension {
 
-    static final EPHEMERAL_TEMPORARY_FOLDER
+    static final EPHEMERAL_TEMPORARY_FOLDER = null
 
     int port = 27017
     String bindIp = '127.0.0.1'
