@@ -19,6 +19,7 @@ class MongoPluginConfigSpec extends Specification {
     TemporaryFolder tmp
     def gradleRunner = GradleRunnerFactory.create()
     def buildScript = new BuildScriptBuilder()
+    def randomPort = null
 
     def 'port is configurable'() {
         given:
@@ -30,6 +31,21 @@ class MongoPluginConfigSpec extends Specification {
         def mongoRunningOnPort = mongoInstanceRunning(12345)
 
         then:
+        mongoRunningOnPort
+    }
+
+    def 'port is randomizable'() {
+        given:
+        generate(buildScript.withRandomPort(true))
+        gradleRunner.arguments << TEST_START_MONGO_DB
+
+        when:
+        def executionResult = gradleRunner.run()
+        randomPort = TestPlugin.findPortInOutput(executionResult.standardOutput)
+        def mongoRunningOnPort = mongoInstanceRunning(randomPort)
+
+        then:
+        randomPort != null
         mongoRunningOnPort
     }
 
@@ -125,7 +141,12 @@ class MongoPluginConfigSpec extends Specification {
     }
 
     def cleanup() {
-        ensureMongoIsStopped(buildScript.port ?: DEFAULT_MONGOD_PORT)
+        if (buildScript.randomPort) {
+            ensureMongoIsStopped((int) randomPort)
+            randomPort = null
+        } else {
+            ensureMongoIsStopped(buildScript.port ?: DEFAULT_MONGOD_PORT)
+        }
     }
 
     void generate(BuildScriptBuilder buildScriptBuilder) {

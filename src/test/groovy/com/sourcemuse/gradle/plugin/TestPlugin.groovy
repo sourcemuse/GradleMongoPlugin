@@ -16,13 +16,21 @@ class TestPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         project.task(dependsOn: 'startManagedMongoDb', TEST_START_MANAGED_MONGO_DB) << {
-            if (mongoInstanceRunning(DEFAULT_MONGOD_PORT))
-                println MONGO_RUNNING_FLAG
+            def port = project.mongo.port ?: DEFAULT_MONGOD_PORT
+            if (mongoInstanceRunning(port))
+                println MONGO_RUNNING_FLAG + port
         }
         project.task(dependsOn: 'startMongoDb', TEST_START_MONGO_DB) << {
-            if (mongoInstanceRunning(DEFAULT_MONGOD_PORT))
-                println MONGO_RUNNING_FLAG
+            def port = project.mongo.port ?: DEFAULT_MONGOD_PORT
+            if (mongoInstanceRunning(port))
+                println MONGO_RUNNING_FLAG + port
         }
         project.task(dependsOn: ['startMongoDb', 'stopMongoDb'], TEST_STOP_MONGO_DB)
+    }
+
+    static Integer findPortInOutput(String buildStandardOut) {
+        def portMatcher = buildStandardOut =~ "(?i)${MONGO_RUNNING_FLAG}([0-9]+)"
+        def foundPort = portMatcher.find()
+        return foundPort ? Integer.valueOf(portMatcher.group(1)) : null
     }
 }

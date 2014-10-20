@@ -10,11 +10,13 @@ import de.flapdoodle.embed.process.config.io.ProcessOutput
 import de.flapdoodle.embed.process.runtime.Network
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.slf4j.Logger
 
 import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.CONTINUE_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
 import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
 
 class GradleMongoPlugin implements Plugin<Project> {
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(GradleMongoPlugin.class)
 
     static final String PLUGIN_EXTENSION_NAME = 'mongo'
     static final String TASK_GROUP_NAME = 'Mongo'
@@ -64,6 +66,11 @@ class GradleMongoPlugin implements Plugin<Project> {
         ProcessOutput processOutput = new LoggerFactory(project).getLogger(pluginExtension)
         IFeatureAwareVersion version = new VersionFactory().getVersion(pluginExtension)
         Storage storage = new StorageFactory().getStorage(pluginExtension)
+
+        if (pluginExtension.randomPort) {
+            pluginExtension.port = PortUtils.allocateRandomPort()
+            log.info('Selected random MongoDB port: {}', pluginExtension.port)
+        }
 
         IMongodConfig mongodConfig = new MongodConfigBuilder()
                 .version(version)
