@@ -20,7 +20,9 @@ dependencies {
     compile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.46.0'
 
     testCompile files('libs/gradle-test-kit.jar')
-    testCompile 'org.spockframework:spock-core:0.7-groovy-1.8'
+    testCompile 'org.spockframework:spock-core:0.7-groovy-2.0', {
+        exclude module: 'groovy-all'
+    }
     testCompile 'org.mongodb:mongo-java-driver:2.12.2'
 }
 
