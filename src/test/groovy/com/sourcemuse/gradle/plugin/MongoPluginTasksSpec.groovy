@@ -20,6 +20,8 @@ class MongoPluginTasksSpec extends Specification {
 
     @Rule TemporaryFolder tmp
     def gradleRunner = GradleRunnerFactory.create()
+    def buildScript = new BuildScriptBuilder()
+    def randomPort = null
 
     def 'startManagedMongoDb starts a mongo instance, and then stops once the build has completed'() {
         given:
@@ -33,6 +35,23 @@ class MongoPluginTasksSpec extends Specification {
 
         then:
         mongoRunningDuringBuild
+        !mongoRunningAfterBuild
+    }
+
+    def 'startManagedMongoDb starts a mongo instance with a random port, and then stops once the build has completed'() {
+        given:
+        generate(buildScript.withRandomPort(true).withLogging("'console'"))
+        gradleRunner.arguments << TEST_START_MANAGED_MONGO_DB
+
+        when:
+        ExecutionResult result = gradleRunner.run()
+        def mongoRunningDuringBuild = result.standardOutput.contains(MONGO_RUNNING_FLAG)
+        randomPort = TestPlugin.findPortInOutput(result.standardOutput)
+        def mongoRunningAfterBuild = mongoInstanceRunning(randomPort)
+
+        then:
+        mongoRunningDuringBuild
+        randomPort != null
         !mongoRunningAfterBuild
     }
 
@@ -66,7 +85,12 @@ class MongoPluginTasksSpec extends Specification {
 
 
     def cleanup() {
-        ensureMongoIsStopped()
+        if (buildScript.randomPort) {
+            ensureMongoIsStopped((int) randomPort)
+            randomPort = null
+        } else {
+            ensureMongoIsStopped()
+        }
     }
 
     void generate(BuildScriptBuilder buildScriptBuilder) {

@@ -10,6 +10,7 @@ class BuildScriptBuilder {
     String logFilePath
     String mongoVersion
     String storageLocation
+    boolean randomPort
 
     static BuildScriptBuilder buildScript() {
         new BuildScriptBuilder()
@@ -19,7 +20,7 @@ class BuildScriptBuilder {
         def mongoConfigBlock = new MongoPluginConfigBlock()
 
         this.properties.each { name, value ->
-            if (value && value in [port, logging, logFilePath, mongoVersion, storageLocation])
+            if (value && value in [port, logging, logFilePath, mongoVersion, storageLocation, randomPort])
                 mongoConfigBlock.addPropertyConfig(name, "$value")
         }
 
@@ -53,6 +54,11 @@ class BuildScriptBuilder {
 
     BuildScriptBuilder withStorageLocation(String storage) {
         this.storageLocation = storage
+        this
+    }
+
+    BuildScriptBuilder withRandomPort(boolean random) {
+        this.randomPort = random
         this
     }
 
