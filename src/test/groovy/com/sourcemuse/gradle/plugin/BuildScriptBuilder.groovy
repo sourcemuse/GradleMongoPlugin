@@ -71,6 +71,8 @@ class BuildScriptBuilder {
             if (config) {
                 config += '}'
             }
+
+            return config
         }
     }
 }
