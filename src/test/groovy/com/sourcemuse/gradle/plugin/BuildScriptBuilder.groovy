@@ -64,7 +64,7 @@ class BuildScriptBuilder {
                 config += 'mongo {\n'
             }
 
-            config += "\t$propertyName=$value\n"
+            config += "\t$propertyName $value\n"
         }
 
         String toString() {
