@@ -85,6 +85,7 @@ class MongoPluginConfigSpec extends Specification {
         Version.Main.DEVELOPMENT.asInDownloadPath().equalsIgnoreCase(mongoVersion)
     }
 
+    @SuppressWarnings('GrDeprecatedAPIUsage')
     def 'specific version is configurable'() {
         given:
         generate(buildScript.withMongoVersion("'2.5.4'"))
