@@ -125,7 +125,7 @@ class MongoPluginConfigSpec extends Specification {
     }
 
     def cleanup() {
-        ensureMongoIsStopped(buildScript.port ?: DEFAULT_MONGOD_PORT)
+        ensureMongoIsStopped(buildScript.configuredPort ?: DEFAULT_MONGOD_PORT)
     }
 
     void generate(BuildScriptBuilder buildScriptBuilder) {

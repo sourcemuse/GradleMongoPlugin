@@ -5,12 +5,8 @@ class BuildScriptBuilder {
 
     static final DEFAULT_MONGOD_PORT = 27017
 
-    int port
-    String logging
-    String logFilePath
-    String mongoVersion
-    String storageLocation
-
+    Map<String, Object> configProperties = [:]
+    
     static BuildScriptBuilder buildScript() {
         new BuildScriptBuilder()
     }
@@ -18,9 +14,8 @@ class BuildScriptBuilder {
     String build() {
         def mongoConfigBlock = new MongoPluginConfigBlock()
 
-        this.properties.each { name, value ->
-            if (value && value in [port, logging, logFilePath, mongoVersion, storageLocation])
-                mongoConfigBlock.addPropertyConfig(name as String, value as String)
+        configProperties.each { name, value ->
+            mongoConfigBlock.addPropertyConfig(name, value as String)
         }
 
         """
@@ -32,28 +27,32 @@ class BuildScriptBuilder {
     }
 
     BuildScriptBuilder withPort(int port) {
-        this.port = port
+        configProperties.port = port
         this
     }
 
     BuildScriptBuilder withLogging(String logging) {
-        this.logging = logging
+        configProperties.logging = logging
         this
     }
 
     BuildScriptBuilder withFilePath(String filePath) {
-        this.logFilePath = filePath.replace('\\', '\\\\')
+        configProperties.logFilePath = filePath.replace('\\', '\\\\')
         this
     }
     
     BuildScriptBuilder withMongoVersion(String version) {
-        this.mongoVersion = version
+        configProperties.mongoVersion = version
         this
     }
 
     BuildScriptBuilder withStorageLocation(String storage) {
-        this.storageLocation = storage
+        configProperties.storageLocation = storage
         this
+    }
+
+    Integer getConfiguredPort() {
+        configProperties.port as Integer
     }
 
     static class MongoPluginConfigBlock {
