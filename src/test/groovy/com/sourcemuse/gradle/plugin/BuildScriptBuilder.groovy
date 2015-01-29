@@ -20,7 +20,7 @@ class BuildScriptBuilder {
 
         this.properties.each { name, value ->
             if (value && value in [port, logging, logFilePath, mongoVersion, storageLocation])
-                mongoConfigBlock.addPropertyConfig(name, "$value")
+                mongoConfigBlock.addPropertyConfig(name as String, value as String)
         }
 
         """
