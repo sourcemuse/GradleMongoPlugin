@@ -29,7 +29,7 @@ class MongoPluginTasksSpec extends Specification {
         when:
         ExecutionResult result = gradleRunner.run()
         def mongoRunningDuringBuild = result.standardOutput.contains(MONGO_RUNNING_FLAG)
-        def mongoRunningAfterBuild = mongoInstanceRunning(DEFAULT_MONGOD_PORT)
+        def mongoRunningAfterBuild = mongoInstanceRunning()
 
         then:
         mongoRunningDuringBuild
@@ -44,7 +44,7 @@ class MongoPluginTasksSpec extends Specification {
         when:
         ExecutionResult result = gradleRunner.run()
         def mongoRunningDuringBuild = result.standardOutput.contains(MONGO_RUNNING_FLAG)
-        def mongoRunningAfterBuild = mongoInstanceRunning(DEFAULT_MONGOD_PORT)
+        def mongoRunningAfterBuild = mongoInstanceRunning()
 
         then:
         mongoRunningDuringBuild
@@ -58,7 +58,7 @@ class MongoPluginTasksSpec extends Specification {
 
         when:
         gradleRunner.run()
-        def mongoRunningAfterBuild = mongoInstanceRunning(DEFAULT_MONGOD_PORT)
+        def mongoRunningAfterBuild = mongoInstanceRunning()
 
         then:
         !mongoRunningAfterBuild
