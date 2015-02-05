@@ -6,7 +6,7 @@ apply plugin: 'signing'
 
 archivesBaseName = 'gradle-mongo-plugin'
 group = 'com.sourcemuse.gradle.plugin'
-version = '0.5.0'
+version = '0.6.0-SNAPSHOT'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
