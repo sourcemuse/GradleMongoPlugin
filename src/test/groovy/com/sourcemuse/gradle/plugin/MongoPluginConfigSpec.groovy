@@ -67,7 +67,6 @@ class MongoPluginConfigSpec extends Specification {
         def executionResult = gradleRunner.run()
 
         then:
-
         !executionResult.standardOutput.contains('[mongod output]')
         tempFile.text.contains('[mongod output]')
     }
