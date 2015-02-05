@@ -61,9 +61,9 @@ class GradleMongoPlugin implements Plugin<Project> {
 
     private void startMongoDb(Project project, ManageProcessInstruction manageProcessInstruction) {
         GradleMongoPluginExtension pluginExtension = project[PLUGIN_EXTENSION_NAME]
-        ProcessOutput processOutput = new LoggerFactory(project).getLogger(pluginExtension)
-        IFeatureAwareVersion version = new VersionFactory().getVersion(pluginExtension)
-        Storage storage = new StorageFactory().getStorage(pluginExtension)
+        def processOutput = new LoggerFactory(project).getLogger(pluginExtension)
+        def version = new VersionFactory().getVersion(pluginExtension)
+        def storage = new StorageFactory().getStorage(pluginExtension)
 
         def mongodConfig = new MongodConfigBuilder()
                 .cmdOptions(createMongoCommandOptions(pluginExtension))
@@ -78,9 +78,9 @@ class GradleMongoPlugin implements Plugin<Project> {
                 .daemonProcess(manageProcessInstruction == STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS)
                 .build()
 
-        MongodStarter runtime = MongodStarter.getInstance(runtimeConfig);
+        def runtime = MongodStarter.getInstance(runtimeConfig);
 
-        MongodExecutable mongodExecutable = runtime.prepare(mongodConfig);
+        def mongodExecutable = runtime.prepare(mongodConfig);
         mongodExecutable.start();
     }
 
