@@ -1,7 +1,7 @@
 package com.sourcemuse.gradle.plugin
 
 import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.DEFAULT_MONGOD_PORT
-import static com.sourcemuse.gradle.plugin.MongoUtils.checkJournalingEnabled
+import static com.sourcemuse.gradle.plugin.MongoUtils.makeJournaledWrite
 import static com.sourcemuse.gradle.plugin.MongoUtils.ensureMongoIsStopped
 import static com.sourcemuse.gradle.plugin.MongoUtils.mongoInstanceRunning
 import static com.sourcemuse.gradle.plugin.MongoUtils.getMongoVersionRunning
@@ -127,14 +127,16 @@ class MongoPluginConfigSpec extends Specification {
 
     def 'journaling can be enabled'() {
         given:
+        // From 2.6 onwards, journaled writes onto a non-journaled mongo db throw exceptions
         generate(buildScript.withJournalingEnabled().withMongoVersion('2.6.1'))
         gradleRunner.arguments << TEST_START_MONGO_DB
 
         when:
         gradleRunner.run()
+        makeJournaledWrite()
 
         then:
-        checkJournalingEnabled()
+        noExceptionThrown()
     }
 
     def cleanup() {

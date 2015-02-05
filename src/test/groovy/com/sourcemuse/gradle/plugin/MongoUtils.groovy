@@ -41,19 +41,22 @@ class MongoUtils {
         }
     }
 
-    static boolean checkJournalingEnabled() {
+    static boolean makeJournaledWrite() {
         try {
             def mongoClient = new MongoClient('127.0.0.1', DEFAULT_MONGOD_PORT)
             mongoClient.writeConcern = WriteConcern.JOURNALED
-            def db = mongoClient.getDB('test')
-            def collection = db.createCollection('test-collection', new BasicDBObject())
-            def basicDbObject = new BasicDBObject()
-            basicDbObject.put('key', 'val')
-            collection.insert(basicDbObject)
+            writeSampleObjectToDb(mongoClient)
             return true
         } catch (Exception e) {
-            e.printStackTrace()
             return false
         }
+    }
+
+    private static void writeSampleObjectToDb(MongoClient mongoClient) {
+        def db = mongoClient.getDB('test')
+        def collection = db.createCollection('test-collection', new BasicDBObject())
+        def basicDbObject = new BasicDBObject()
+        basicDbObject.put('key', 'val')
+        collection.insert(basicDbObject)
     }
 }
