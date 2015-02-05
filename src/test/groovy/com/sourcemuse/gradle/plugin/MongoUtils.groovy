@@ -4,26 +4,28 @@ import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.DEFAULT_MONGOD_POR
 import static com.sourcemuse.gradle.plugin.GradleMongoPlugin.PLUGIN_EXTENSION_NAME
 
 import com.mongodb.BasicDBObject
-import com.mongodb.DB
-import com.mongodb.DBObject
 import com.mongodb.MongoClient
 import com.mongodb.WriteConcern
 import de.flapdoodle.embed.mongo.runtime.Mongod
 import org.gradle.api.Project
 
 class MongoUtils {
+
+    private static final String LOOPBACK_ADDRESS = '127.0.0.1'
+    private static final String DATABASE_NAME = 'test'
+
     static void ensureMongoIsStopped(int port = DEFAULT_MONGOD_PORT) {
         Mongod.sendShutdown(InetAddress.getLoopbackAddress(), port)
     }
 
     static boolean mongoInstanceRunning(int port = DEFAULT_MONGOD_PORT) {
         try {
-            MongoClient mongoClient = new MongoClient('127.0.0.1', port)
-            mongoClient.getDB('test').getStats()
+            def mongoClient = new MongoClient(LOOPBACK_ADDRESS, port)
+            mongoClient.getDB(DATABASE_NAME).getStats()
         } catch (Exception e) {
             return false
         }
-        true
+        return true
     }
 
     static boolean mongoInstanceRunningOnConfiguredPort(Project project) {
@@ -33,8 +35,8 @@ class MongoUtils {
 
     static String getMongoVersionRunning(int port) {
         try {
-            MongoClient mongoClient = new MongoClient('127.0.0.1', port)
-            def result = mongoClient.getDB('test').command('buildInfo')
+            def mongoClient = new MongoClient(LOOPBACK_ADDRESS, port)
+            def result = mongoClient.getDB(DATABASE_NAME).command('buildInfo')
             return result.getString('version')
         } catch (Exception e) {
             return 'none'
@@ -43,7 +45,7 @@ class MongoUtils {
 
     static boolean makeJournaledWrite() {
         try {
-            def mongoClient = new MongoClient('127.0.0.1', DEFAULT_MONGOD_PORT)
+            def mongoClient = new MongoClient(LOOPBACK_ADDRESS, DEFAULT_MONGOD_PORT)
             mongoClient.writeConcern = WriteConcern.JOURNALED
             writeSampleObjectToDb(mongoClient)
             return true
@@ -53,7 +55,7 @@ class MongoUtils {
     }
 
     private static void writeSampleObjectToDb(MongoClient mongoClient) {
-        def db = mongoClient.getDB('test')
+        def db = mongoClient.getDB(DATABASE_NAME)
         def collection = db.createCollection('test-collection', new BasicDBObject())
         def basicDbObject = new BasicDBObject()
         basicDbObject.put('key', 'val')
