@@ -36,7 +36,7 @@ class MongoPluginConfigSpec extends Specification {
 
     def 'logging can route to the console'() {
         given:
-        generate(buildScript.withLogging("'console'"))
+        generate(buildScript.withLogging('console'))
         gradleRunner.arguments << TEST_START_MONGO_DB
 
         when:
@@ -48,7 +48,7 @@ class MongoPluginConfigSpec extends Specification {
 
     def 'logging can be switched off'() {
         given:
-        generate(buildScript.withLogging("'none'"))
+        generate(buildScript.withLogging('none'))
         gradleRunner.arguments << TEST_START_MONGO_DB
 
         when:
@@ -61,7 +61,7 @@ class MongoPluginConfigSpec extends Specification {
     def 'logging can be routed to a file'() {
         given:
         def tempFile = tmp.newFile()
-        generate(buildScript.withLogging("'file'").withFilePath("'${tempFile.absolutePath}'"))
+        generate(buildScript.withLogging('file').withFilePath(tempFile.absolutePath))
         gradleRunner.arguments << TEST_START_MONGO_DB
 
         when:
@@ -74,7 +74,7 @@ class MongoPluginConfigSpec extends Specification {
 
     def 'general version is configurable'() {
         given:
-        generate(buildScript.withMongoVersion("'DEVELOPMENT'"))
+        generate(buildScript.withMongoVersion('DEVELOPMENT'))
         gradleRunner.arguments << TEST_START_MONGO_DB
 
         when:
@@ -88,7 +88,7 @@ class MongoPluginConfigSpec extends Specification {
     @SuppressWarnings('GrDeprecatedAPIUsage')
     def 'specific version is configurable'() {
         given:
-        generate(buildScript.withMongoVersion("'2.5.4'"))
+        generate(buildScript.withMongoVersion('2.5.4'))
         gradleRunner.arguments << TEST_START_MONGO_DB
 
         when:
@@ -101,7 +101,7 @@ class MongoPluginConfigSpec extends Specification {
 
     def 'latest branch version is configurable'() {
         given:
-        generate(buildScript.withMongoVersion("'2.4-LATEST'"))
+        generate(buildScript.withMongoVersion('2.4-LATEST'))
         gradleRunner.arguments << TEST_START_MONGO_DB
 
         when:
@@ -115,7 +115,7 @@ class MongoPluginConfigSpec extends Specification {
     def 'replication storage location is configurable'() {
         given:
         def storageDir = tmp.newFolder()
-        generate(buildScript.withStorageLocation("'$storageDir'"))
+        generate(buildScript.withStorageLocation(storageDir.toString()))
         gradleRunner.arguments << TEST_START_MONGO_DB
 
         when:
@@ -127,7 +127,7 @@ class MongoPluginConfigSpec extends Specification {
 
     def 'journaling can be enabled'() {
         given:
-        generate(buildScript.withJournalingEnabled().withMongoVersion("'2.6.1'"))
+        generate(buildScript.withJournalingEnabled().withMongoVersion('2.6.1'))
         gradleRunner.arguments << TEST_START_MONGO_DB
 
         when:

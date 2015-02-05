@@ -32,22 +32,22 @@ class BuildScriptBuilder {
     }
 
     BuildScriptBuilder withLogging(String logging) {
-        configProperties.logging = logging
+        configProperties.logging = asStringProperty(logging)
         this
     }
 
     BuildScriptBuilder withFilePath(String filePath) {
-        configProperties.logFilePath = filePath.replace('\\', '\\\\')
+        configProperties.logFilePath = asStringProperty(filePath.replace('\\', '\\\\'))
         this
     }
     
     BuildScriptBuilder withMongoVersion(String version) {
-        configProperties.mongoVersion = version
+        configProperties.mongoVersion = asStringProperty(version)
         this
     }
 
     BuildScriptBuilder withStorageLocation(String storage) {
-        configProperties.storageLocation = storage
+        configProperties.storageLocation = asStringProperty(storage)
         this
     }
 
@@ -58,6 +58,10 @@ class BuildScriptBuilder {
 
     Integer getConfiguredPort() {
         configProperties.port as Integer
+    }
+
+    private String asStringProperty(String value) {
+        "'$value'"
     }
 
     static class MongoPluginConfigBlock {
