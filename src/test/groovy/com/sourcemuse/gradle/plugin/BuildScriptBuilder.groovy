@@ -20,7 +20,7 @@ class BuildScriptBuilder {
 
         """
             |apply plugin: ${GradleMongoPlugin.name}
-            |apply plugin: ${TestPlugin.name}
+            |apply plugin: ${PluginForTests.name}
             |
             |${mongoConfigBlock}
             """.stripMargin()

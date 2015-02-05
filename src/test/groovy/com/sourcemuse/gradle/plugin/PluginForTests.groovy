@@ -5,7 +5,7 @@ import static com.sourcemuse.gradle.plugin.MongoUtils.mongoInstanceRunningOnConf
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-class TestPlugin implements Plugin<Project> {
+class PluginForTests implements Plugin<Project> {
 
     static final TEST_STOP_MONGO_DB = 'testStopMongoDb'
     static final TEST_START_MONGO_DB = 'testStartMongoDb'

@@ -4,7 +4,7 @@ import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.DEFAULT_MONGOD_POR
 import static com.sourcemuse.gradle.plugin.MongoUtils.ensureMongoIsStopped
 import static com.sourcemuse.gradle.plugin.MongoUtils.mongoInstanceRunning
 import static com.sourcemuse.gradle.plugin.MongoUtils.mongoVersionRunning
-import static com.sourcemuse.gradle.plugin.TestPlugin.TEST_START_MONGO_DB
+import static PluginForTests.TEST_START_MONGO_DB
 
 import org.gradle.testkit.functional.GradleRunnerFactory
 import org.junit.Rule

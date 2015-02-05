@@ -1,13 +1,12 @@
 package com.sourcemuse.gradle.plugin
 
-import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.DEFAULT_MONGOD_PORT
 import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.buildScript
 import static com.sourcemuse.gradle.plugin.MongoUtils.ensureMongoIsStopped
 import static com.sourcemuse.gradle.plugin.MongoUtils.mongoInstanceRunning
-import static com.sourcemuse.gradle.plugin.TestPlugin.MONGO_RUNNING_FLAG
-import static com.sourcemuse.gradle.plugin.TestPlugin.TEST_START_MANAGED_MONGO_DB
-import static com.sourcemuse.gradle.plugin.TestPlugin.TEST_START_MONGO_DB
-import static com.sourcemuse.gradle.plugin.TestPlugin.TEST_STOP_MONGO_DB
+import static PluginForTests.MONGO_RUNNING_FLAG
+import static PluginForTests.TEST_START_MANAGED_MONGO_DB
+import static PluginForTests.TEST_START_MONGO_DB
+import static PluginForTests.TEST_STOP_MONGO_DB
 
 import org.gradle.testkit.functional.ExecutionResult
 import org.gradle.testkit.functional.GradleRunnerFactory
