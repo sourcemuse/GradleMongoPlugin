@@ -3,7 +3,7 @@ package com.sourcemuse.gradle.plugin
 import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.DEFAULT_MONGOD_PORT
 import static com.sourcemuse.gradle.plugin.MongoUtils.ensureMongoIsStopped
 import static com.sourcemuse.gradle.plugin.MongoUtils.mongoInstanceRunning
-import static com.sourcemuse.gradle.plugin.MongoUtils.mongoVersionRunning
+import static com.sourcemuse.gradle.plugin.MongoUtils.getMongoVersionRunning
 import static PluginForTests.TEST_START_MONGO_DB
 
 import org.gradle.testkit.functional.GradleRunnerFactory
@@ -79,7 +79,7 @@ class MongoPluginConfigSpec extends Specification {
 
         when:
         gradleRunner.run()
-        def mongoVersion = mongoVersionRunning(DEFAULT_MONGOD_PORT)
+        def mongoVersion = getMongoVersionRunning(DEFAULT_MONGOD_PORT)
 
         then:
         Version.Main.DEVELOPMENT.asInDownloadPath().equalsIgnoreCase(mongoVersion)
@@ -93,7 +93,7 @@ class MongoPluginConfigSpec extends Specification {
 
         when:
         gradleRunner.run()
-        def mongoVersion = mongoVersionRunning(DEFAULT_MONGOD_PORT)
+        def mongoVersion = getMongoVersionRunning(DEFAULT_MONGOD_PORT)
 
         then:
         Version.V2_5_4.asInDownloadPath().equalsIgnoreCase(mongoVersion)
@@ -106,7 +106,7 @@ class MongoPluginConfigSpec extends Specification {
 
         when:
         gradleRunner.run()
-        def mongoVersion = mongoVersionRunning(DEFAULT_MONGOD_PORT)
+        def mongoVersion = getMongoVersionRunning(DEFAULT_MONGOD_PORT)
 
         then:
         Version.Main.V2_4.asInDownloadPath().equalsIgnoreCase(mongoVersion)

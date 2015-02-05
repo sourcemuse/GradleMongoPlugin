@@ -8,7 +8,6 @@ import de.flapdoodle.embed.mongo.runtime.Mongod
 import org.gradle.api.Project
 
 class MongoUtils {
-
     static void ensureMongoIsStopped(int port = DEFAULT_MONGOD_PORT) {
         Mongod.sendShutdown(InetAddress.getLoopbackAddress(), port)
     }
@@ -28,7 +27,7 @@ class MongoUtils {
         return mongoInstanceRunning(mongoPort)
     }
 
-    static String mongoVersionRunning(int port) {
+    static String getMongoVersionRunning(int port) {
         try {
             MongoClient mongoClient = new MongoClient('127.0.0.1', port)
             def result = mongoClient.getDB('test').command('buildInfo');
