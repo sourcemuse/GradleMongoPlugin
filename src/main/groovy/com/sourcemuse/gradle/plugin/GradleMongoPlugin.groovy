@@ -60,7 +60,7 @@ class GradleMongoPlugin implements Plugin<Project> {
     }
 
     private void startMongoDb(Project project, ManageProcessInstruction manageProcessInstruction) {
-        GradleMongoPluginExtension pluginExtension = project."$PLUGIN_EXTENSION_NAME"
+        GradleMongoPluginExtension pluginExtension = project[PLUGIN_EXTENSION_NAME]
         ProcessOutput processOutput = new LoggerFactory(project).getLogger(pluginExtension)
         IFeatureAwareVersion version = new VersionFactory().getVersion(pluginExtension)
         Storage storage = new StorageFactory().getStorage(pluginExtension)
@@ -70,7 +70,6 @@ class GradleMongoPlugin implements Plugin<Project> {
                 .replication(storage)
                 .net(new Net(pluginExtension.bindIp, pluginExtension.port, Network.localhostIsIPv6()))
                 .build();
-
 
         def runtimeConfig = new RuntimeConfigBuilder()
                 .defaults(Command.MongoD)
