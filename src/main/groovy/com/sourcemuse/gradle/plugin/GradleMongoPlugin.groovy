@@ -65,7 +65,8 @@ class GradleMongoPlugin implements Plugin<Project> {
         IFeatureAwareVersion version = new VersionFactory().getVersion(pluginExtension)
         Storage storage = new StorageFactory().getStorage(pluginExtension)
 
-        IMongodConfig mongodConfig = new MongodConfigBuilder()
+        def mongodConfig = new MongodConfigBuilder()
+                .cmdOptions(createMongoCommandOptions(pluginExtension))
                 .version(version)
                 .replication(storage)
                 .net(new Net(pluginExtension.bindIp, pluginExtension.port, Network.localhostIsIPv6()))
@@ -82,7 +83,11 @@ class GradleMongoPlugin implements Plugin<Project> {
         MongodExecutable mongodExecutable = runtime.prepare(mongodConfig);
         mongodExecutable.start();
     }
-    
+
+    private static IMongoCmdOptions createMongoCommandOptions(GradleMongoPluginExtension pluginExtension) {
+        new MongoCmdOptionsBuilder().useNoJournal(!pluginExtension.journalingEnabled).build()
+    }
+
     private void addStopMongoDbTask(Project project) {
         project.task(group: TASK_GROUP_NAME, description: 'Stops the local MongoDb instance', 'stopMongoDb') << {
             stopMongoDb(project)

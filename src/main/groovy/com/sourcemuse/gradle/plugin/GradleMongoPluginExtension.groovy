@@ -9,6 +9,7 @@ class GradleMongoPluginExtension {
 
     private int port = 27017
     String bindIp = '127.0.0.1'
+    boolean journalingEnabled = false
     String logging = FILE as String
     String logFilePath = 'embedded-mongo.log'
     String mongoVersion = 'PRODUCTION'

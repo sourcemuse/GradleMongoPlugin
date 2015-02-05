@@ -51,6 +51,11 @@ class BuildScriptBuilder {
         this
     }
 
+    BuildScriptBuilder withJournalingEnabled() {
+        configProperties.journalingEnabled = true
+        this
+    }
+
     Integer getConfiguredPort() {
         configProperties.port as Integer
     }
