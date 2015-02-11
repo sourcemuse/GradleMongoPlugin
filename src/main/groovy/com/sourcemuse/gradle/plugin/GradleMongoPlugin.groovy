@@ -1,18 +1,22 @@
 package com.sourcemuse.gradle.plugin
 
+import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.CONTINUE_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
+import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
+
 import de.flapdoodle.embed.mongo.Command
-import de.flapdoodle.embed.mongo.MongodExecutable
 import de.flapdoodle.embed.mongo.MongodStarter
-import de.flapdoodle.embed.mongo.config.*
-import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
+import de.flapdoodle.embed.mongo.config.IMongoCmdOptions
+import de.flapdoodle.embed.mongo.config.MongoCmdOptionsBuilder
+import de.flapdoodle.embed.mongo.config.MongodConfigBuilder
+import de.flapdoodle.embed.mongo.config.Net
+import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder
 import de.flapdoodle.embed.mongo.runtime.Mongod
-import de.flapdoodle.embed.process.config.io.ProcessOutput
 import de.flapdoodle.embed.process.runtime.Network
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-
-import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.CONTINUE_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
-import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
+import org.gradle.api.Task
+import org.gradle.api.execution.TaskExecutionListener
+import org.gradle.api.tasks.TaskState
 
 class GradleMongoPlugin implements Plugin<Project> {
 
@@ -26,6 +30,8 @@ class GradleMongoPlugin implements Plugin<Project> {
         addStartManagedMongoDbTask(project)
         addStartMongoDbTask(project)
         addStopMongoDbTask(project)
+
+        extendAllTasksWithMongoDependencyFunction(project)
     }
 
     private void configureTaskProperties(Project project) {
@@ -96,6 +102,36 @@ class GradleMongoPlugin implements Plugin<Project> {
 
     private void stopMongoDb(Project project) {
         Mongod.sendShutdown(InetAddress.getLoopbackAddress(), project."$PLUGIN_EXTENSION_NAME".port)
+    }
+
+    private void extendAllTasksWithMongoDependencyFunction(Project project) {
+        project.tasks.each {
+            extend(it)
+        }
+
+        project.tasks.whenTaskAdded {
+            extend(it)
+        }
+    }
+
+    private void extend(Task specifiedTask) {
+        def withMongoDbClosure = {
+            def project = specifiedTask.project
+            specifiedTask.doFirst { startMongoDb(project, STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS) }
+            project.gradle.taskGraph.addTaskExecutionListener(new TaskExecutionListener() {
+                @Override
+                void beforeExecute(Task task) {
+                }
+
+                @Override
+                void afterExecute(Task task, TaskState state) {
+                    if (task == specifiedTask && state.didWork) {
+                        stopMongoDb(project)
+                    }
+                }
+            })
+        }
+        specifiedTask.extensions.withMongoDbRunning = withMongoDbClosure
     }
 }
 
