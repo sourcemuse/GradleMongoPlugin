@@ -1,18 +1,19 @@
 package com.sourcemuse.gradle.plugin
 
+import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.CONTINUE_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
+import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
+
 import de.flapdoodle.embed.mongo.Command
-import de.flapdoodle.embed.mongo.MongodExecutable
 import de.flapdoodle.embed.mongo.MongodStarter
-import de.flapdoodle.embed.mongo.config.*
-import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
+import de.flapdoodle.embed.mongo.config.IMongoCmdOptions
+import de.flapdoodle.embed.mongo.config.MongoCmdOptionsBuilder
+import de.flapdoodle.embed.mongo.config.MongodConfigBuilder
+import de.flapdoodle.embed.mongo.config.Net
+import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder
 import de.flapdoodle.embed.mongo.runtime.Mongod
-import de.flapdoodle.embed.process.config.io.ProcessOutput
 import de.flapdoodle.embed.process.runtime.Network
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-
-import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.CONTINUE_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
-import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
 
 class GradleMongoPlugin implements Plugin<Project> {
 
@@ -70,7 +71,7 @@ class GradleMongoPlugin implements Plugin<Project> {
                 .version(version)
                 .replication(storage)
                 .net(new Net(pluginExtension.bindIp, pluginExtension.port, Network.localhostIsIPv6()))
-                .build();
+                .build()
 
         def runtimeConfig = new RuntimeConfigBuilder()
                 .defaults(Command.MongoD)
@@ -78,10 +79,10 @@ class GradleMongoPlugin implements Plugin<Project> {
                 .daemonProcess(manageProcessInstruction == STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS)
                 .build()
 
-        def runtime = MongodStarter.getInstance(runtimeConfig);
+        def runtime = MongodStarter.getInstance(runtimeConfig)
 
-        def mongodExecutable = runtime.prepare(mongodConfig);
-        mongodExecutable.start();
+        def mongodExecutable = runtime.prepare(mongodConfig)
+        mongodExecutable.start()
     }
 
     private static IMongoCmdOptions createMongoCommandOptions(GradleMongoPluginExtension pluginExtension) {
