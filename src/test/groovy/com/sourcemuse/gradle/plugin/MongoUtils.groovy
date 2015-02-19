@@ -1,7 +1,7 @@
 package com.sourcemuse.gradle.plugin
 
 import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.DEFAULT_MONGOD_PORT
-import static com.sourcemuse.gradle.plugin.GradleMongoPlugin.PLUGIN_EXTENSION_NAME
+import static com.sourcemuse.gradle.plugin.flapdoodle.gradle.GradleMongoPlugin.PLUGIN_EXTENSION_NAME
 
 import com.mongodb.BasicDBObject
 import com.mongodb.MongoClient

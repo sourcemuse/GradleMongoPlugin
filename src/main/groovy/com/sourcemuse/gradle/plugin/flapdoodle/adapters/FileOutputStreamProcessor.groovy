@@ -1,4 +1,4 @@
-package com.sourcemuse.gradle.plugin
+package com.sourcemuse.gradle.plugin.flapdoodle.adapters
 
 import de.flapdoodle.embed.process.io.IStreamProcessor
 

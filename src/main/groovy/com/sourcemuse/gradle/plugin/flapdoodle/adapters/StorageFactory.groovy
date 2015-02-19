@@ -1,5 +1,6 @@
-package com.sourcemuse.gradle.plugin
+package com.sourcemuse.gradle.plugin.flapdoodle.adapters
 
+import com.sourcemuse.gradle.plugin.GradleMongoPluginExtension
 import de.flapdoodle.embed.mongo.config.Storage
 
 class StorageFactory {

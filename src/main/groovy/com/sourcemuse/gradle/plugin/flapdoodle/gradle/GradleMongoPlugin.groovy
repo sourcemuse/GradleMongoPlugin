@@ -1,21 +1,20 @@
-package com.sourcemuse.gradle.plugin
+package com.sourcemuse.gradle.plugin.flapdoodle.gradle
 
-import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.CONTINUE_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
-import static com.sourcemuse.gradle.plugin.ManageProcessInstruction.STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
+import static com.sourcemuse.gradle.plugin.flapdoodle.gradle.ManageProcessInstruction.CONTINUE_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
+import static com.sourcemuse.gradle.plugin.flapdoodle.gradle.ManageProcessInstruction.STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
 
+import com.sourcemuse.gradle.plugin.GradleMongoPluginExtension
+import com.sourcemuse.gradle.plugin.flapdoodle.adapters.CustomFlapdoodleRuntimeConfig
+import com.sourcemuse.gradle.plugin.flapdoodle.adapters.ProcessOutputFactory
+import com.sourcemuse.gradle.plugin.flapdoodle.adapters.StorageFactory
+import com.sourcemuse.gradle.plugin.flapdoodle.adapters.VersionFactory
 import de.flapdoodle.embed.mongo.Command
 import de.flapdoodle.embed.mongo.MongodStarter
-import de.flapdoodle.embed.mongo.config.ArtifactStoreBuilder
-import de.flapdoodle.embed.mongo.config.DownloadConfigBuilder
 import de.flapdoodle.embed.mongo.config.IMongoCmdOptions
 import de.flapdoodle.embed.mongo.config.MongoCmdOptionsBuilder
 import de.flapdoodle.embed.mongo.config.MongodConfigBuilder
 import de.flapdoodle.embed.mongo.config.Net
-import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder
 import de.flapdoodle.embed.mongo.runtime.Mongod
-import de.flapdoodle.embed.process.config.store.IDownloadConfig
-import de.flapdoodle.embed.process.distribution.IVersion
-import de.flapdoodle.embed.process.io.progress.IProgressListener
 import de.flapdoodle.embed.process.runtime.Network
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -67,7 +66,7 @@ class GradleMongoPlugin implements Plugin<Project> {
 
     private static void startMongoDb(Project project, ManageProcessInstruction manageProcessInstruction) {
         GradleMongoPluginExtension pluginExtension = project[PLUGIN_EXTENSION_NAME] as GradleMongoPluginExtension
-        def processOutput = new LoggerFactory(project).getLogger(pluginExtension)
+        def processOutput = new ProcessOutputFactory(project).getProcessOutput(pluginExtension)
         def version = new VersionFactory().getVersion(pluginExtension)
         def storage = new StorageFactory().getStorage(pluginExtension)
 
@@ -78,7 +77,7 @@ class GradleMongoPlugin implements Plugin<Project> {
                 .net(new Net(pluginExtension.bindIp, pluginExtension.port, Network.localhostIsIPv6()))
                 .build()
 
-        def runtimeConfig = new FlapdoodleRuntimeConfig(version)
+        def runtimeConfig = new CustomFlapdoodleRuntimeConfig(version)
                 .defaults(Command.MongoD)
                 .processOutput(processOutput)
                 .daemonProcess(manageProcessInstruction == STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS)
@@ -92,54 +91,6 @@ class GradleMongoPlugin implements Plugin<Project> {
         println 'Mongod started.'
     }
 
-    private static class FlapdoodleRuntimeConfig extends RuntimeConfigBuilder {
-        private final IVersion version
-
-        FlapdoodleRuntimeConfig(IVersion version) {
-            this.version = version
-        }
-
-        @Override
-        RuntimeConfigBuilder defaults(Command command) {
-            super.defaults(command)
-            IDownloadConfig downloadConfig = new DownloadConfigBuilder()
-                    .defaultsForCommand(command)
-                    .progressListener(new CustomFlapdoodleProcessLogger(version))
-                    .build()
-
-            artifactStore().overwriteDefault(new ArtifactStoreBuilder().defaults(command).download(downloadConfig).build())
-            this
-        }
-    }
-
-    private static class CustomFlapdoodleProcessLogger implements IProgressListener {
-        private final IVersion version
-
-        CustomFlapdoodleProcessLogger(IVersion version) {
-            this.version = version
-        }
-
-        @Override
-        void progress(String label, int percent) {
-        }
-
-        @Override
-        void done(String label) {
-        }
-
-        @Override
-        void start(String label) {
-            if (label.contains('Download')) {
-                println "Downloading Mongo ${version.asInDownloadPath()} distribution..."
-            } else if (label.contains('Extract')) {
-                println 'Extracting Mongo binaries...'
-            }
-        }
-
-        @Override
-        void info(String label, String message) {
-        }
-    }
 
     private static IMongoCmdOptions createMongoCommandOptions(GradleMongoPluginExtension pluginExtension) {
         new MongoCmdOptionsBuilder().useNoJournal(!pluginExtension.journalingEnabled).build()

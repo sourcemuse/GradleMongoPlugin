@@ -1,5 +1,7 @@
 package com.sourcemuse.gradle.plugin
 
+import com.sourcemuse.gradle.plugin.flapdoodle.gradle.GradleMongoPlugin
+
 
 class BuildScriptBuilder {
 

@@ -1,8 +1,9 @@
-package com.sourcemuse.gradle.plugin
+package com.sourcemuse.gradle.plugin.flapdoodle.adapters
 
 import static de.flapdoodle.embed.mongo.distribution.Version.Main.DEVELOPMENT
 import static de.flapdoodle.embed.mongo.distribution.Version.Main.PRODUCTION
 
+import com.sourcemuse.gradle.plugin.GradleMongoPluginExtension
 import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
 import de.flapdoodle.embed.mongo.distribution.Version
 

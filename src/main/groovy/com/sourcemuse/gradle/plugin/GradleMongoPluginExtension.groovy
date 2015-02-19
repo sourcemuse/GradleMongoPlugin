@@ -1,6 +1,6 @@
 package com.sourcemuse.gradle.plugin
 
-import static com.sourcemuse.gradle.plugin.LogDestination.FILE
+import static LogDestination.FILE
 import static java.lang.Integer.parseInt
 
 class GradleMongoPluginExtension {

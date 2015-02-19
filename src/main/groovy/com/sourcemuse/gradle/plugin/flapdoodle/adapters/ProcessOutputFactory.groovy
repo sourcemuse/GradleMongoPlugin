@@ -1,9 +1,11 @@
-package com.sourcemuse.gradle.plugin
+package com.sourcemuse.gradle.plugin.flapdoodle.adapters
 
 import static com.sourcemuse.gradle.plugin.LogDestination.CONSOLE
 import static com.sourcemuse.gradle.plugin.LogDestination.FILE
 import static com.sourcemuse.gradle.plugin.LogDestination.NONE
 
+import com.sourcemuse.gradle.plugin.GradleMongoPluginExtension
+import com.sourcemuse.gradle.plugin.LogDestination
 import de.flapdoodle.embed.mongo.Command
 import de.flapdoodle.embed.mongo.config.MongodProcessOutputConfig
 import de.flapdoodle.embed.process.config.io.ProcessOutput
@@ -14,10 +16,10 @@ import org.gradle.api.GradleScriptException
 import org.gradle.api.Project
 
 @TupleConstructor
-class LoggerFactory {
+class ProcessOutputFactory {
     Project project
 
-    ProcessOutput getLogger(GradleMongoPluginExtension pluginExtension) {
+    ProcessOutput getProcessOutput(GradleMongoPluginExtension pluginExtension) {
         def logDestination = pluginExtension.logging.toUpperCase() as LogDestination
 
         if (logDestination == CONSOLE) {
