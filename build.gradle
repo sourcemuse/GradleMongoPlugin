@@ -17,13 +17,13 @@ repositories {
 
 dependencies {
     compile gradleApi()
-    compile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.47.0'
+    compile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.47.1'
 
     testCompile files('libs/gradle-test-kit.jar')
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0', {
         exclude module: 'groovy-all'
     }
-    testCompile 'org.mongodb:mongo-java-driver:2.12.2'
+    testCompile 'org.mongodb:mongo-java-driver:2.13.0'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
