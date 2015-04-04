@@ -41,7 +41,7 @@ Configure your Mongo instance inside a ```mongo``` block:
 ```
 mongo {
     port 12345
-    logging console
+    logging 'console'
     ...
 }
 ```
