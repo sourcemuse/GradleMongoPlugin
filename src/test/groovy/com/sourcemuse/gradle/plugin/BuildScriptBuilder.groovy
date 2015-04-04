@@ -58,6 +58,11 @@ class BuildScriptBuilder {
         this
     }
 
+    BuildScriptBuilder withVerboseLogging() {
+        configProperties.mongodVerbosity = asStringProperty('-v')
+        this
+    }
+
     Integer getConfiguredPort() {
         configProperties.port as Integer
     }

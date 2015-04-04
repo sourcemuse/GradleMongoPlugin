@@ -1,5 +1,7 @@
 package com.sourcemuse.gradle.plugin
 
+import org.gradle.testkit.functional.ExecutionResult
+
 import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.DEFAULT_MONGOD_PORT
 import static com.sourcemuse.gradle.plugin.MongoUtils.makeJournaledWrite
 import static com.sourcemuse.gradle.plugin.MongoUtils.ensureMongoIsStopped
@@ -16,8 +18,9 @@ import spock.lang.Specification
 
 class MongoPluginConfigSpec extends Specification {
 
-    @Rule
-    TemporaryFolder tmp
+    def static final VERBOSE_LOGGING_SAMPLE = 'flushing directory'
+
+    @Rule TemporaryFolder tmp
     def gradleRunner = GradleRunnerFactory.create()
     def buildScript = new BuildScriptBuilder()
 
@@ -137,6 +140,31 @@ class MongoPluginConfigSpec extends Specification {
 
         then:
         noExceptionThrown()
+    }
+
+    def 'logging can be made verbose'() {
+        given:
+        generate(buildScript.withVerboseLogging().withLogging('console'))
+        gradleRunner.arguments << TEST_START_MONGO_DB
+
+        when:
+        def executionResult = gradleRunner.run()
+
+        then:
+        executionResult.standardOutput.contains(VERBOSE_LOGGING_SAMPLE)
+        println executionResult.standardOutput
+    }
+
+    def 'by default logging is not verbose'() {
+        given:
+        generate(buildScript.withLogging('console'))
+        gradleRunner.arguments << TEST_START_MONGO_DB
+
+        when:
+        def executionResult = gradleRunner.run()
+
+        then:
+        !executionResult.standardOutput.contains(VERBOSE_LOGGING_SAMPLE)
     }
 
     def cleanup() {
