@@ -1,13 +1,11 @@
 package com.sourcemuse.gradle.plugin.flapdoodle.gradle
 
-import static com.sourcemuse.gradle.plugin.flapdoodle.gradle.ManageProcessInstruction.CONTINUE_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
-import static com.sourcemuse.gradle.plugin.flapdoodle.gradle.ManageProcessInstruction.STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
-
 import com.sourcemuse.gradle.plugin.GradleMongoPluginExtension
 import com.sourcemuse.gradle.plugin.flapdoodle.adapters.CustomFlapdoodleRuntimeConfig
 import com.sourcemuse.gradle.plugin.flapdoodle.adapters.ProcessOutputFactory
 import com.sourcemuse.gradle.plugin.flapdoodle.adapters.StorageFactory
 import com.sourcemuse.gradle.plugin.flapdoodle.adapters.VersionFactory
+import de.flapdoodle.embed.mongo.AbstractMongoProcess
 import de.flapdoodle.embed.mongo.Command
 import de.flapdoodle.embed.mongo.MongodStarter
 import de.flapdoodle.embed.mongo.config.IMongoCmdOptions
@@ -16,8 +14,13 @@ import de.flapdoodle.embed.mongo.config.MongodConfigBuilder
 import de.flapdoodle.embed.mongo.config.Net
 import de.flapdoodle.embed.mongo.runtime.Mongod
 import de.flapdoodle.embed.process.runtime.Network
+import de.flapdoodle.embed.process.store.CachingArtifactStore
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+
+import static com.sourcemuse.gradle.plugin.flapdoodle.gradle.ManageProcessInstruction.CONTINUE_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
+import static com.sourcemuse.gradle.plugin.flapdoodle.gradle.ManageProcessInstruction.STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
+import static org.slf4j.helpers.NOPLogger.NOP_LOGGER
 
 class GradleMongoPlugin implements Plugin<Project> {
 
@@ -41,7 +44,7 @@ class GradleMongoPlugin implements Plugin<Project> {
         project.task(group: TASK_GROUP_NAME, description: 'Starts a local MongoDb instance which will stop when the build process completes', 'startManagedMongoDb') << {
             startMongoDb(project, STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS)
 
-            addStopMongoDbTaskIfNotPresent(project)
+            ensureMongoDbStopsEvenIfGradleDaemonIsRunning(project)
         }
     }
 
@@ -51,7 +54,7 @@ class GradleMongoPlugin implements Plugin<Project> {
         }
     }
 
-    private static void addStopMongoDbTaskIfNotPresent(Project project) {
+    private static void ensureMongoDbStopsEvenIfGradleDaemonIsRunning(Project project) {
         boolean stopMongoDbTaskPresent = project.gradle.taskGraph.allTasks.find { it.name == 'stopMongoDb' }
 
         if (!stopMongoDbTaskPresent) {
@@ -85,16 +88,18 @@ class GradleMongoPlugin implements Plugin<Project> {
 
         def runtime = MongodStarter.getInstance(runtimeConfig)
 
+        disableFlapdoodleLogging()
+
         def mongodExecutable = runtime.prepare(mongodConfig)
         println "Starting Mongod ${version.asInDownloadPath()} on port ${pluginExtension.port}..."
         mongodExecutable.start()
         println 'Mongod started.'
     }
 
-
     private static IMongoCmdOptions createMongoCommandOptions(GradleMongoPluginExtension pluginExtension) {
         new MongoCmdOptionsBuilder().useNoJournal(!pluginExtension.journalingEnabled).build()
     }
+
 
     private static void addStopMongoDbTask(Project project) {
         project.task(group: TASK_GROUP_NAME, description: 'Stops the local MongoDb instance', 'stopMongoDb') << {
@@ -104,6 +109,12 @@ class GradleMongoPlugin implements Plugin<Project> {
 
     private static void stopMongoDb(Project project) {
         Mongod.sendShutdown(InetAddress.getLoopbackAddress(), project."$PLUGIN_EXTENSION_NAME".port as Integer)
+    }
+
+    private static void disableFlapdoodleLogging() {
+        CachingArtifactStore._logger = NOP_LOGGER
+        Mongod.logger = NOP_LOGGER
+        AbstractMongoProcess.logger = NOP_LOGGER
     }
 }
 
