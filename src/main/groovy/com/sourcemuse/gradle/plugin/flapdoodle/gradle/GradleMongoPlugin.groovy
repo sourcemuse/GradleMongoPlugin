@@ -80,7 +80,7 @@ class GradleMongoPlugin implements Plugin<Project> {
                 .net(new Net(pluginExtension.bindIp, pluginExtension.port, Network.localhostIsIPv6()))
                 .build()
 
-        def runtimeConfig = new CustomFlapdoodleRuntimeConfig(version)
+        def runtimeConfig = new CustomFlapdoodleRuntimeConfig(version, pluginExtension.mongodVerbosity)
                 .defaults(Command.MongoD)
                 .processOutput(processOutput)
                 .daemonProcess(manageProcessInstruction == STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS)
@@ -97,7 +97,9 @@ class GradleMongoPlugin implements Plugin<Project> {
     }
 
     private static IMongoCmdOptions createMongoCommandOptions(GradleMongoPluginExtension pluginExtension) {
-        new MongoCmdOptionsBuilder().useNoJournal(!pluginExtension.journalingEnabled).build()
+        new MongoCmdOptionsBuilder()
+                .useNoJournal(!pluginExtension.journalingEnabled)
+                .build()
     }
 
 

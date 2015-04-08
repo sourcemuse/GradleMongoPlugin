@@ -3,7 +3,6 @@ package com.sourcemuse.gradle.plugin
 import spock.lang.Specification
 import spock.lang.Unroll
 
-
 class GradleMongoPluginExtensionSpec extends Specification {
     def pluginExtension = new GradleMongoPluginExtension()
 
@@ -56,5 +55,72 @@ class GradleMongoPluginExtensionSpec extends Specification {
 
         then:
         port == this.pluginExtension.port
+    }
+
+    @Unroll
+    def 'mongod verbosity supplied #variant "#verbosityLabel" translates to -v'() {
+        given:
+        this.pluginExtension.mongodVerbosity = verbosityLabel
+
+        when:
+        def verbosity = this.pluginExtension.mongodVerbosity
+
+        then:
+        verbosity == '-v'
+
+        where:
+        variant                       | verbosityLabel
+        'lowercase'                   | 'verbose'
+        'uppercase'                   | 'VERBOSE'
+        'mixed-case'                  | 'VerBose'
+        'prefixed with hyphen'        | '-verbose'
+        'prefixed with double hyphen' | '--verbose'
+    }
+
+    def 'mongod verbosity is automatically prefixed with a hyphen'() {
+        given:
+        this.pluginExtension.mongodVerbosity = 'v'
+
+        when:
+        def verbosity = this.pluginExtension.mongodVerbosity
+
+        then:
+        verbosity == '-v'
+    }
+
+    def "mongod verbosity can be supplied with multiple v's"() {
+        given:
+        this.pluginExtension.mongodVerbosity = 'vvvvv'
+
+        when:
+        def verbosity = this.pluginExtension.mongodVerbosity
+
+        then:
+        verbosity == '-vvvvv'
+    }
+
+    @Unroll
+    def "mongod verbosity uppercase V's are turned into lowercase v's"() {
+        given:
+        this.pluginExtension.mongodVerbosity = suppliedVerbosity
+
+        when:
+        def verbosity = this.pluginExtension.mongodVerbosity
+
+        then:
+        verbosity == '-vvvvv'
+
+        where:
+        suppliedVerbosity << ['VVVVV', '-VVVVV']
+    }
+
+    def 'mongod verbosity containing any other characters is rejected'() {
+        when:
+        this.pluginExtension.mongodVerbosity = 'very verbose!'
+
+        then:
+        def throwable = thrown(IllegalArgumentException)
+        throwable.getMessage() == "MongodVerbosity should be defined as either '-verbose' or '-v(vvvv)'. " +
+                "Do not configure this property if you don't wish to have verbose output."
     }
 }

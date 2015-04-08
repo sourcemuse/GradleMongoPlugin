@@ -1,11 +1,14 @@
 package com.sourcemuse.gradle.plugin
 
+import java.util.regex.Pattern
+
 import static LogDestination.FILE
 import static java.lang.Integer.parseInt
 
 class GradleMongoPluginExtension {
 
     static final EPHEMERAL_TEMPORARY_FOLDER = null
+    static final Pattern VALID_MONGOD_VERBOSITY_FORMAT = ~/(?i)-?v+|-{0,2}verbose/
 
     private int port = 27017
     String bindIp = '127.0.0.1'
@@ -14,6 +17,7 @@ class GradleMongoPluginExtension {
     String logFilePath = 'embedded-mongo.log'
     String mongoVersion = 'PRODUCTION'
     String storageLocation = EPHEMERAL_TEMPORARY_FOLDER
+    String mongodVerbosity = ''
 
     int getPort() {
         port
@@ -25,6 +29,22 @@ class GradleMongoPluginExtension {
         } else {
             this.port = port as Integer
         }
+    }
+
+    void setMongodVerbosity(String mongodVerbosity) {
+        this.mongodVerbosity = parseMongodVerbosity(mongodVerbosity)
+    }
+
+    private Serializable parseMongodVerbosity(String mongodVerbosity) {
+        if (!(mongodVerbosity ==~ VALID_MONGOD_VERBOSITY_FORMAT))
+            throw new IllegalArgumentException("MongodVerbosity should be defined as either '-verbose' or '-v(vvvv)'. " +
+                "Do not configure this property if you don't wish to have verbose output.");
+
+        def lowerCaseValue = mongodVerbosity.toLowerCase()
+
+        if (lowerCaseValue.endsWith('verbose')) return '-v'
+        if (lowerCaseValue.startsWith('v')) return "-$lowerCaseValue"
+        return lowerCaseValue
     }
 
     private static int parsePortAsString(String port) {
