@@ -67,6 +67,11 @@ class BuildScriptBuilder {
         configProperties.port as Integer
     }
 
+    BuildScriptBuilder withDownloadURL(String downloadURL) {
+        configProperties.downloadURL = asStringProperty(downloadURL)
+        this
+    }
+
     private String asStringProperty(String value) {
         "'$value'"
     }

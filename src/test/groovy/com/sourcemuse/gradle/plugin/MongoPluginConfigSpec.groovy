@@ -2,6 +2,7 @@ package com.sourcemuse.gradle.plugin
 
 import de.flapdoodle.embed.mongo.distribution.Version
 import org.gradle.testkit.functional.GradleRunnerFactory
+import org.gradle.tooling.BuildException
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
@@ -159,6 +160,18 @@ class MongoPluginConfigSpec extends Specification {
 
         then:
         !executionResult.standardOutput.contains(VERBOSE_LOGGING_SAMPLE)
+    }
+
+    def 'a URL that does not resolve to a mongo binary will fail'() {
+        given: 'a url that does not contain mongo binaries and a version that has not been downloaded'
+        generate(buildScript.withDownloadURL('http://www.google.com').withMongoVersion('1.6.5'))
+        gradleRunner.arguments << TEST_START_MONGO_DB
+
+        when:
+        gradleRunner.run()
+
+        then:
+        thrown(BuildException)
     }
 
     def cleanup() {
