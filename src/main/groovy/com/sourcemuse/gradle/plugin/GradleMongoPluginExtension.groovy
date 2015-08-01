@@ -18,6 +18,7 @@ class GradleMongoPluginExtension {
     String mongoVersion = 'PRODUCTION'
     String storageLocation = EPHEMERAL_TEMPORARY_FOLDER
     String mongodVerbosity = ''
+    String downloadURL = ''
 
     int getPort() {
         port
