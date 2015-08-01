@@ -2,6 +2,7 @@ package com.sourcemuse.gradle.plugin
 
 import de.flapdoodle.embed.mongo.distribution.Version
 import org.gradle.testkit.functional.GradleRunnerFactory
+import org.gradle.tooling.BuildException
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
@@ -159,6 +160,19 @@ class MongoPluginConfigSpec extends Specification {
 
         then:
         !executionResult.standardOutput.contains(VERBOSE_LOGGING_SAMPLE)
+    }
+
+    def 'a URL that does not resolve to a mongo binary will fail'() {
+        given: 'a url that does not contain mongo binaries and a version that has not been downloaded'
+        generate(buildScript.withDownloadURL('http://www.google.com').withMongoVersion('1.6.5'))
+        gradleRunner.arguments << TEST_START_MONGO_DB
+
+        when:
+        gradleRunner.run()
+
+        then:
+        def exception = thrown(BuildException)
+        exception.cause.cause.cause.message == 'java.io.IOException: Could not open inputStream for http://www.google.comosx/mongodb-osx-x86_64-1.6.5.tgz'
     }
 
     def cleanup() {
