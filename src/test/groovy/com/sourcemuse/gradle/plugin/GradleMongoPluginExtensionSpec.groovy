@@ -123,4 +123,27 @@ class GradleMongoPluginExtensionSpec extends Specification {
         throwable.getMessage() == "MongodVerbosity should be defined as either '-verbose' or '-v(vvvv)'. " +
                 "Do not configure this property if you don't wish to have verbose output."
     }
+
+    def 'mongod download url throws exception for invalid url'() {
+        given:
+        String invalidURL = 'thisisnotavalidurl'
+        
+        when:
+        this.pluginExtension.downloadURL = invalidURL
+
+        then:
+        def throwable = thrown(IllegalArgumentException)
+        throwable.message == "DownloadURL ${invalidURL} is not a valid URL."
+    }
+
+    def 'mongod download url can be set for valid url'() {
+        given:
+        String validURL = 'http://google.com'
+
+        when:
+        this.pluginExtension.downloadURL = validURL
+
+        then:
+        notThrown(IllegalArgumentException)
+    }
 }

@@ -1,24 +1,19 @@
 package com.sourcemuse.gradle.plugin
 
-import org.gradle.testkit.functional.ExecutionResult
-
-import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.DEFAULT_MONGOD_PORT
-import static com.sourcemuse.gradle.plugin.MongoUtils.makeJournaledWrite
-import static com.sourcemuse.gradle.plugin.MongoUtils.ensureMongoIsStopped
-import static com.sourcemuse.gradle.plugin.MongoUtils.mongoInstanceRunning
-import static com.sourcemuse.gradle.plugin.MongoUtils.getMongoVersionRunning
-import static PluginForTests.TEST_START_MONGO_DB
-
+import de.flapdoodle.embed.mongo.distribution.Version
 import org.gradle.testkit.functional.GradleRunnerFactory
+import org.gradle.tooling.BuildException
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-
-import de.flapdoodle.embed.mongo.distribution.Version;
 import spock.lang.Specification
+
+import static PluginForTests.TEST_START_MONGO_DB
+import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.DEFAULT_MONGOD_PORT
+import static com.sourcemuse.gradle.plugin.MongoUtils.*
 
 class MongoPluginConfigSpec extends Specification {
 
-    def static final VERBOSE_LOGGING_SAMPLE = 'flushing directory'
+    def static final VERBOSE_LOGGING_SAMPLE = 'isMaster'
 
     @Rule TemporaryFolder tmp
     def gradleRunner = GradleRunnerFactory.create()
@@ -165,6 +160,19 @@ class MongoPluginConfigSpec extends Specification {
 
         then:
         !executionResult.standardOutput.contains(VERBOSE_LOGGING_SAMPLE)
+    }
+
+    def 'a URL that does not resolve to a mongo binary will fail'() {
+        given: 'a url that does not contain mongo binaries and a version that has not been downloaded'
+        generate(buildScript.withDownloadURL('http://www.google.com').withMongoVersion('1.6.5'))
+        gradleRunner.arguments << TEST_START_MONGO_DB
+
+        when:
+        gradleRunner.run()
+
+        then:
+        def exception = thrown(BuildException)
+        exception.cause.cause.cause.message == 'java.io.IOException: Could not open inputStream for http://www.google.comosx/mongodb-osx-x86_64-1.6.5.tgz'
     }
 
     def cleanup() {

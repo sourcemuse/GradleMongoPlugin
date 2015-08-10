@@ -18,6 +18,15 @@ class GradleMongoPluginExtension {
     String mongoVersion = 'PRODUCTION'
     String storageLocation = EPHEMERAL_TEMPORARY_FOLDER
     String mongodVerbosity = ''
+    String downloadURL = ''
+
+    void setDownloadURL(String url) {
+        try {
+            this.downloadURL = new URL(url).toString()
+        } catch (MalformedURLException) {
+            throw new IllegalArgumentException("DownloadURL ${url} is not a valid URL.")
+        }
+    }
 
     int getPort() {
         port
@@ -38,7 +47,7 @@ class GradleMongoPluginExtension {
     private Serializable parseMongodVerbosity(String mongodVerbosity) {
         if (!(mongodVerbosity ==~ VALID_MONGOD_VERBOSITY_FORMAT))
             throw new IllegalArgumentException("MongodVerbosity should be defined as either '-verbose' or '-v(vvvv)'. " +
-                "Do not configure this property if you don't wish to have verbose output.");
+                "Do not configure this property if you don't wish to have verbose output.")
 
         def lowerCaseValue = mongodVerbosity.toLowerCase()
 
