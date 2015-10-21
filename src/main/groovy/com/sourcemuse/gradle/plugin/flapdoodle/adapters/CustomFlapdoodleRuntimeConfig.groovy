@@ -12,28 +12,43 @@ import de.flapdoodle.embed.process.runtime.ICommandLinePostProcessor
 class CustomFlapdoodleRuntimeConfig extends RuntimeConfigBuilder {
     private final IVersion version
     private final String mongodVerbosity
+    private final String downloadURL
 
-    CustomFlapdoodleRuntimeConfig(IVersion version, String mongodVerbosity) {
+    CustomFlapdoodleRuntimeConfig(IVersion version, String mongodVerbosity, String downloadURL) {
         this.version = version
         this.mongodVerbosity = mongodVerbosity
+        this.downloadURL = downloadURL
     }
 
     @Override
     RuntimeConfigBuilder defaults(Command command) {
         super.defaults(command)
-        IDownloadConfig downloadConfig = new DownloadConfigBuilder()
-                .defaultsForCommand(command)
-                .progressListener(new CustomFlapdoodleProcessLogger(version))
-                .build()
+
+        IDownloadConfig downloadConfig
+
+        if (downloadURL && downloadURL.length() > 0) {
+            downloadConfig = new DownloadConfigBuilder()
+                    .defaultsForCommand(command)
+                    .progressListener(new CustomFlapdoodleProcessLogger(version))
+                    .downloadPath(downloadURL)
+                    .build()
+        } else {
+            downloadConfig = new DownloadConfigBuilder()
+                    .defaultsForCommand(command)
+                    .progressListener(new CustomFlapdoodleProcessLogger(version))
+                    .build()
+        }
 
         commandLinePostProcessor(new ICommandLinePostProcessor() {
             @Override
             List<String> process(Distribution distribution, List<String> args) {
-                if (mongodVerbosity) args.add(mongodVerbosity);
-                return args;
+                if (mongodVerbosity) args.add(mongodVerbosity)
+                return args
             }
-        });
+        })
+
         artifactStore().overwriteDefault(new ArtifactStoreBuilder().defaults(command).download(downloadConfig).build())
+
         this
     }
 }
