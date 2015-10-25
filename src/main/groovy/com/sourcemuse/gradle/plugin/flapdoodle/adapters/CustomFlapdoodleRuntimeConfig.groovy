@@ -10,12 +10,12 @@ import de.flapdoodle.embed.process.runtime.ICommandLinePostProcessor
 class CustomFlapdoodleRuntimeConfig extends RuntimeConfigBuilder {
     private final IVersion version
     private final String mongodVerbosity
-    private final String downloadURL
+    private final String downloadUrl
 
-    CustomFlapdoodleRuntimeConfig(IVersion version, String mongodVerbosity, String downloadURL) {
+    CustomFlapdoodleRuntimeConfig(IVersion version, String mongodVerbosity, String downloadUrl) {
         this.version = version
         this.mongodVerbosity = mongodVerbosity
-        this.downloadURL = downloadURL
+        this.downloadUrl = downloadUrl
     }
 
     @Override
@@ -26,8 +26,8 @@ class CustomFlapdoodleRuntimeConfig extends RuntimeConfigBuilder {
         downloadConfigBuilder.defaultsForCommand(command)
                              .progressListener(new CustomFlapdoodleProcessLogger(version))
 
-        if (downloadURL && downloadURL.length() > 0) {
-            downloadConfigBuilder.downloadPath(downloadURL)
+        if (downloadUrl && downloadUrl.length() > 0) {
+            downloadConfigBuilder.downloadPath(downloadUrl)
         }
 
         commandLinePostProcessor(new ICommandLinePostProcessor() {
