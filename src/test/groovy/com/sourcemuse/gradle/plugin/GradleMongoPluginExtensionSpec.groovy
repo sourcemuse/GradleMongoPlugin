@@ -127,13 +127,13 @@ class GradleMongoPluginExtensionSpec extends Specification {
     def 'mongod download url throws exception for invalid url'() {
         given:
         String invalidURL = 'thisisnotavalidurl'
-        
+
         when:
         this.pluginExtension.downloadURL = invalidURL
 
         then:
         def throwable = thrown(IllegalArgumentException)
-        throwable.message == "DownloadURL ${invalidURL} is not a valid URL."
+        throwable.message == "DownloadURL ${invalidURL} is not a valid URL.".toString()
     }
 
     def 'mongod download url can be set for valid url'() {
@@ -145,5 +145,49 @@ class GradleMongoPluginExtensionSpec extends Specification {
 
         then:
         notThrown(IllegalArgumentException)
+    }
+
+    @Unroll
+    def 'proxy settings are read from system properties'() {
+        given:
+        setSystemProperties(systemProperties)
+
+        when:
+        def proxyDetails = new GradleMongoPluginExtension().proxyDetails
+
+        then:
+        proxyDetails.provided() == expectedProvided
+        proxyDetails.socketAddress == expectedSocketAddress
+        proxyDetails.authDetailsProvided() == expectedAuthDetailsProvided
+        proxyDetails.user == expectedUser
+        proxyDetails.password == expectedPassword
+
+        cleanup:
+        clearSystemProperties(systemProperties)
+
+        where:
+        systemProperties                                                                                        | expectedProvided | expectedSocketAddress                           | expectedAuthDetailsProvided | expectedUser | expectedPassword
+        'http.proxyHost=www.somehost.org,http.proxyPort=8080,http.proxyUser=userId,http.proxyPassword=password' | true             | new InetSocketAddress('www.somehost.org', 8080) | true                        | 'userId'     | 'password'
+        'http.proxyHost=www.somehost.org'                                                                       | true             | new InetSocketAddress('www.somehost.org', 80)   | false                       | ''           | ''
+        ''                                                                                                      | false            | null                                            | false                       | ''           | ''
+        'http.proxyHost=www.somehost.org,http.proxyUser=userId'                                                 | true             | new InetSocketAddress('www.somehost.org', 80)   | false                       | 'userId'     | ''
+    }
+
+    void setSystemProperties(String systemProperties) {
+        if (systemProperties) {
+            systemProperties.split(",").each {
+                def (key, value) = it.split("=")
+                System.setProperty(key as String, value as String)
+            }
+        }
+    }
+
+    def clearSystemProperties(String systemProperties) {
+        if (systemProperties) {
+            systemProperties.split(",").each {
+                def key = it.split("=")[0]
+                System.clearProperty(key as String)
+            }
+        }
     }
 }

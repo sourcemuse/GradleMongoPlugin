@@ -19,11 +19,12 @@ class GradleMongoPluginExtension {
     String storageLocation = EPHEMERAL_TEMPORARY_FOLDER
     String mongodVerbosity = ''
     String downloadURL = ''
+    ProxyDetails proxyDetails = initProxyDetails()
 
     void setDownloadURL(String url) {
         try {
             this.downloadURL = new URL(url).toString()
-        } catch (MalformedURLException) {
+        } catch (ignored) {
             throw new IllegalArgumentException("DownloadURL ${url} is not a valid URL.")
         }
     }
@@ -75,5 +76,14 @@ class GradleMongoPluginExtension {
         } catch (IOException e) {
             throw new IOException('Failed to find random free port', e)
         }
+    }
+
+    private static ProxyDetails initProxyDetails() {
+        def portString = System.getProperty('http.proxyPort')
+        int port = portString ? parseInt(portString) : 80
+        def user = System.getProperty('http.proxyUser') ?: ''
+        def password = System.getProperty('http.proxyPassword') ?: ''
+
+        new ProxyDetails(System.getProperty('http.proxyHost'), port, user, password)
     }
 }
