@@ -163,7 +163,7 @@ class MongoPluginConfigSpec extends Specification {
     }
 
     def 'a URL that does not resolve to a mongo binary will fail'() {
-        given: 'a url that does not contain mongo binaries and a version that has not been downloaded'
+        given:
         generate(buildScript.withDownloadURL('http://www.google.com').withMongoVersion('1.6.5'))
         gradleRunner.arguments << TEST_START_MONGO_DB
 
