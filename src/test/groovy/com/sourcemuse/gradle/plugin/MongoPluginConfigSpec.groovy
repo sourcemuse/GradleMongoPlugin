@@ -171,8 +171,7 @@ class MongoPluginConfigSpec extends Specification {
         gradleRunner.run()
 
         then:
-        def exception = thrown(BuildException)
-        exception.cause.cause.cause.message == 'java.io.IOException: Could not open inputStream for http://www.google.comosx/mongodb-osx-x86_64-1.6.5.tgz'
+        thrown(BuildException)
     }
 
     def cleanup() {
