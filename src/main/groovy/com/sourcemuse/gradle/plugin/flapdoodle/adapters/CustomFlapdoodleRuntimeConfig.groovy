@@ -26,7 +26,7 @@ class CustomFlapdoodleRuntimeConfig extends RuntimeConfigBuilder {
         downloadConfigBuilder.defaultsForCommand(command)
                              .progressListener(new CustomFlapdoodleProcessLogger(version))
 
-        if (downloadUrl && downloadUrl.length() > 0) {
+        if (downloadUrl) {
             downloadConfigBuilder.downloadPath(downloadUrl)
         }
 
