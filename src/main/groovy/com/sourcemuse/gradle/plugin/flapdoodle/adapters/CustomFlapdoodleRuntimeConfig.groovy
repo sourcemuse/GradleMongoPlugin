@@ -3,6 +3,7 @@ import de.flapdoodle.embed.mongo.Command
 import de.flapdoodle.embed.mongo.config.ArtifactStoreBuilder
 import de.flapdoodle.embed.mongo.config.DownloadConfigBuilder
 import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder
+import de.flapdoodle.embed.process.config.store.IDownloadConfig
 import de.flapdoodle.embed.process.distribution.Distribution
 import de.flapdoodle.embed.process.distribution.IVersion
 import de.flapdoodle.embed.process.runtime.ICommandLinePostProcessor
@@ -12,23 +13,24 @@ class CustomFlapdoodleRuntimeConfig extends RuntimeConfigBuilder {
     private final String mongodVerbosity
     private final String downloadUrl
 
-    CustomFlapdoodleRuntimeConfig(IVersion version, String mongodVerbosity, String downloadUrl) {
+    CustomFlapdoodleRuntimeConfig(IVersion version, String mongodVerbosity, String userSuppliedDownloadUrl) {
         this.version = version
         this.mongodVerbosity = mongodVerbosity
-        this.downloadUrl = downloadUrl
+        this.downloadUrl = determineDownloadUrl(userSuppliedDownloadUrl)
+    }
+
+    static String determineDownloadUrl(String s) {
+        s ?: new DownloadConfigBuilder().build().downloadPath
     }
 
     @Override
     RuntimeConfigBuilder defaults(Command command) {
         super.defaults(command)
 
-        DownloadConfigBuilder downloadConfigBuilder = new DownloadConfigBuilder()
-        downloadConfigBuilder.defaultsForCommand(command)
-                             .progressListener(new CustomFlapdoodleProcessLogger(version))
-
-        if (downloadUrl) {
-            downloadConfigBuilder.downloadPath(downloadUrl)
-        }
+        IDownloadConfig downloadConfig = new DownloadConfigBuilder()
+                .defaultsForCommand(command)
+                .progressListener(new CustomFlapdoodleProcessLogger(version))
+                .downloadPath(downloadUrl).build()
 
         commandLinePostProcessor(new ICommandLinePostProcessor() {
             @Override
@@ -38,7 +40,7 @@ class CustomFlapdoodleRuntimeConfig extends RuntimeConfigBuilder {
             }
         })
 
-        artifactStore().overwriteDefault(new ArtifactStoreBuilder().defaults(command).download(downloadConfigBuilder).build())
+        artifactStore().overwriteDefault(new ArtifactStoreBuilder().defaults(command).download(downloadConfig).build())
 
         this
     }
