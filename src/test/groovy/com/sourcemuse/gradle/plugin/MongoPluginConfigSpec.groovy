@@ -6,7 +6,7 @@ import org.gradle.tooling.BuildException
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 
-import spock.lang.Issue;
+import spock.lang.Issue
 import spock.lang.Specification
 
 import static PluginForTests.TEST_START_MONGO_DB
