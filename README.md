@@ -14,7 +14,7 @@ buildscript {
       mavenCentral()
    }
    dependencies {
-      classpath 'com.sourcemuse.gradle.plugin:gradle-mongo-plugin:0.9.0-SNAPSHOT'
+      classpath 'com.sourcemuse.gradle.plugin:gradle-mongo-plugin:0.9.0'
    }
 }
 
