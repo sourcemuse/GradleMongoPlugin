@@ -5,7 +5,10 @@ import static de.flapdoodle.embed.mongo.distribution.Version.Main.PRODUCTION
 
 import com.sourcemuse.gradle.plugin.GradleMongoPluginExtension
 import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
+import de.flapdoodle.embed.process.distribution.GenericVersion
+import de.flapdoodle.embed.mongo.distribution.Feature
 import de.flapdoodle.embed.mongo.distribution.Version
+import de.flapdoodle.embed.mongo.distribution.Versions
 
 
 class VersionFactory {
@@ -39,6 +42,9 @@ class VersionFactory {
             }
         } else if (versionMatchesSpecificVersion(mongoVersion)) {
             return mongoVersion as Version
+        } else {
+            // we'll just assume that the version is newer and supports all features
+            return Versions.withFeatures(new GenericVersion(suppliedVersion), Feature.values())
         }
     }
 
