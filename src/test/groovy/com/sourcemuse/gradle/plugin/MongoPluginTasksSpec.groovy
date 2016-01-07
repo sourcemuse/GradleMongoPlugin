@@ -63,7 +63,6 @@ class MongoPluginTasksSpec extends Specification {
         !mongoRunningAfterBuild
     }
 
-
     def cleanup() {
         ensureMongoIsStopped()
     }
