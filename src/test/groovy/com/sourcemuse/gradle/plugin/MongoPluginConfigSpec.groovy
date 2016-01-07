@@ -5,6 +5,8 @@ import org.gradle.testkit.functional.GradleRunnerFactory
 import org.gradle.tooling.BuildException
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+
+import spock.lang.Issue;
 import spock.lang.Specification
 
 import static PluginForTests.TEST_START_MONGO_DB
@@ -108,6 +110,21 @@ class MongoPluginConfigSpec extends Specification {
 
         then:
         Version.Main.V2_4.asInDownloadPath().equalsIgnoreCase(mongoVersion)
+    }
+
+    @Issue('https://github.com/sourcemuse/GradleMongoPlugin/issues/15')
+    def 'unrecognized version is configurable'() {
+        given:
+        def version = '3.2.0'
+        generate(buildScript.withMongoVersion(version))
+        gradleRunner.arguments << TEST_START_MONGO_DB
+
+        when:
+        gradleRunner.run()
+        def mongoVersion = getMongoVersionRunning(DEFAULT_MONGOD_PORT)
+
+        then:
+        mongoVersion == version
     }
 
     def 'replication storage location is configurable'() {
