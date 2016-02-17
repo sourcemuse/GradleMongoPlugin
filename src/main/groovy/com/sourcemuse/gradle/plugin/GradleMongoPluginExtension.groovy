@@ -76,4 +76,20 @@ class GradleMongoPluginExtension {
             throw new IOException('Failed to find random free port', e)
         }
     }
+
+    GradleMongoPluginExtension overrideWith(GradleMongoPluginExtension pluginExtensionOverride) {
+        def mergedPluginExtension = new GradleMongoPluginExtension()
+        applyNonDefaultProperties(this, mergedPluginExtension)
+        applyNonDefaultProperties(pluginExtensionOverride, mergedPluginExtension)
+        mergedPluginExtension
+    }
+
+    private static void applyNonDefaultProperties(GradleMongoPluginExtension sourcePluginExtension, GradleMongoPluginExtension targetPluginExtension) {
+        def pluginExtensionWithDefaults = new GradleMongoPluginExtension()
+        pluginExtensionWithDefaults.properties.findAll { it.key != 'class'}.each { String key, Object value ->
+            if (sourcePluginExtension[key] != value) {
+                targetPluginExtension[key] = sourcePluginExtension[key]
+            }
+        }
+    }
 }
