@@ -101,8 +101,8 @@ class MongoPluginTasksSpec extends Specification {
                     apply plugin: $GradleMongoPlugin.name
 
                     task A {
-                       requiresMongoDb = true
-                       enabled = false
+                        requiresMongoDb = true
+                        enabled = false
                     }
                     """)
         gradleRunner.arguments << 'A'
@@ -121,8 +121,8 @@ class MongoPluginTasksSpec extends Specification {
                     apply plugin: $GradleMongoPlugin.name
 
                     task A {
-                       requiresMongoDb = true
-                       onlyIf { false }
+                        requiresMongoDb = true
+                        onlyIf { false }
                     }
                     """)
         gradleRunner.arguments << 'A'
@@ -133,6 +133,57 @@ class MongoPluginTasksSpec extends Specification {
 
         then:
         !mongoRunningDuringBuild
+    }
+
+    def 'a new mongo instance is not launched if an existing instance is already bound to the same port'() {
+        given:
+        buildScript("""
+                    apply plugin: $GradleMongoPlugin.name
+
+                    task A {
+                        requiresMongoDb = true
+                        doFirst { B.execute() }
+                    }
+
+                    task B {
+                        requiresMongoDb = true
+                    }
+                    """)
+        gradleRunner.arguments << 'A'
+
+        when:
+        ExecutionResult result = gradleRunner.run()
+        def ioExceptionDuringBuild = result.standardOutput.contains("IOException")
+
+        then:
+        !ioExceptionDuringBuild
+    }
+
+    def 'multiple mongo instances can be started if bound to separate ports'() {
+        given:
+        buildScript("""
+                    apply plugin: $GradleMongoPlugin.name
+
+                    task A {
+                        requiresMongoDb = true
+                        doFirst { B.execute() }
+                    }
+
+                    task B {
+                        requiresMongoDb = true
+                        mongo {
+                            port = 'random'
+                        }
+                    }
+                    """)
+        gradleRunner.arguments << 'A'
+
+        when:
+        ExecutionResult result = gradleRunner.run()
+        def ioExceptionDuringBuild = result.standardOutput.contains("IOException")
+
+        then:
+        !ioExceptionDuringBuild
     }
 
     def 'startManagedMongoDb starts a mongo instance, and then stops once the build has completed'() {

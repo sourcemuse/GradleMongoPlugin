@@ -1,5 +1,6 @@
 package com.sourcemuse.gradle.plugin.flapdoodle.gradle
 
+import com.mongodb.MongoClient
 import com.sourcemuse.gradle.plugin.GradleMongoPluginExtension
 import com.sourcemuse.gradle.plugin.flapdoodle.adapters.CustomFlapdoodleRuntimeConfig
 import com.sourcemuse.gradle.plugin.flapdoodle.adapters.ProcessOutputFactory
@@ -82,6 +83,11 @@ class GradleMongoPlugin implements Plugin<Project> {
     }
 
     private static void startMongoDb(GradleMongoPluginExtension pluginExtension, Project project, ManageProcessInstruction manageProcessInstruction) {
+        if (mongoInstanceAlreadyRunning(pluginExtension.bindIp, pluginExtension.port)) {
+            println "Mongo instance already running at ${pluginExtension.bindIp}:${pluginExtension.port}. Reusing."
+            return
+        }
+
         def processOutput = new ProcessOutputFactory(project).getProcessOutput(pluginExtension)
         def version = new VersionFactory().getVersion(pluginExtension)
         def storage = new StorageFactory().getStorage(pluginExtension)
@@ -107,6 +113,16 @@ class GradleMongoPlugin implements Plugin<Project> {
         println "Starting Mongod ${version.asInDownloadPath()} on port ${pluginExtension.port}..."
         mongodExecutable.start()
         println 'Mongod started.'
+    }
+
+    private static boolean mongoInstanceAlreadyRunning(String bindIp, int port) {
+        try {
+            def mongoClient = new MongoClient(bindIp, port)
+            mongoClient.getDB('test').getStats()
+        } catch (Exception ignored) {
+            return false
+        }
+        return true
     }
 
     private static IMongoCmdOptions createMongoCommandOptions(GradleMongoPluginExtension pluginExtension) {

@@ -23,6 +23,7 @@ class MongoUtils {
             def mongoClient = new MongoClient(LOOPBACK_ADDRESS, port)
             mongoClient.getDB(DATABASE_NAME).getStats()
         } catch (Exception e) {
+            e.printStackTrace()
             return false
         }
         return true
