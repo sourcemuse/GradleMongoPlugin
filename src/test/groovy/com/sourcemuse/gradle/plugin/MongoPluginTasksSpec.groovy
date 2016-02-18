@@ -60,7 +60,7 @@ class MongoPluginTasksSpec extends Specification {
         when:
         ExecutionResult result = gradleRunner.run()
         def mongoRunningDuringBuild = result.standardOutput.contains(MONGO_STARTED_MESSAGE)
-        def mongoRunningOnConfiguredPort = mongoInstanceRunning(12345)
+        def mongoRunningOnConfiguredPort = result.standardOutput.contains('12345')
 
         then:
         mongoRunningDuringBuild
