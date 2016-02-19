@@ -164,14 +164,14 @@ class GradleMongoPlugin implements Plugin<Project> {
     }
 
     private static void extend(Task task) {
-        task.ext.requiresMongoDb = false
+        task.ext.runWithMongoDb = false
         task.extensions.add('mongo', GradleMongoPluginExtension)
     }
 
     private static Iterable<Task> configureTasksRequiringMongoDb(Project project) {
         project.tasks.each {
             def task = it
-            if (task.requiresMongoDb) {
+            if (task.runWithMongoDb) {
                 def mergedPluginExtension = getTaskSpecificMongoConfiguration(task, project)
 
                 task.doFirst { startMongoDb(mergedPluginExtension, project, STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS) }

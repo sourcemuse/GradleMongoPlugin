@@ -26,7 +26,7 @@ class MongoPluginTasksSpec extends Specification {
                     apply plugin: $GradleMongoPlugin.name
 
                     task A {
-                        requiresMongoDb = true
+                        runWithMongoDb = true
                     }
                     """)
         gradleRunner.arguments << 'A'
@@ -49,7 +49,7 @@ class MongoPluginTasksSpec extends Specification {
                     }
 
                     task A {
-                        requiresMongoDb = true
+                        runWithMongoDb = true
                         mongo {
                             port = 12345
                         }
@@ -73,7 +73,7 @@ class MongoPluginTasksSpec extends Specification {
                     apply plugin: $GradleMongoPlugin.name
 
                     task A {
-                        requiresMongoDb = true
+                        runWithMongoDb = true
                     }
 
                     task B (dependsOn: A) {
@@ -101,7 +101,7 @@ class MongoPluginTasksSpec extends Specification {
                     apply plugin: $GradleMongoPlugin.name
 
                     task A {
-                        requiresMongoDb = true
+                        runWithMongoDb = true
                         enabled = false
                     }
                     """)
@@ -121,7 +121,7 @@ class MongoPluginTasksSpec extends Specification {
                     apply plugin: $GradleMongoPlugin.name
 
                     task A {
-                        requiresMongoDb = true
+                        runWithMongoDb = true
                         onlyIf { false }
                     }
                     """)
@@ -141,12 +141,12 @@ class MongoPluginTasksSpec extends Specification {
                     apply plugin: $GradleMongoPlugin.name
 
                     task A {
-                        requiresMongoDb = true
+                        runWithMongoDb = true
                         doFirst { B.execute() }
                     }
 
                     task B {
-                        requiresMongoDb = true
+                        runWithMongoDb = true
                     }
                     """)
         gradleRunner.arguments << 'A'
@@ -165,12 +165,12 @@ class MongoPluginTasksSpec extends Specification {
                     apply plugin: $GradleMongoPlugin.name
 
                     task A {
-                        requiresMongoDb = true
+                        runWithMongoDb = true
                         doFirst { B.execute() }
                     }
 
                     task B {
-                        requiresMongoDb = true
+                        runWithMongoDb = true
                         mongo {
                             port = 'random'
                         }
