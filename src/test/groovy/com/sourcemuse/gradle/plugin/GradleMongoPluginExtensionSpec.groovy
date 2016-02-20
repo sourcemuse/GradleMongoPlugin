@@ -146,4 +146,21 @@ class GradleMongoPluginExtensionSpec extends Specification {
         then:
         notThrown(IllegalArgumentException)
     }
+
+    def 'config can be overridden'() {
+        given:
+        def overridingPluginExtension = new GradleMongoPluginExtension()
+        this.pluginExtension.bindIp = "1.2.3.4"
+        this.pluginExtension.port = 12345
+        overridingPluginExtension.bindIp = "7.8.9.0"
+        overridingPluginExtension.downloadURL = "http://abc.com"
+
+        when:
+        def mergedPluginExtension = this.pluginExtension.overrideWith(overridingPluginExtension)
+
+        then:
+        mergedPluginExtension.bindIp == "7.8.9.0"
+        mergedPluginExtension.port == 12345
+        mergedPluginExtension.downloadURL == "http://abc.com"
+    }
 }
