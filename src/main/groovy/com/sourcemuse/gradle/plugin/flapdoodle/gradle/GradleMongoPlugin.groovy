@@ -82,10 +82,10 @@ class GradleMongoPlugin implements Plugin<Project> {
         startMongoDb(pluginExtension, project, manageProcessInstruction)
     }
 
-    private static void startMongoDb(GradleMongoPluginExtension pluginExtension, Project project, ManageProcessInstruction manageProcessInstruction) {
+    private static boolean startMongoDb(GradleMongoPluginExtension pluginExtension, Project project, ManageProcessInstruction manageProcessInstruction) {
         if (mongoInstanceAlreadyRunning(pluginExtension.bindIp, pluginExtension.port)) {
             println "Mongo instance already running at ${pluginExtension.bindIp}:${pluginExtension.port}. Reusing."
-            return
+            return false
         }
 
         def processOutput = new ProcessOutputFactory(project).getProcessOutput(pluginExtension)
@@ -113,6 +113,7 @@ class GradleMongoPlugin implements Plugin<Project> {
         println "Starting Mongod ${version.asInDownloadPath()} on port ${pluginExtension.port}..."
         mongodExecutable.start()
         println 'Mongod started.'
+        return true
     }
 
     private static boolean mongoInstanceAlreadyRunning(String bindIp, int port) {
@@ -173,8 +174,9 @@ class GradleMongoPlugin implements Plugin<Project> {
             def task = it
             if (task.runWithMongoDb) {
                 def mergedPluginExtension = getTaskSpecificMongoConfiguration(task, project)
+                def mongoStartedByTask = false
 
-                task.doFirst { startMongoDb(mergedPluginExtension, project, STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS) }
+                task.doFirst { mongoStartedByTask = startMongoDb(mergedPluginExtension, project, STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS) }
 
                 project.gradle.taskGraph.addTaskExecutionListener(new TaskExecutionListener() {
                     @Override
@@ -182,7 +184,7 @@ class GradleMongoPlugin implements Plugin<Project> {
 
                     @Override
                     void afterExecute(Task t, TaskState state) {
-                        if (task == t && state.didWork) {
+                        if (task == t && state.didWork && mongoStartedByTask) {
                             stopMongoDb(mergedPluginExtension.port)
                         }
                     }
