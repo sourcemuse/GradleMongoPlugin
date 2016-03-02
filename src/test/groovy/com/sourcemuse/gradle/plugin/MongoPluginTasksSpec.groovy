@@ -159,6 +159,27 @@ class MongoPluginTasksSpec extends Specification {
         !ioExceptionDuringBuild
     }
 
+    def 'when an existing mongo instance is reused by a task, mongo is not shutdown when the task completes'() {
+        given:
+        buildScript("""
+                    apply plugin: $GradleMongoPlugin.name
+
+                    task A {
+                        runWithMongoDb = true
+                    }
+
+                    A.dependsOn startMongoDb
+                    """)
+        gradleRunner.arguments << 'A'
+
+        when:
+        gradleRunner.run()
+        def mongoRunningAfterBuild = mongoInstanceRunning()
+
+        then:
+        mongoRunningAfterBuild
+    }
+
     def 'multiple mongo instances can be started if bound to separate ports'() {
         given:
         buildScript("""
