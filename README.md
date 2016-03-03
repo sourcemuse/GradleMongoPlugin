@@ -61,7 +61,7 @@ The following properties are configurable:
 
 For your convenience the plugin also adds the following tasks to your buildscript:
 
-```bash
+```
 $ gradle tasks
 ...
 Mongo tasks
