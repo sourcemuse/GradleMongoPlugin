@@ -166,7 +166,7 @@ class GradleMongoPlugin implements Plugin<Project> {
 
     private static void extend(Task task) {
         task.ext.runWithMongoDb = false
-        task.extensions.add('mongo', GradleMongoPluginExtension)
+        task.extensions.add(PLUGIN_EXTENSION_NAME, GradleMongoPluginExtension)
     }
 
     private static Iterable<Task> configureTasksRequiringMongoDb(Project project) {
