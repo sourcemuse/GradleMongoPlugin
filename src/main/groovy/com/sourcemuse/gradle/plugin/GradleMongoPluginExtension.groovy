@@ -23,7 +23,7 @@ class GradleMongoPluginExtension {
     void setDownloadURL(String url) {
         try {
             this.downloadURL = new URL(url).toString()
-        } catch (MalformedURLException) {
+        } catch (MalformedURLException ignored) {
             throw new IllegalArgumentException("DownloadURL ${url} is not a valid URL.")
         }
     }
@@ -44,7 +44,7 @@ class GradleMongoPluginExtension {
         this.mongodVerbosity = parseMongodVerbosity(mongodVerbosity)
     }
 
-    private Serializable parseMongodVerbosity(String mongodVerbosity) {
+    private static Serializable parseMongodVerbosity(String mongodVerbosity) {
         if (!(mongodVerbosity ==~ VALID_MONGOD_VERBOSITY_FORMAT))
             throw new IllegalArgumentException("MongodVerbosity should be defined as either '-verbose' or '-v(vvvv)'. " +
                 "Do not configure this property if you don't wish to have verbose output.")
