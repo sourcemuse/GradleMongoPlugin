@@ -1,5 +1,6 @@
 package com.sourcemuse.gradle.plugin.flapdoodle.gradle
 
+import java.util.concurrent.atomic.AtomicInteger
 import com.mongodb.MongoClient
 import com.sourcemuse.gradle.plugin.GradleMongoPluginExtension
 import com.sourcemuse.gradle.plugin.flapdoodle.adapters.CustomFlapdoodleRuntimeConfig
@@ -173,10 +174,20 @@ class GradleMongoPlugin implements Plugin<Project> {
         project.tasks.each {
             def task = it
             if (task.runWithMongoDb) {
+                def rootProject = project.getRootProject()
                 def mergedPluginExtension = getTaskSpecificMongoConfiguration(task, project)
-                def mongoStartedByTask = false
+                def port = mergedPluginExtension.port
 
-                task.doFirst { mongoStartedByTask = startMongoDb(mergedPluginExtension, project, STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS) }
+                task.doFirst {
+                    synchronized (rootProject) {
+                        ensureMongoTaskTrackingPropertiesAreSet(rootProject)
+                        def mongoDependencyCount = rootProject.mongoTaskDependenciesCountByPort.get(port).getAndIncrement()
+                        def mongoStartedByTask = startMongoDb(mergedPluginExtension, project, STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS)
+                        if (mongoDependencyCount == 0) {
+                            rootProject.mongoInstancesStartedDuringBuild.put(port, mongoStartedByTask)
+                        }
+                    }
+                }
 
                 project.gradle.taskGraph.addTaskExecutionListener(new TaskExecutionListener() {
                     @Override
@@ -184,12 +195,24 @@ class GradleMongoPlugin implements Plugin<Project> {
 
                     @Override
                     void afterExecute(Task t, TaskState state) {
-                        if (task == t && state.didWork && mongoStartedByTask) {
-                            stopMongoDb(mergedPluginExtension.port)
+                        if (task == t && state.didWork) {
+                            synchronized (rootProject) {
+                                def mongoDependencyCount = rootProject.mongoTaskDependenciesCountByPort.get(port).decrementAndGet()
+                                if (mongoDependencyCount == 0 && rootProject.mongoInstancesStartedDuringBuild.get(port)) {
+                                    stopMongoDb(port)
+                                }
+                            }
                         }
                     }
                 })
             }
+        }
+    }
+
+    private static void ensureMongoTaskTrackingPropertiesAreSet(Project rootProject) {
+        if (!rootProject.extensions.extraProperties.has("mongoTaskDependenciesCountByPort")) {
+            rootProject.extensions.extraProperties.set("mongoTaskDependenciesCountByPort", new HashMap<Integer, AtomicInteger>().withDefault { new AtomicInteger() })
+            rootProject.extensions.extraProperties.set("mongoInstancesStartedDuringBuild", new HashMap<>().withDefault { false })
         }
     }
 
