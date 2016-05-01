@@ -1,6 +1,5 @@
 package com.sourcemuse.gradle.plugin.flapdoodle.gradle
 
-import java.util.concurrent.atomic.AtomicInteger
 import com.mongodb.MongoClient
 import com.sourcemuse.gradle.plugin.GradleMongoPluginExtension
 import com.sourcemuse.gradle.plugin.flapdoodle.adapters.CustomFlapdoodleRuntimeConfig
@@ -22,6 +21,8 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.execution.TaskExecutionListener
 import org.gradle.api.tasks.TaskState
+
+import java.util.concurrent.atomic.AtomicInteger
 
 import static com.sourcemuse.gradle.plugin.flapdoodle.gradle.ManageProcessInstruction.CONTINUE_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
 import static com.sourcemuse.gradle.plugin.flapdoodle.gradle.ManageProcessInstruction.STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
@@ -118,13 +119,31 @@ class GradleMongoPlugin implements Plugin<Project> {
     }
 
     private static boolean mongoInstanceAlreadyRunning(String bindIp, int port) {
+        if (isPortAvailable(bindIp, port)) {
+            return false
+        }
+
         try {
             def mongoClient = new MongoClient(bindIp, port)
             mongoClient.getDB('test').getStats()
-        } catch (Exception ignored) {
+        } catch (Throwable ignored) {
             return false
         }
         return true
+    }
+
+    private static boolean isPortAvailable(String host, int port) {
+        Socket socket = null
+        try {
+            socket = new Socket(host, port)
+            return false
+        } catch (IOException ignored) {
+            return true
+        } finally {
+            try {
+                socket.close()
+            } catch (Throwable ignored) {}
+        }
     }
 
     private static IMongoCmdOptions createMongoCommandOptions(GradleMongoPluginExtension pluginExtension) {
