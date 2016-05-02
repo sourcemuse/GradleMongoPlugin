@@ -208,7 +208,7 @@ class MongoPluginTasksSpec extends Specification {
 
         then:
         !ioExceptionDuringBuild
-        
+
         cleanup:
         ensureMongoIsStopped(27017)
         ensureMongoIsStopped(27018)
