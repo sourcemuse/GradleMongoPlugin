@@ -188,12 +188,15 @@ class MongoPluginTasksSpec extends Specification {
                     task A {
                         runWithMongoDb = true
                         doFirst { B.execute() }
+                        mongo {
+                            port = 27017
+                        }
                     }
 
                     task B {
                         runWithMongoDb = true
                         mongo {
-                            port = 'random'
+                            port = 27018
                         }
                     }
                     """)
@@ -205,6 +208,10 @@ class MongoPluginTasksSpec extends Specification {
 
         then:
         !ioExceptionDuringBuild
+        
+        cleanup:
+        ensureMongoIsStopped(27017)
+        ensureMongoIsStopped(27018)
     }
 
     def 'startManagedMongoDb starts a mongo instance, and then stops once the build has completed'() {
