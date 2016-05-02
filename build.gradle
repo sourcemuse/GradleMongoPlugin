@@ -1,8 +1,20 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "com.gradle.publish:plugin-publish-plugin:0.9.4"
+    }
+}
+
 apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'com.gradle.plugin-publish'
 
 archivesBaseName = 'gradle-mongo-plugin'
 group = 'com.sourcemuse.gradle.plugin'
@@ -12,7 +24,7 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 dependencies {
@@ -89,6 +101,20 @@ uploadArchives {
                     }
                 }
             }
+        }
+    }
+}
+
+pluginBundle {
+    website = 'https://github.com/sourcemuse/GradleMongoPlugin'
+    vcsUrl = 'https://github.com/sourcemuse/GradleMongoPlugin'
+    description = 'Gradle plugin for running a managed instance of Mongo.'
+    tags = ['mongo']
+
+    plugins {
+        mongoPlugin {
+            id = 'com.sourcemuse.mongo'
+            displayName = 'Gradle Mongo plugin'
         }
     }
 }
