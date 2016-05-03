@@ -109,7 +109,7 @@ pluginBundle {
     website = 'https://github.com/sourcemuse/GradleMongoPlugin'
     vcsUrl = 'https://github.com/sourcemuse/GradleMongoPlugin'
     description = 'Gradle plugin for running a managed instance of Mongo.'
-    tags = ['mongo']
+    tags = ['mongo', 'mongodb']
 
     plugins {
         mongoPlugin {
