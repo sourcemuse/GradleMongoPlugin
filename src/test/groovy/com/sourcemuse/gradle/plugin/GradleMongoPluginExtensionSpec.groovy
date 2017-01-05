@@ -147,6 +147,31 @@ class GradleMongoPluginExtensionSpec extends Specification {
         notThrown(IllegalArgumentException)
     }
 
+    def 'mongod proxy url throws exception for invalid url'() {
+      given:
+      String proxyURL = 'somejunkyurl'
+
+      when:
+      this.pluginExtension.proxyURL = proxyURL
+
+      then:
+      def throwable = thrown(IllegalArgumentException)
+      throwable.message == "ProxyURL ${proxyURL} is not a valid URL."
+    }
+
+    def 'mongod proxy url and port can be set for a valid url'() {
+        given:
+        String proxyURL = 'http://yourproxy.com'
+        int proxyPort = 99
+
+        when:
+        this.pluginExtension.proxyURL = proxyURL
+        this.pluginExtension.proxyPort = proxyPort
+
+        then:
+        notThrown(IllegalArgumentException)
+    }
+
     def 'config can be overridden'() {
         given:
         def overridingPluginExtension = new GradleMongoPluginExtension()
@@ -154,6 +179,7 @@ class GradleMongoPluginExtensionSpec extends Specification {
         this.pluginExtension.port = 12345
         overridingPluginExtension.bindIp = "7.8.9.0"
         overridingPluginExtension.downloadURL = "http://abc.com"
+        overridingPluginExtension.proxyPort = 443
 
         when:
         def mergedPluginExtension = this.pluginExtension.overrideWith(overridingPluginExtension)
@@ -162,5 +188,6 @@ class GradleMongoPluginExtensionSpec extends Specification {
         mergedPluginExtension.bindIp == "7.8.9.0"
         mergedPluginExtension.port == 12345
         mergedPluginExtension.downloadURL == "http://abc.com"
+        mergedPluginExtension.proxyPort == 443
     }
 }

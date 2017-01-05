@@ -72,6 +72,12 @@ class BuildScriptBuilder {
         this
     }
 
+    BuildScriptBuilder withProxy(String host, int port) {
+        configProperties.proxyHost = asStringProperty(host)
+        configProperties.proxyPort = port
+        this
+    }
+
     private String asStringProperty(String value) {
         "'$value'"
     }
