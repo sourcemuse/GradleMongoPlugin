@@ -78,6 +78,11 @@ class BuildScriptBuilder {
         this
     }
 
+    BuildScriptBuilder withArtifactStorePath(String artifactStorePath) {
+        configProperties.artifactStorePath = asStringProperty(artifactStorePath)
+        this
+    }
+
     private String asStringProperty(String value) {
         "'$value'"
     }

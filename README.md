@@ -57,8 +57,9 @@ The following properties are configurable:
 * ```port```: The port Mongo will listen on (defaults to **27017**). For random port assignment, set this value to **'RANDOM'** (the actual port value used will be available during the build through the **project.mongo.port** property)
 * ```storageLocation```: The directory location from where embedded Mongo will run, such as ```/tmp/storage``` (defaults to a java temp directory)
 * ```downloadURL```: The URL from where Mongo will be downloaded from
-* ```proxyURL```: The proxy URL for Mongo downloads
+* ```proxyHost```: The proxy host name for Mongo downloads
 * ```proxyPort```: The proxy port for Mongo downloads
+* ```artifactStorePath``` The location where Mongo were be downloaded to
 
 ### Tasks ###
 

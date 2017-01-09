@@ -36,6 +36,7 @@ dependencies {
     testCompile 'org.spockframework:spock-core:1.0-groovy-2.3', {
         exclude module: 'groovy-all'
     }
+    testCompile 'org.littleshoot:littleproxy:1.1.1'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

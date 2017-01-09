@@ -104,8 +104,9 @@ class GradleMongoPlugin implements Plugin<Project> {
         def runtimeConfig = new CustomFlapdoodleRuntimeConfig(version,
                                                               pluginExtension.mongodVerbosity,
                                                               pluginExtension.downloadURL,
-                                                              pluginExtension.proxyURL,
-                                                              pluginExtension.proxyPort)
+                                                              pluginExtension.proxyHost,
+                                                              pluginExtension.proxyPort,
+                                                              pluginExtension.artifactStorePath)
                 .defaults(Command.MongoD)
                 .processOutput(processOutput)
                 .daemonProcess(manageProcessInstruction == STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS)

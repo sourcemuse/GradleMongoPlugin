@@ -6,25 +6,29 @@ import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder
 import de.flapdoodle.embed.process.config.store.HttpProxyFactory
 import de.flapdoodle.embed.process.distribution.Distribution
 import de.flapdoodle.embed.process.distribution.IVersion
+import de.flapdoodle.embed.process.io.directories.FixedPath
 import de.flapdoodle.embed.process.runtime.ICommandLinePostProcessor
 
 class CustomFlapdoodleRuntimeConfig extends RuntimeConfigBuilder {
     private final IVersion version
     private final String mongodVerbosity
     private final String downloadUrl
-    private final String proxyURL
+    private final String proxyHost
     private final int proxyPort
+    private final String artifactStorePath
 
     CustomFlapdoodleRuntimeConfig(IVersion version,
                                   String mongodVerbosity,
                                   String downloadUrl,
-                                  String proxyURL,
-                                  int proxyPort) {
+                                  String proxyHost,
+                                  int proxyPort,
+                                  String artifactStorePath) {
         this.version = version
         this.mongodVerbosity = mongodVerbosity
         this.downloadUrl = downloadUrl
-        this.proxyURL = proxyURL
+        this.proxyHost = proxyHost
         this.proxyPort = proxyPort
+        this.artifactStorePath = artifactStorePath
     }
 
     @Override
@@ -39,8 +43,12 @@ class CustomFlapdoodleRuntimeConfig extends RuntimeConfigBuilder {
             downloadConfigBuilder.downloadPath(downloadUrl)
         }
 
-        if (proxyURL) {
-          downloadConfigBuilder.proxyFactory(new HttpProxyFactory(proxyURL, proxyPort))
+        if (proxyHost) {
+          downloadConfigBuilder.proxyFactory(new HttpProxyFactory(proxyHost, proxyPort))
+        }
+
+        if (artifactStorePath) {
+          downloadConfigBuilder.artifactStorePath(new FixedPath(artifactStorePath))
         }
 
         commandLinePostProcessor(new ICommandLinePostProcessor() {

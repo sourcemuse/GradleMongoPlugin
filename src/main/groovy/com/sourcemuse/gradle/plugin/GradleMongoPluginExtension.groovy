@@ -19,16 +19,9 @@ class GradleMongoPluginExtension {
     String storageLocation = EPHEMERAL_TEMPORARY_FOLDER
     String mongodVerbosity = ''
     String downloadURL = ''
-    String proxyURL = ''
+    String proxyHost = ''
     int proxyPort = 80
-
-    void setProxyURL(String url) {
-        try {
-            this.proxyURL = new URL(url).toString()
-        } catch (MalformedURLException mue) {
-            throw new IllegalArgumentException("ProxyURL $url is not a valid URL.")
-        }
-    }
+    String artifactStorePath = ''
 
     void setDownloadURL(String url) {
         try {
