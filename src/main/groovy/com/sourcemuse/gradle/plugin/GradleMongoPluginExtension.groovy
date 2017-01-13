@@ -19,6 +19,9 @@ class GradleMongoPluginExtension {
     String storageLocation = EPHEMERAL_TEMPORARY_FOLDER
     String mongodVerbosity = ''
     String downloadURL = ''
+    String proxyHost = ''
+    int proxyPort = 80
+    String artifactStorePath = ''
 
     void setDownloadURL(String url) {
         try {

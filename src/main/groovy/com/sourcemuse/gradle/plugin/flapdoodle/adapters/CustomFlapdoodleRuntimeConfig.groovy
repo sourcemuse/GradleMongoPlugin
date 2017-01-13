@@ -3,19 +3,32 @@ import de.flapdoodle.embed.mongo.Command
 import de.flapdoodle.embed.mongo.config.ArtifactStoreBuilder
 import de.flapdoodle.embed.mongo.config.DownloadConfigBuilder
 import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder
+import de.flapdoodle.embed.process.config.store.HttpProxyFactory
 import de.flapdoodle.embed.process.distribution.Distribution
 import de.flapdoodle.embed.process.distribution.IVersion
+import de.flapdoodle.embed.process.io.directories.FixedPath
 import de.flapdoodle.embed.process.runtime.ICommandLinePostProcessor
 
 class CustomFlapdoodleRuntimeConfig extends RuntimeConfigBuilder {
     private final IVersion version
     private final String mongodVerbosity
     private final String downloadUrl
+    private final String proxyHost
+    private final int proxyPort
+    private final String artifactStorePath
 
-    CustomFlapdoodleRuntimeConfig(IVersion version, String mongodVerbosity, String downloadUrl) {
+    CustomFlapdoodleRuntimeConfig(IVersion version,
+                                  String mongodVerbosity,
+                                  String downloadUrl,
+                                  String proxyHost,
+                                  int proxyPort,
+                                  String artifactStorePath) {
         this.version = version
         this.mongodVerbosity = mongodVerbosity
         this.downloadUrl = downloadUrl
+        this.proxyHost = proxyHost
+        this.proxyPort = proxyPort
+        this.artifactStorePath = artifactStorePath
     }
 
     @Override
@@ -28,6 +41,14 @@ class CustomFlapdoodleRuntimeConfig extends RuntimeConfigBuilder {
 
         if (downloadUrl) {
             downloadConfigBuilder.downloadPath(downloadUrl)
+        }
+
+        if (proxyHost) {
+          downloadConfigBuilder.proxyFactory(new HttpProxyFactory(proxyHost, proxyPort))
+        }
+
+        if (artifactStorePath) {
+          downloadConfigBuilder.artifactStorePath(new FixedPath(artifactStorePath))
         }
 
         commandLinePostProcessor(new ICommandLinePostProcessor() {

@@ -1,13 +1,17 @@
 package com.sourcemuse.gradle.plugin
 
 import de.flapdoodle.embed.mongo.distribution.Version
+import org.gradle.api.tasks.TaskExecutionException
 import org.gradle.testkit.functional.GradleRunnerFactory
 import org.gradle.tooling.BuildException
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-
+import org.littleshoot.proxy.HttpProxyServer
+import org.littleshoot.proxy.impl.DefaultHttpProxyServer
 import spock.lang.Issue
 import spock.lang.Specification
+
+import java.nio.file.Path
 
 import static PluginForTests.TEST_START_MONGO_DB
 import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.DEFAULT_MONGOD_PORT
@@ -189,6 +193,45 @@ class MongoPluginConfigSpec extends Specification {
 
         then:
         thrown(BuildException)
+    }
+
+    def 'will fail with non-routable proxy'() {
+        given:
+        int proxyPort = 9091
+        String proxyHost = 'invalidHost'
+        String path = File.createTempDir().toString()
+        generate(buildScript.withProxy(proxyHost, proxyPort).withArtifactStorePath(path))
+        gradleRunner.arguments << TEST_START_MONGO_DB
+
+        when:
+        gradleRunner.run()
+
+        then:
+        def e = thrown(Exception)
+        def message = e.cause.cause.cause.message
+        message.contains("with proxy HTTP @ $proxyHost:$proxyPort")
+
+        cleanup:
+        new File(path).deleteDir()
+    }
+
+    def 'can use proxy to download and a custom location'() {
+        given:
+        int proxyPort = 9091
+        DefaultHttpProxyServer.bootstrap().withPort(proxyPort).start()
+        String path = File.createTempDir().toString()
+        generate(buildScript.withProxy('localhost', proxyPort).withArtifactStorePath(path))
+        gradleRunner.arguments << TEST_START_MONGO_DB
+
+        when:
+        gradleRunner.run()
+
+        then:
+        mongoInstanceRunning()
+        noExceptionThrown()
+
+        cleanup:
+        new File(path).deleteDir()
     }
 
     def cleanup() {

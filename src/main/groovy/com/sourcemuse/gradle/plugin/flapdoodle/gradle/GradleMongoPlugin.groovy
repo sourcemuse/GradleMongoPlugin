@@ -101,7 +101,12 @@ class GradleMongoPlugin implements Plugin<Project> {
                 .net(new Net(pluginExtension.bindIp, pluginExtension.port, Network.localhostIsIPv6()))
                 .build()
 
-        def runtimeConfig = new CustomFlapdoodleRuntimeConfig(version, pluginExtension.mongodVerbosity, pluginExtension.downloadURL)
+        def runtimeConfig = new CustomFlapdoodleRuntimeConfig(version,
+                                                              pluginExtension.mongodVerbosity,
+                                                              pluginExtension.downloadURL,
+                                                              pluginExtension.proxyHost,
+                                                              pluginExtension.proxyPort,
+                                                              pluginExtension.artifactStorePath)
                 .defaults(Command.MongoD)
                 .processOutput(processOutput)
                 .daemonProcess(manageProcessInstruction == STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS)
