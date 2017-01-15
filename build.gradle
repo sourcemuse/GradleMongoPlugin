@@ -29,7 +29,7 @@ repositories {
 
 dependencies {
     compile gradleApi()
-    compile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.50.1'
+    compile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.50.5'
     compile 'org.mongodb:mongo-java-driver:3.2.2'
 
     testCompile files('libs/gradle-test-kit.jar')
