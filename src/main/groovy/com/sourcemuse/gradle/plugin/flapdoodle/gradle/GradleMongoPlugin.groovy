@@ -103,7 +103,7 @@ class GradleMongoPlugin implements Plugin<Project> {
 
         def runtimeConfig = new CustomFlapdoodleRuntimeConfig(version,
                                                               pluginExtension.mongodVerbosity,
-                                                              pluginExtension.downloadURL,
+                                                              pluginExtension.downloadUrl,
                                                               pluginExtension.proxyHost,
                                                               pluginExtension.proxyPort,
                                                               pluginExtension.artifactStorePath)

@@ -18,17 +18,23 @@ class GradleMongoPluginExtension {
     String mongoVersion = 'PRODUCTION'
     String storageLocation = EPHEMERAL_TEMPORARY_FOLDER
     String mongodVerbosity = ''
-    String downloadURL = ''
+    String downloadUrl = ''
     String proxyHost = ''
     int proxyPort = 80
     String artifactStorePath = ''
 
-    void setDownloadURL(String url) {
+    void setDownloadUrl(String url) {
         try {
-            this.downloadURL = new URL(url).toString()
+            this.downloadUrl = new URL(url).toString()
         } catch (MalformedURLException ignored) {
             throw new IllegalArgumentException("DownloadURL ${url} is not a valid URL.")
         }
+    }
+
+    void setDownloadURL(String url) {
+        println "Warning: 'downloadURL' has been deprecated. It has been renamed to 'downloadUrl' " +
+                "and will no longer be supported in a future release."
+        setDownloadUrl(url)
     }
 
     int getPort() {

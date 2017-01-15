@@ -129,7 +129,7 @@ class GradleMongoPluginExtensionSpec extends Specification {
         String invalidURL = 'thisisnotavalidurl'
         
         when:
-        this.pluginExtension.downloadURL = invalidURL
+        this.pluginExtension.downloadUrl = invalidURL
 
         then:
         def throwable = thrown(IllegalArgumentException)
@@ -141,7 +141,7 @@ class GradleMongoPluginExtensionSpec extends Specification {
         String validURL = 'http://google.com'
 
         when:
-        this.pluginExtension.downloadURL = validURL
+        this.pluginExtension.downloadUrl = validURL
 
         then:
         notThrown(IllegalArgumentException)
@@ -153,7 +153,7 @@ class GradleMongoPluginExtensionSpec extends Specification {
         this.pluginExtension.bindIp = "1.2.3.4"
         this.pluginExtension.port = 12345
         overridingPluginExtension.bindIp = "7.8.9.0"
-        overridingPluginExtension.downloadURL = "http://abc.com"
+        overridingPluginExtension.downloadUrl = "http://abc.com"
         overridingPluginExtension.proxyPort = 443
         overridingPluginExtension.proxyHost = 'yourproxy'
         overridingPluginExtension.artifactStorePath = '/tmp'
@@ -164,7 +164,7 @@ class GradleMongoPluginExtensionSpec extends Specification {
         then:
         mergedPluginExtension.bindIp == "7.8.9.0"
         mergedPluginExtension.port == 12345
-        mergedPluginExtension.downloadURL == "http://abc.com"
+        mergedPluginExtension.downloadUrl == "http://abc.com"
         mergedPluginExtension.proxyPort == 443
         mergedPluginExtension.proxyHost == 'yourproxy'
         mergedPluginExtension.artifactStorePath == '/tmp'
