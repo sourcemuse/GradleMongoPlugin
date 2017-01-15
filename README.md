@@ -8,19 +8,12 @@ Plugin is available on both [Maven Central](http://search.maven.org/#search%7Cga
 
 ### Usage ###
 
-Enable the plugin in your gradle build by adding the jar to your buildscript dependencies:
+Enable the plugin in your gradle build:
 
 ```groovy
-buildscript {
-   repositories {
-      mavenCentral()
-   }
-   dependencies {
-      classpath 'com.sourcemuse.gradle.plugin:gradle-mongo-plugin:1.0.0'
-   }
+plugins {
+  id "com.sourcemuse.mongo" version "1.0.0"
 }
-
-apply plugin: 'mongo'
 ```
 
 Hey presto, you can now declare a dependency on a running mongo instance from any of your tasks:
