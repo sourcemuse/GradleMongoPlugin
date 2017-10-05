@@ -131,6 +131,58 @@ class MongoPluginConfigSpec extends Specification {
         mongoVersion == version
     }
 
+    def 'storage engine can be set to WiredTiger'() {
+        given:
+        generate(buildScript.withMongoVersion(Version.Main.V3_2.asInDownloadPath()).withStorageEngine('wiredTiger'))
+        gradleRunner.arguments << TEST_START_MONGO_DB
+
+        when:
+        gradleRunner.run()
+
+        then:
+        mongoServerStatus().storageEngine.name == 'wiredTiger'
+        noExceptionThrown()
+    }
+
+    def 'storage engine can be set to MMAPv1'() {
+        given:
+        generate(buildScript.withMongoVersion(Version.Main.V3_2.asInDownloadPath()).withStorageEngine('mmapv1'))
+        gradleRunner.arguments << TEST_START_MONGO_DB
+
+        when:
+        gradleRunner.run()
+
+        then:
+        mongoServerStatus().storageEngine.name == 'mmapv1'
+        noExceptionThrown()
+    }
+
+    def 'the default storage engine is WiredTiger for versions after 3.2'() {
+        given:
+        generate(buildScript.withMongoVersion(Version.Main.V3_2.asInDownloadPath()))
+        gradleRunner.arguments << TEST_START_MONGO_DB
+
+        when:
+        gradleRunner.run()
+
+        then:
+        mongoServerStatus().storageEngine.name == 'wiredTiger'
+        noExceptionThrown()
+    }
+
+    def 'the default storage engine is MMAPv1 for versions before 3.0'() {
+        given:
+        generate(buildScript.withMongoVersion(Version.Main.V3_0.asInDownloadPath()))
+        gradleRunner.arguments << TEST_START_MONGO_DB
+
+        when:
+        gradleRunner.run()
+
+        then:
+        mongoServerStatus().storageEngine.name == 'mmapv1'
+        noExceptionThrown()
+    }
+
     def 'replication storage location is configurable'() {
         given:
         def storageDir = tmp.newFolder()
