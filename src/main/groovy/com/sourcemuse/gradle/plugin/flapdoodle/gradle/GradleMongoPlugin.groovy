@@ -154,6 +154,7 @@ class GradleMongoPlugin implements Plugin<Project> {
     private static IMongoCmdOptions createMongoCommandOptions(GradleMongoPluginExtension pluginExtension) {
         new MongoCmdOptionsBuilder()
                 .useNoJournal(!pluginExtension.journalingEnabled)
+                .useStorageEngine(pluginExtension.storageEngine)
                 .build()
     }
 
