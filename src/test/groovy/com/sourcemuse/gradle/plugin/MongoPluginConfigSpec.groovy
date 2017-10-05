@@ -1,17 +1,13 @@
 package com.sourcemuse.gradle.plugin
 
 import de.flapdoodle.embed.mongo.distribution.Version
-import org.gradle.api.tasks.TaskExecutionException
 import org.gradle.testkit.functional.GradleRunnerFactory
 import org.gradle.tooling.BuildException
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-import org.littleshoot.proxy.HttpProxyServer
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer
 import spock.lang.Issue
 import spock.lang.Specification
-
-import java.nio.file.Path
 
 import static PluginForTests.TEST_START_MONGO_DB
 import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.DEFAULT_MONGOD_PORT
