@@ -4,6 +4,8 @@ import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.DEFAULT_MONGOD_POR
 import static com.sourcemuse.gradle.plugin.flapdoodle.gradle.GradleMongoPlugin.PLUGIN_EXTENSION_NAME
 
 import com.mongodb.BasicDBObject
+import com.mongodb.DB
+import com.mongodb.DBObject
 import com.mongodb.MongoClient
 import com.mongodb.WriteConcern
 import de.flapdoodle.embed.mongo.runtime.Mongod
@@ -18,10 +20,18 @@ class MongoUtils {
         Mongod.sendShutdown(InetAddress.getLoopbackAddress(), port)
     }
 
+    static DB mongoDatabase(int port) {
+        def mongoClient = new MongoClient(LOOPBACK_ADDRESS, port)
+        mongoClient.getDB(DATABASE_NAME)
+    }
+
+    static DBObject mongoServerStatus(int port = DEFAULT_MONGOD_PORT) {
+        mongoDatabase(port).eval("db.serverStatus()")
+    }
+
     static boolean mongoInstanceRunning(int port = DEFAULT_MONGOD_PORT) {
         try {
-            def mongoClient = new MongoClient(LOOPBACK_ADDRESS, port)
-            mongoClient.getDB(DATABASE_NAME).getStats()
+            mongoDatabase(port).getStats()
         } catch (Exception e) {
             e.printStackTrace()
             return false

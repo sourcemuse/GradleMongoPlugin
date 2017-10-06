@@ -48,6 +48,11 @@ class BuildScriptBuilder {
         this
     }
 
+    BuildScriptBuilder withStorageEngine(String storageEngine) {
+        configProperties.storageEngine = asStringProperty(storageEngine)
+        this
+    }
+
     BuildScriptBuilder withStorageLocation(String storage) {
         configProperties.storageLocation = asStringProperty(storage)
         this
