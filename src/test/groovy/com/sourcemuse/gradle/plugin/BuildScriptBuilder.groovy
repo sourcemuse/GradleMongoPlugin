@@ -105,10 +105,10 @@ class BuildScriptBuilder {
 
         String toString() {
             if (config) {
-                config += '}'
+                return config + '}'
+            } else {
+                return config
             }
-
-            return config
         }
     }
 }
