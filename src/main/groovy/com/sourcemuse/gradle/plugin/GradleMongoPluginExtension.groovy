@@ -1,5 +1,7 @@
 package com.sourcemuse.gradle.plugin
 
+import com.mongodb.ServerAddress
+
 import java.util.regex.Pattern
 
 import static LogDestination.FILE
@@ -10,8 +12,8 @@ class GradleMongoPluginExtension {
     static final EPHEMERAL_TEMPORARY_FOLDER = null
     static final Pattern VALID_MONGOD_VERBOSITY_FORMAT = ~/(?i)-?v+|-{0,2}verbose/
 
-    private int port = 27017
-    String bindIp = '127.0.0.1'
+    private int port = ServerAddress.defaultPort()
+    String bindIp = ServerAddress.defaultHost()
     boolean journalingEnabled = false
     String logging = FILE as String
     String logFilePath = 'embedded-mongo.log'
