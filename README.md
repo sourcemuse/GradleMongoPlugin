@@ -12,7 +12,7 @@ Enable the plugin in your gradle build:
 
 ```groovy
 plugins {
-  id 'com.sourcemuse.mongo' version '1.0.2'
+  id 'com.sourcemuse.mongo' version '1.0.3'
 }
 ```
 
