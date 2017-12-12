@@ -95,12 +95,24 @@ class GradleMongoPlugin implements Plugin<Project> {
         def version = new VersionFactory().getVersion(pluginExtension)
         def storage = new StorageFactory().getStorage(pluginExtension)
 
-        def mongodConfig = new MongodConfigBuilder()
+        def configBuilder = new MongodConfigBuilder()
                 .cmdOptions(createMongoCommandOptions(pluginExtension))
                 .version(version)
                 .replication(storage)
                 .net(new Net(pluginExtension.bindIp, pluginExtension.port, Network.localhostIsIPv6()))
-                .build()
+
+        if (pluginExtension.args)
+            pluginExtension.args.each { k, v ->
+                if (!v)
+                    configBuilder.withLaunchArgument("--${k}")
+                else
+                    configBuilder.withLaunchArgument("--${k}", v)
+            }
+
+        if (pluginExtension.params)
+            pluginExtension.params.each { k, v -> configBuilder.setParameter(k, v) }
+
+        def mongodConfig = configBuilder.build()
 
         def runtimeConfig = new CustomFlapdoodleRuntimeConfig(version,
                                                               pluginExtension.mongodVerbosity,

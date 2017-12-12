@@ -360,7 +360,7 @@ class MongoPluginConfigSpec extends Specification {
         def args = TEST_START_MONGO_DB
 
         when:
-        def executionResult = GradleRunner.create()
+        GradleRunner.create()
             .withPluginClasspath()
             .withProjectDir(tmp.root)
             .withArguments(args)
@@ -371,6 +371,38 @@ class MongoPluginConfigSpec extends Specification {
 
         cleanup:
         shutdownAuth()
+    }
+
+    def 'parameters can be set'() {
+        given:
+        generate(buildScript.withParams([cursorTimeoutMillis: '300000']))
+        def args = TEST_START_MONGO_DB
+
+        when:
+        GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(tmp.root)
+            .withArguments(args)
+            .build()
+
+        then:
+        noExceptionThrown()
+    }
+
+    def 'custom command line arguments can be set'() {
+        given:
+        generate(buildScript.withArgs([logappend: '', maxConns: '1000']))
+        def args = TEST_START_MONGO_DB
+
+        when:
+        GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(tmp.root)
+            .withArguments(args)
+            .build()
+
+        then:
+        noExceptionThrown()
     }
 
     def cleanup() {

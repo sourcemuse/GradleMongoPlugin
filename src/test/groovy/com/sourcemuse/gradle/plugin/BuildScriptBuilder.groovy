@@ -106,6 +106,16 @@ class BuildScriptBuilder {
         this
     }
 
+    BuildScriptBuilder withParams(Map<String, String> params) {
+        configProperties.params = params.inspect()
+        this
+    }
+
+    BuildScriptBuilder withArgs(Map<String, String> args) {
+        configProperties.args = args.inspect()
+        this
+    }
+
     private String asStringProperty(String value) {
         "'$value'"
     }
@@ -118,7 +128,7 @@ class BuildScriptBuilder {
                 config += 'mongo {\n'
             }
 
-            config += "\t$propertyName $value\n"
+            config += "\t$propertyName = $value\n"
         }
 
         String toString() {

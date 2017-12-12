@@ -55,6 +55,8 @@ The following properties are configurable:
 * ```storageEngine```: The name of the storage engine to use. Can be **'wiredTiger'** or **'mmapv1'** for MongoDB Community Edition (default is **'wiredTiger'** for Mongo 3.2 and later; otherwise it is **'mmapv1'**). Alternative distributions might support additional engines.
 * ```storageLocation```: The directory location from where embedded Mongo will run, such as ```/tmp/storage``` (defaults to a java temp directory)
 * ```auth```: Enables [access control](https://docs.mongodb.com/manual/tutorial/enable-authentication/) (defaults to **false**)
+* ```params```: A <String,String> map of [MongoDB Server Parameters](https://docs.mongodb.com/manual/reference/parameters/) (defaults to **null**)
+* ```args```: A <String,String> map of mongod command-line options (value can be empty for arguments without values) (defaults to **null**)
 
 ### Tasks ###
 

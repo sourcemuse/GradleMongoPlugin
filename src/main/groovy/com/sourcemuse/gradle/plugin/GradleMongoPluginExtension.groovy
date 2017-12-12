@@ -26,6 +26,8 @@ class GradleMongoPluginExtension {
     int proxyPort = 80
     String artifactStorePath = ''
     boolean auth = false
+    Map<String, String> args = null
+    Map<String, String> params = null
 
     void setDownloadUrl(String url) {
         try {
