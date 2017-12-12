@@ -16,6 +16,7 @@ import de.flapdoodle.embed.mongo.config.Net
 import de.flapdoodle.embed.mongo.runtime.Mongod
 import de.flapdoodle.embed.process.runtime.Network
 import de.flapdoodle.embed.process.store.CachingArtifactStore
+import org.bson.Document
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -130,7 +131,7 @@ class GradleMongoPlugin implements Plugin<Project> {
 
         try {
             def mongoClient = new MongoClient(bindIp, port)
-            mongoClient.getDB('test').getStats()
+            mongoClient.getDatabase('test').runCommand(new Document('dbStats', 1))
         } catch (Throwable ignored) {
             return false
         }
@@ -155,6 +156,7 @@ class GradleMongoPlugin implements Plugin<Project> {
         new MongoCmdOptionsBuilder()
                 .useNoJournal(!pluginExtension.journalingEnabled)
                 .useStorageEngine(pluginExtension.storageEngine)
+                .enableAuth(pluginExtension.auth)
                 .build()
     }
 

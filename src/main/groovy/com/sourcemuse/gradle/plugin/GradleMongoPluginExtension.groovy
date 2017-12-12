@@ -25,6 +25,7 @@ class GradleMongoPluginExtension {
     String proxyHost = ''
     int proxyPort = 80
     String artifactStorePath = ''
+    boolean auth = false
 
     void setDownloadUrl(String url) {
         try {
@@ -36,7 +37,7 @@ class GradleMongoPluginExtension {
 
     void setDownloadURL(String url) {
         println "Warning: 'downloadURL' has been deprecated. It has been renamed to 'downloadUrl' " +
-                "and will no longer be supported in a future release."
+            "and will no longer be supported in a future release."
         setDownloadUrl(url)
     }
 
@@ -96,9 +97,10 @@ class GradleMongoPluginExtension {
         mergedPluginExtension
     }
 
-    private static void applyNonDefaultProperties(GradleMongoPluginExtension sourcePluginExtension, GradleMongoPluginExtension targetPluginExtension) {
+    private
+    static void applyNonDefaultProperties(GradleMongoPluginExtension sourcePluginExtension, GradleMongoPluginExtension targetPluginExtension) {
         def pluginExtensionWithDefaults = new GradleMongoPluginExtension()
-        pluginExtensionWithDefaults.properties.findAll { it.key != 'class'}.each { String key, Object value ->
+        pluginExtensionWithDefaults.properties.findAll { it.key != 'class' }.each { String key, Object value ->
             if (sourcePluginExtension[key] != value) {
                 targetPluginExtension[key] = sourcePluginExtension[key]
             }

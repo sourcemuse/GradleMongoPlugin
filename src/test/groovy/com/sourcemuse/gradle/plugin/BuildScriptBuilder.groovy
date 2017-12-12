@@ -101,6 +101,11 @@ class BuildScriptBuilder {
         this
     }
 
+    BuildScriptBuilder withAuth(boolean auth) {
+        configProperties.auth = auth
+        this
+    }
+
     private String asStringProperty(String value) {
         "'$value'"
     }

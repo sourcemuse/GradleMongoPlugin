@@ -354,6 +354,25 @@ class MongoPluginConfigSpec extends Specification {
         new File(path).deleteDir()
     }
 
+    def 'authorization mode is enabled'() {
+        given:
+        generate(buildScript.withAuth(true))
+        def args = TEST_START_MONGO_DB
+
+        when:
+        def executionResult = GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(tmp.root)
+            .withArguments(args)
+            .build()
+
+        then:
+        noExceptionThrown()
+
+        cleanup:
+        shutdownAuth()
+    }
+
     def cleanup() {
         ensureMongoIsStopped(buildScript.configuredPort ?: DEFAULT_MONGOD_PORT)
     }
