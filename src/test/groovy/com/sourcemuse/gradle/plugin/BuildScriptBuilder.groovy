@@ -1,11 +1,13 @@
 package com.sourcemuse.gradle.plugin
 
-import com.sourcemuse.gradle.plugin.flapdoodle.gradle.GradleMongoPlugin
-
-
 class BuildScriptBuilder {
 
     static final DEFAULT_MONGOD_PORT = 27017
+    static final TEST_STOP_MONGO_DB = 'testStopMongoDb'
+    static final TEST_START_MONGO_DB = 'testStartMongoDb'
+    static final TEST_START_MANAGED_MONGO_DB = 'testStartManagedMongoDb'
+    static final MONGO_RUNNING_FLAG = 'mongo running!'
+    static final MONGO_NOT_RUNNING_FLAG = 'mongo not running!'
 
     Map<String, Object> configProperties = [:]
     
@@ -21,11 +23,22 @@ class BuildScriptBuilder {
         }
 
         """
-            |apply plugin: ${GradleMongoPlugin.name}
-            |apply plugin: ${PluginForTests.name}
+            |import static com.sourcemuse.gradle.plugin.flapdoodle.gradle.GradleMongoPlugin.mongoInstanceAlreadyRunning
+            |
+            |plugins { id 'com.sourcemuse.mongo' }
+            |
+            |def performMongoCheck = {
+            |   if (mongoInstanceAlreadyRunning(mongo.bindIp, mongo.port))
+            |       println "${MONGO_RUNNING_FLAG}"
+            |   else
+            |       println "${MONGO_NOT_RUNNING_FLAG}"
+            |}
+            |task ${TEST_START_MANAGED_MONGO_DB} (dependsOn: startManagedMongoDb) { doLast performMongoCheck }
+            |task ${TEST_START_MONGO_DB} (dependsOn: startMongoDb) { doLast performMongoCheck }
+            |task ${TEST_STOP_MONGO_DB} (dependsOn: [startMongoDb, stopMongoDb])
             |
             |${mongoConfigBlock}
-            """.stripMargin()
+        """.stripMargin()
     }
 
     BuildScriptBuilder withPort(int port) {
@@ -42,7 +55,7 @@ class BuildScriptBuilder {
         configProperties.logFilePath = asStringProperty(filePath.replace('\\', '\\\\'))
         this
     }
-    
+
     BuildScriptBuilder withMongoVersion(String version) {
         configProperties.mongoVersion = asStringProperty(version)
         this
@@ -54,7 +67,7 @@ class BuildScriptBuilder {
     }
 
     BuildScriptBuilder withStorageLocation(String storage) {
-        configProperties.storageLocation = asStringProperty(storage)
+        configProperties.storageLocation = asStringProperty(storage.replace('\\', '\\\\'))
         this
     }
 
@@ -84,7 +97,7 @@ class BuildScriptBuilder {
     }
 
     BuildScriptBuilder withArtifactStorePath(String artifactStorePath) {
-        configProperties.artifactStorePath = asStringProperty(artifactStorePath)
+        configProperties.artifactStorePath = asStringProperty(artifactStorePath.replace('\\', '\\\\'))
         this
     }
 
