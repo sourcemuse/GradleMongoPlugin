@@ -1,6 +1,5 @@
 package com.sourcemuse.gradle.plugin
 
-import com.sourcemuse.gradle.plugin.flapdoodle.gradle.GradleMongoPlugin
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
@@ -8,8 +7,8 @@ import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.*
-import static com.sourcemuse.gradle.plugin.MongoUtils.ensureMongoIsStopped
 import static com.sourcemuse.gradle.plugin.MongoUtils.mongoInstanceRunning
+import static com.sourcemuse.gradle.plugin.MongoUtils.ensureMongoIsStopped
 
 class MongoPluginTasksSpec extends Specification {
 
@@ -180,6 +179,9 @@ class MongoPluginTasksSpec extends Specification {
 
         then:
         !ioExceptionDuringBuild
+
+        cleanup:
+        ensureMongoIsStopped()
     }
 
     def 'when an existing mongo instance is reused by a task, mongo is not shutdown when the task completes'() {
@@ -205,6 +207,9 @@ class MongoPluginTasksSpec extends Specification {
 
         then:
         mongoRunningAfterBuild
+
+        cleanup:
+        ensureMongoIsStopped()
     }
 
     def 'multiple mongo instances can be started if bound to separate ports'() {
@@ -241,8 +246,9 @@ class MongoPluginTasksSpec extends Specification {
         !ioExceptionDuringBuild
 
         cleanup:
-        ensureMongoIsStopped(27017)
         ensureMongoIsStopped(27018)
+        assert !mongoInstanceRunning(27017)
+        assert !mongoInstanceRunning(27018)
     }
 
     def 'startManagedMongoDb starts a mongo instance, and then stops once the build has completed'() {
@@ -281,6 +287,9 @@ class MongoPluginTasksSpec extends Specification {
         then:
         mongoRunningDuringBuild
         mongoRunningAfterBuild
+
+        cleanup:
+        ensureMongoIsStopped()
     }
 
     def 'stopMongoDb stops the mongo instance'() {
@@ -301,7 +310,7 @@ class MongoPluginTasksSpec extends Specification {
     }
 
     def cleanup() {
-        ensureMongoIsStopped()
+        assert !mongoInstanceRunning()
     }
 
     void generate(BuildScriptBuilder buildScriptBuilder) {

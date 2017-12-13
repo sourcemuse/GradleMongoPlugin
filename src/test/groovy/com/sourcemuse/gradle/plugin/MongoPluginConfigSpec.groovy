@@ -357,20 +357,20 @@ class MongoPluginConfigSpec extends Specification {
     def 'authorization mode is enabled'() {
         given:
         generate(buildScript.withAuth(true))
-        def args = TEST_START_MONGO_DB
+        def args = TEST_START_MANAGED_MONGO_DB
 
         when:
-        GradleRunner.create()
+        def result = GradleRunner.create()
             .withPluginClasspath()
             .withProjectDir(tmp.root)
             .withArguments(args)
             .build()
+        def mongoRunningDuringBuild = result.getOutput().contains(MONGO_RUNNING_FLAG)
+        def mongoRunningAfterBuild = mongoInstanceRunning()
 
         then:
-        noExceptionThrown()
-
-        cleanup:
-        shutdownAuth()
+        mongoRunningDuringBuild
+        !mongoRunningAfterBuild
     }
 
     def 'parameters can be set'() {

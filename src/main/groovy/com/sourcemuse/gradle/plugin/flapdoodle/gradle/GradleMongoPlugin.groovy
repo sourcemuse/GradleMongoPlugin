@@ -8,6 +8,7 @@ import com.sourcemuse.gradle.plugin.flapdoodle.adapters.StorageFactory
 import com.sourcemuse.gradle.plugin.flapdoodle.adapters.VersionFactory
 import de.flapdoodle.embed.mongo.AbstractMongoProcess
 import de.flapdoodle.embed.mongo.Command
+import de.flapdoodle.embed.mongo.MongodProcess
 import de.flapdoodle.embed.mongo.MongodStarter
 import de.flapdoodle.embed.mongo.config.IMongoCmdOptions
 import de.flapdoodle.embed.mongo.config.MongoCmdOptionsBuilder
@@ -51,6 +52,7 @@ class GradleMongoPlugin implements Plugin<Project> {
 
     private static void configureTaskProperties(Project project) {
         project.extensions.create(PLUGIN_EXTENSION_NAME, GradleMongoPluginExtension)
+        project.getRootProject().extensions.extraProperties.set("mongoPortToProcessMap", new HashMap<Integer, MongodProcess>())
     }
 
     private static void addStartManagedMongoDbTask(Project project) {
@@ -131,8 +133,9 @@ class GradleMongoPlugin implements Plugin<Project> {
 
         def mongodExecutable = runtime.prepare(mongodConfig)
         println "Starting Mongod ${version.asInDownloadPath()} on port ${pluginExtension.port}..."
-        mongodExecutable.start()
+        def mongoProc = mongodExecutable.start()
         println 'Mongod started.'
+        project.rootProject.mongoPortToProcessMap.put(pluginExtension.port, mongoProc)
         return true
     }
 
@@ -143,7 +146,7 @@ class GradleMongoPlugin implements Plugin<Project> {
 
         try {
             def mongoClient = new MongoClient(bindIp, port)
-            mongoClient.getDatabase('test').runCommand(new Document('dbStats', 1))
+            mongoClient.getDatabase('test').runCommand(new Document(buildinfo: 1))
         } catch (Throwable ignored) {
             return false
         }
@@ -180,12 +183,17 @@ class GradleMongoPlugin implements Plugin<Project> {
 
     private static void stopMongoDb(Project project) {
         def port = project."$PLUGIN_EXTENSION_NAME".port as Integer
-        stopMongoDb(port)
+        def proc = project.rootProject.mongoPortToProcessMap.remove(port) as MongodProcess
+        stopMongoDb(port, proc)
     }
 
-    private static void stopMongoDb(int port) {
+    private static void stopMongoDb(int port, MongodProcess proc) {
         println "Shutting-down Mongod on port ${port}."
-        Mongod.sendShutdown(InetAddress.getLoopbackAddress(), port)
+
+        if (proc)
+            proc.stop()
+        else if (!Mongod.sendShutdown(InetAddress.getLoopbackAddress(), port))
+            println "Could not shut down mongo, is access control enabled?"
     }
 
     private static void disableFlapdoodleLogging() {
@@ -238,7 +246,7 @@ class GradleMongoPlugin implements Plugin<Project> {
                             synchronized (rootProject) {
                                 def mongoDependencyCount = rootProject.mongoTaskDependenciesCountByPort.get(port).decrementAndGet()
                                 if (mongoDependencyCount == 0 && rootProject.mongoInstancesStartedDuringBuild.get(port)) {
-                                    stopMongoDb(port)
+                                    stopMongoDb(port, rootProject.mongoPortToProcessMap.remove(port))
                                 }
                             }
                         }

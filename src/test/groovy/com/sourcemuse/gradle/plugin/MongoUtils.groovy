@@ -1,6 +1,8 @@
 package com.sourcemuse.gradle.plugin
 
-import com.mongodb.*
+import com.mongodb.MongoClient
+import com.mongodb.MongoClientOptions
+import com.mongodb.WriteConcern
 import com.mongodb.client.MongoDatabase
 import de.flapdoodle.embed.mongo.runtime.Mongod
 import org.bson.Document
@@ -26,13 +28,30 @@ class MongoUtils {
     }
 
     static boolean mongoInstanceRunning(int port = DEFAULT_MONGOD_PORT) {
+        if (isPortAvailable(LOOPBACK_ADDRESS, port)) {
+            return false
+        }
         try {
-            mongoDatabase(port).runCommand(new Document('dbStats', 1))
-        } catch (Exception e) {
-            e.printStackTrace()
+            getMongoVersionRunning(port)
+        } catch (Throwable ignored) {
             return false
         }
         return true
+    }
+
+    private static boolean isPortAvailable(String host, int port) {
+        Socket socket = null
+        try {
+            socket = new Socket(host, port)
+            return false
+        } catch (IOException ignored) {
+            return true
+        } finally {
+            try {
+                socket.close()
+            } catch (Throwable ignored) {
+            }
+        }
     }
 
     static String getMongoVersionRunning(int port) {
@@ -61,23 +80,5 @@ class MongoUtils {
         db.createCollection('test-collection')
         def document = new Document('key', 'val')
         db.getCollection('test-collection').insertOne(document)
-    }
-
-    static void shutdownAuth(int port = DEFAULT_MONGOD_PORT) {
-        def mongoClient = new MongoClient(LOOPBACK_ADDRESS, port)
-        def cmdArgs = new Document('createUser', 'admin')
-        cmdArgs.put('pwd', 'qwert123')
-        cmdArgs.put('roles', ['root'])
-        mongoClient.getDatabase('admin').runCommand(cmdArgs)
-
-        def adminClient = new MongoClient(new ServerAddress("${LOOPBACK_ADDRESS}:${port}"),
-            MongoCredential.createCredential('admin', 'admin', 'qwert123'.toCharArray()),
-            MongoClientOptions.builder().build())
-
-        try {
-            adminClient.getDatabase('admin').runCommand(new Document('shutdown', 1))
-        }
-        catch (MongoSocketReadException e) { /* Expected at shutdown */
-        }
     }
 }
