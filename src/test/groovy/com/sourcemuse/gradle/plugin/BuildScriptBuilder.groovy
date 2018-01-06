@@ -101,8 +101,8 @@ class BuildScriptBuilder {
         this
     }
 
-    BuildScriptBuilder withAuth(boolean auth) {
-        configProperties.auth = auth
+    BuildScriptBuilder withAuth() {
+        configProperties.auth = true
         this
     }
 

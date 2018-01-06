@@ -1,5 +1,6 @@
 package com.sourcemuse.gradle.plugin
 
+import com.mongodb.MongoClient
 import com.mongodb.MongoCredential
 import de.flapdoodle.embed.mongo.distribution.Version
 import org.bson.Document
@@ -248,11 +249,11 @@ class MongoPluginConfigSpec extends Specification {
         noExceptionThrown()
     }
 
-    def 'will fail with non-routable proxy'() {
+    def 'will fail with non-routeable proxy'() {
         given:
         int proxyPort = 9091
         String proxyHost = 'invalidHost'
-        String path = File.createTempDir().toString()
+        String path = tmp.newFolder().toString()
         generate(buildScript.withProxy(proxyHost, proxyPort).withArtifactStorePath(path))
         def args = TEST_START_MONGO_DB
 
@@ -265,16 +266,13 @@ class MongoPluginConfigSpec extends Specification {
 
         then:
         executionResult.getOutput().contains("with proxy HTTP @ $proxyHost:$proxyPort")
-
-        cleanup:
-        new File(path).deleteDir()
     }
 
     def 'can use proxy to download and a custom location'() {
         given:
         int proxyPort = 9091
         DefaultHttpProxyServer.bootstrap().withPort(proxyPort).start()
-        String path = File.createTempDir().toString()
+        String path = tmp.newFolder().toString()
         generate(buildScript.withProxy('localhost', proxyPort).withArtifactStorePath(path))
         def args = TEST_START_MONGO_DB
 
@@ -284,14 +282,11 @@ class MongoPluginConfigSpec extends Specification {
         then:
         mongoInstanceRunning()
         noExceptionThrown()
-
-        cleanup:
-        new File(path).deleteDir()
     }
 
     def 'can start/stop with authentication enabled'() {
         given:
-        generate(buildScript.withAuth(true))
+        generate(buildScript.withAuth())
         def args = TEST_START_MANAGED_MONGO_DB
 
         when:
@@ -306,7 +301,7 @@ class MongoPluginConfigSpec extends Specification {
 
     def 'unauthenticated commands are rejected'() {
         given:
-        generate(buildScript.withAuth(true))
+        generate(buildScript.withAuth())
         def cred = MongoCredential.createCredential('admin', 'admin', 'qwert123'.toCharArray())
 
         when:
