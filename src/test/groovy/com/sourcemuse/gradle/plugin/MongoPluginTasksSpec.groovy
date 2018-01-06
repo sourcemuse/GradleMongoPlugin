@@ -30,11 +30,7 @@ class MongoPluginTasksSpec extends Specification {
         def args = 'A'
 
         when:
-        BuildResult result = GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        BuildResult result = runGradle(args)
         def mongoRunningDuringBuild = result.getOutput().contains(MONGO_STARTED_MESSAGE)
 
         then:
@@ -60,11 +56,7 @@ class MongoPluginTasksSpec extends Specification {
         def args = 'A'
 
         when:
-        BuildResult result = GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        BuildResult result = runGradle(args)
         def mongoRunningDuringBuild = result.getOutput().contains(MONGO_STARTED_MESSAGE)
         def mongoRunningOnConfiguredPort = result.getOutput().contains('12345')
 
@@ -91,11 +83,7 @@ class MongoPluginTasksSpec extends Specification {
         def args = 'B'
 
         when:
-        BuildResult result = GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        BuildResult result = runGradle(args)
 
         then:
         mongoStoppedWhenTaskBExecutes(result)
@@ -118,11 +106,7 @@ class MongoPluginTasksSpec extends Specification {
         def args = 'A'
 
         when:
-        BuildResult result = GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        BuildResult result = runGradle(args)
         def mongoRunningDuringBuild = result.getOutput().contains(MONGO_STARTED_MESSAGE)
 
         then:
@@ -142,11 +126,7 @@ class MongoPluginTasksSpec extends Specification {
         def args = 'A'
 
         when:
-        BuildResult result = GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        BuildResult result = runGradle(args)
         def mongoRunningDuringBuild = result.getOutput().contains(MONGO_STARTED_MESSAGE)
 
         then:
@@ -170,11 +150,7 @@ class MongoPluginTasksSpec extends Specification {
         def args = 'A'
 
         when:
-        BuildResult result = GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        BuildResult result = runGradle(args)
         def ioExceptionDuringBuild = result.getOutput().contains("IOException")
 
         then:
@@ -198,11 +174,7 @@ class MongoPluginTasksSpec extends Specification {
         def args = 'A'
 
         when:
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        runGradle(args)
         def mongoRunningAfterBuild = mongoInstanceRunning()
 
         then:
@@ -235,11 +207,7 @@ class MongoPluginTasksSpec extends Specification {
         def args = 'A'
 
         when:
-        BuildResult result = GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        BuildResult result = runGradle(args)
         def ioExceptionDuringBuild = result.getOutput().contains("IOException")
 
         then:
@@ -257,11 +225,7 @@ class MongoPluginTasksSpec extends Specification {
         def args = TEST_START_MANAGED_MONGO_DB
 
         when:
-        BuildResult result = GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        BuildResult result = runGradle(args)
         def mongoRunningDuringBuild = result.getOutput().contains(MONGO_RUNNING_FLAG)
         def mongoRunningAfterBuild = mongoInstanceRunning()
 
@@ -276,11 +240,7 @@ class MongoPluginTasksSpec extends Specification {
         def args = TEST_START_MONGO_DB
 
         when:
-        BuildResult result = GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        BuildResult result = runGradle(args)
         def mongoRunningDuringBuild = result.getOutput().contains(MONGO_RUNNING_FLAG)
         def mongoRunningAfterBuild = mongoInstanceRunning()
 
@@ -298,11 +258,7 @@ class MongoPluginTasksSpec extends Specification {
         def args = TEST_STOP_MONGO_DB
 
         when:
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        runGradle(args)
         def mongoRunningAfterBuild = mongoInstanceRunning()
 
         then:
@@ -311,6 +267,14 @@ class MongoPluginTasksSpec extends Specification {
 
     def cleanup() {
         assert !mongoInstanceRunning()
+    }
+
+    BuildResult runGradle(String args) {
+        return GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(tmp.root)
+            .withArguments(args)
+            .build()
     }
 
     void generate(BuildScriptBuilder buildScriptBuilder) {

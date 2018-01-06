@@ -1,8 +1,6 @@
 package com.sourcemuse.gradle.plugin
 
-import com.mongodb.MongoClient
-import com.mongodb.MongoClientOptions
-import com.mongodb.WriteConcern
+import com.mongodb.*
 import com.mongodb.client.MongoDatabase
 import de.flapdoodle.embed.mongo.runtime.Mongod
 import org.bson.Document
@@ -80,5 +78,24 @@ class MongoUtils {
         db.createCollection('test-collection')
         def document = new Document('key', 'val')
         db.getCollection('test-collection').insertOne(document)
+    }
+
+    static boolean runMongoCommand(MongoCredential credential, Document cmd) {
+        ServerAddress addr = new ServerAddress("${LOOPBACK_ADDRESS}:${DEFAULT_MONGOD_PORT}")
+
+        def mongoClient = credential ?
+            new MongoClient(addr, credential, MongoClientOptions.builder().build()) :
+            new MongoClient(addr, MongoClientOptions.builder().build())
+
+        try {
+            mongoClient.getDatabase('admin').runCommand(cmd)
+        }
+        catch (MongoException e) {
+            return false
+        }
+        finally {
+            mongoClient.close()
+        }
+        return true
     }
 }

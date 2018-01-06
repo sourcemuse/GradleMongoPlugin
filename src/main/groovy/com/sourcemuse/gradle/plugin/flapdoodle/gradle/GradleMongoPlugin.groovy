@@ -103,16 +103,14 @@ class GradleMongoPlugin implements Plugin<Project> {
                 .replication(storage)
                 .net(new Net(pluginExtension.bindIp, pluginExtension.port, Network.localhostIsIPv6()))
 
-        if (pluginExtension.args)
-            pluginExtension.args.each { k, v ->
-                if (!v)
-                    configBuilder.withLaunchArgument("--${k}")
-                else
-                    configBuilder.withLaunchArgument("--${k}", v)
-            }
+        pluginExtension.args.each { k, v ->
+            if (!v)
+                configBuilder.withLaunchArgument("--${k}")
+            else
+                configBuilder.withLaunchArgument("--${k}", v)
+        }
 
-        if (pluginExtension.params)
-            pluginExtension.params.each { k, v -> configBuilder.setParameter(k, v) }
+        pluginExtension.params.each { k, v -> configBuilder.setParameter(k, v) }
 
         def mongodConfig = configBuilder.build()
 

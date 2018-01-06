@@ -1,6 +1,9 @@
 package com.sourcemuse.gradle.plugin
 
+import com.mongodb.MongoCredential
 import de.flapdoodle.embed.mongo.distribution.Version
+import org.bson.Document
+import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -25,11 +28,7 @@ class MongoPluginConfigSpec extends Specification {
         def args = TEST_START_MONGO_DB
 
         when:
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        runGradle(args)
         def mongoRunningOnPort = mongoInstanceRunning(12345)
 
         then:
@@ -42,11 +41,7 @@ class MongoPluginConfigSpec extends Specification {
         def args = TEST_START_MONGO_DB
 
         when:
-        def executionResult = GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        def executionResult = runGradle(args)
 
         then:
         executionResult.getOutput().contains('[mongod output]')
@@ -58,11 +53,7 @@ class MongoPluginConfigSpec extends Specification {
         def args = TEST_START_MONGO_DB
 
         when:
-        def executionResult = GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        def executionResult = runGradle(args)
 
         then:
         !executionResult.getOutput().contains('[mongod output]')
@@ -75,11 +66,7 @@ class MongoPluginConfigSpec extends Specification {
         def args = TEST_START_MONGO_DB
 
         when:
-        def executionResult = GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        def executionResult = runGradle(args)
 
         then:
         !executionResult.getOutput().contains('[mongod output]')
@@ -92,11 +79,7 @@ class MongoPluginConfigSpec extends Specification {
         def args = TEST_START_MONGO_DB
 
         when:
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        runGradle(args)
         def mongoVersion = getMongoVersionRunning(DEFAULT_MONGOD_PORT)
 
         then:
@@ -110,11 +93,7 @@ class MongoPluginConfigSpec extends Specification {
         def args = TEST_START_MONGO_DB
 
         when:
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        runGradle(args)
         def mongoVersion = getMongoVersionRunning(DEFAULT_MONGOD_PORT)
 
         then:
@@ -127,11 +106,7 @@ class MongoPluginConfigSpec extends Specification {
         def args = TEST_START_MONGO_DB
 
         when:
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        runGradle(args)
         def mongoVersion = getMongoVersionRunning(DEFAULT_MONGOD_PORT)
 
         then:
@@ -146,11 +121,7 @@ class MongoPluginConfigSpec extends Specification {
         def args = TEST_START_MONGO_DB
 
         when:
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        runGradle(args)
         def mongoVersion = getMongoVersionRunning(DEFAULT_MONGOD_PORT)
 
         then:
@@ -163,11 +134,7 @@ class MongoPluginConfigSpec extends Specification {
         def args = TEST_START_MONGO_DB
 
         when:
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        runGradle(args)
 
         then:
         mongoServerStatus().storageEngine.name == 'wiredTiger'
@@ -180,11 +147,7 @@ class MongoPluginConfigSpec extends Specification {
         def args = TEST_START_MONGO_DB
 
         when:
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        runGradle(args)
 
         then:
         mongoServerStatus().storageEngine.name == 'mmapv1'
@@ -197,11 +160,7 @@ class MongoPluginConfigSpec extends Specification {
         def args = TEST_START_MONGO_DB
 
         when:
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        runGradle(args)
 
         then:
         mongoServerStatus().storageEngine.name == 'wiredTiger'
@@ -214,11 +173,7 @@ class MongoPluginConfigSpec extends Specification {
         def args = TEST_START_MONGO_DB
 
         when:
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        runGradle(args)
 
         then:
         mongoServerStatus().storageEngine.name == 'mmapv1'
@@ -232,11 +187,7 @@ class MongoPluginConfigSpec extends Specification {
         def args = TEST_START_MONGO_DB
 
         when:
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        runGradle(args)
 
         then:
         storageDir.listFiles().size() > 0
@@ -249,11 +200,7 @@ class MongoPluginConfigSpec extends Specification {
         def args = TEST_START_MONGO_DB
 
         when:
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        runGradle(args)
         makeJournaledWrite()
 
         then:
@@ -266,11 +213,7 @@ class MongoPluginConfigSpec extends Specification {
         def args = TEST_START_MONGO_DB
 
         when:
-        def executionResult = GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        def executionResult = runGradle(args)
 
         then:
         executionResult.getOutput().contains(VERBOSE_LOGGING_SAMPLE)
@@ -283,11 +226,7 @@ class MongoPluginConfigSpec extends Specification {
         def args = TEST_START_MONGO_DB
 
         when:
-        def executionResult = GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        def executionResult = runGradle(args)
 
         then:
         !executionResult.getOutput().contains(VERBOSE_LOGGING_SAMPLE)
@@ -340,11 +279,7 @@ class MongoPluginConfigSpec extends Specification {
         def args = TEST_START_MONGO_DB
 
         when:
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        runGradle(args)
 
         then:
         mongoInstanceRunning()
@@ -354,17 +289,13 @@ class MongoPluginConfigSpec extends Specification {
         new File(path).deleteDir()
     }
 
-    def 'authorization mode is enabled'() {
+    def 'can start/stop with authentication enabled'() {
         given:
         generate(buildScript.withAuth(true))
         def args = TEST_START_MANAGED_MONGO_DB
 
         when:
-        def result = GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        def result = runGradle(args)
         def mongoRunningDuringBuild = result.getOutput().contains(MONGO_RUNNING_FLAG)
         def mongoRunningAfterBuild = mongoInstanceRunning()
 
@@ -373,17 +304,46 @@ class MongoPluginConfigSpec extends Specification {
         !mongoRunningAfterBuild
     }
 
+    def 'unauthenticated commands are rejected'() {
+        given:
+        generate(buildScript.withAuth(true))
+        def cred = MongoCredential.createCredential('admin', 'admin', 'qwert123'.toCharArray())
+
+        when:
+        runGradle(TEST_START_MONGO_DB)
+        def cmd = new Document('createUser', 'admin')
+        cmd.put('pwd', 'qwert123')
+        cmd.put('roles', ['root'])
+        def unauthSuccess = runMongoCommand(null, cmd)
+
+        then:
+        mongoInstanceRunning()
+        unauthSuccess
+
+        when:
+        def authSuccess = runMongoCommand(cred, new Document('dbStats', 1))
+        unauthSuccess = runMongoCommand(null, new Document('dbStats', 1))
+
+        then:
+        authSuccess
+        !unauthSuccess
+
+        when:
+        // Mongod.sendShutdown will not work when authentication is enabled, so perform a special cleanup
+        runMongoCommand(cred, new Document('shutdown', 1))
+
+        then:
+        noExceptionThrown()
+        !mongoInstanceRunning()
+    }
+
     def 'parameters can be set'() {
         given:
         generate(buildScript.withParams([cursorTimeoutMillis: '300000']))
         def args = TEST_START_MONGO_DB
 
         when:
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        runGradle(args)
 
         then:
         noExceptionThrown()
@@ -395,11 +355,7 @@ class MongoPluginConfigSpec extends Specification {
         def args = TEST_START_MONGO_DB
 
         when:
-        GradleRunner.create()
-            .withPluginClasspath()
-            .withProjectDir(tmp.root)
-            .withArguments(args)
-            .build()
+        runGradle(args)
 
         then:
         noExceptionThrown()
@@ -407,6 +363,14 @@ class MongoPluginConfigSpec extends Specification {
 
     def cleanup() {
         ensureMongoIsStopped(buildScript.configuredPort ?: DEFAULT_MONGOD_PORT)
+    }
+
+    BuildResult runGradle(String args) {
+        return GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(tmp.root)
+            .withArguments(args)
+            .build()
     }
 
     void generate(BuildScriptBuilder buildScriptBuilder) {
