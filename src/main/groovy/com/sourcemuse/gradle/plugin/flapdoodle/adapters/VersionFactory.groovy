@@ -28,7 +28,7 @@ class VersionFactory {
     private static boolean versionIsDevOrProd(String suppliedVersion) {
         try {
             (suppliedVersion as Version.Main) in [DEVELOPMENT, PRODUCTION]
-        } catch (any) {}
+        } catch (ignored) {}
     }
 
     private static IFeatureAwareVersion parseVersionNumber(String suppliedVersion) {
@@ -51,7 +51,7 @@ class VersionFactory {
     private static boolean versionMatchesMainBranchVersion(String mongoVersion) {
         try {
             mongoVersion in Version.Main.values().collect { it.toString() }
-        } catch (any) {}
+        } catch (ignored) {}
     }
 
     private static String convertToFlapdoodleVersion(String suppliedVersion) {
@@ -63,6 +63,6 @@ class VersionFactory {
     private static Version versionMatchesSpecificVersion(String mongoVersion) {
         try {
             mongoVersion as Version
-        } catch (any) {}
+        } catch (ignored) {}
     }
 }
