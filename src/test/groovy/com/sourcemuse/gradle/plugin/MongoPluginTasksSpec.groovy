@@ -1,39 +1,37 @@
 package com.sourcemuse.gradle.plugin
 
-import com.sourcemuse.gradle.plugin.flapdoodle.gradle.GradleMongoPlugin
-import org.gradle.testkit.functional.ExecutionResult
-import org.gradle.testkit.functional.GradleRunnerFactory
+import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
-import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.buildScript
-import static com.sourcemuse.gradle.plugin.MongoUtils.ensureMongoIsStopped
+import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.*
 import static com.sourcemuse.gradle.plugin.MongoUtils.mongoInstanceRunning
-import static com.sourcemuse.gradle.plugin.PluginForTests.*
+import static com.sourcemuse.gradle.plugin.MongoUtils.ensureMongoIsStopped
 
 class MongoPluginTasksSpec extends Specification {
 
     static final String MONGO_STARTED_MESSAGE = 'Mongod started'
     static final String STOPPING_MONGO_MESSAGE = 'Stopping Mongod'
 
-    @Rule TemporaryFolder tmp
-    def gradleRunner = GradleRunnerFactory.create()
+    @Rule
+    TemporaryFolder tmp
 
     def 'individual tasks can declare a dependency on a running mongo instance'() {
         given:
         buildScript("""
-                    apply plugin: $GradleMongoPlugin.name
+                    plugins { id 'com.sourcemuse.mongo' }
 
                     task A {
                         runWithMongoDb = true
                     }
                     """)
-        gradleRunner.arguments << 'A'
+        def args = 'A'
 
         when:
-        ExecutionResult result = gradleRunner.run()
-        def mongoRunningDuringBuild = result.standardOutput.contains(MONGO_STARTED_MESSAGE)
+        BuildResult result = runGradle(args)
+        def mongoRunningDuringBuild = result.getOutput().contains(MONGO_STARTED_MESSAGE)
 
         then:
         mongoRunningDuringBuild
@@ -42,7 +40,7 @@ class MongoPluginTasksSpec extends Specification {
     def 'individual tasks can override their mongo configuration'() {
         given:
         buildScript("""
-                    apply plugin: $GradleMongoPlugin.name
+                    plugins { id 'com.sourcemuse.mongo' }
 
                     mongo {
                         port = 23456
@@ -55,12 +53,12 @@ class MongoPluginTasksSpec extends Specification {
                         }
                     }
                     """)
-        gradleRunner.arguments << 'A'
+        def args = 'A'
 
         when:
-        ExecutionResult result = gradleRunner.run()
-        def mongoRunningDuringBuild = result.standardOutput.contains(MONGO_STARTED_MESSAGE)
-        def mongoRunningOnConfiguredPort = result.standardOutput.contains('12345')
+        BuildResult result = runGradle(args)
+        def mongoRunningDuringBuild = result.getOutput().contains(MONGO_STARTED_MESSAGE)
+        def mongoRunningOnConfiguredPort = result.getOutput().contains('12345')
 
         then:
         mongoRunningDuringBuild
@@ -70,7 +68,7 @@ class MongoPluginTasksSpec extends Specification {
     def 'mongo instance is stopped after task completes'() {
         given:
         buildScript("""
-                    apply plugin: $GradleMongoPlugin.name
+                    plugins { id 'com.sourcemuse.mongo' }
 
                     task A {
                         runWithMongoDb = true
@@ -82,34 +80,34 @@ class MongoPluginTasksSpec extends Specification {
                         }
                     }
                 """)
-        gradleRunner.arguments << 'B'
+        def args = 'B'
 
         when:
-        ExecutionResult result = gradleRunner.run()
+        BuildResult result = runGradle(args)
 
         then:
         mongoStoppedWhenTaskBExecutes(result)
     }
 
-    private static boolean mongoStoppedWhenTaskBExecutes(ExecutionResult result) {
-        result.standardOutput.indexOf(STOPPING_MONGO_MESSAGE) < result.standardOutput.indexOf('Running task B')
+    private static boolean mongoStoppedWhenTaskBExecutes(BuildResult result) {
+        result.getOutput().indexOf(STOPPING_MONGO_MESSAGE) < result.getOutput().indexOf('Running task B')
     }
 
     def 'mongo does not start when task is skipped during configuration phase'() {
         given:
         buildScript("""
-                    apply plugin: $GradleMongoPlugin.name
+                    plugins { id 'com.sourcemuse.mongo' }
 
                     task A {
                         runWithMongoDb = true
                         enabled = false
                     }
                     """)
-        gradleRunner.arguments << 'A'
+        def args = 'A'
 
         when:
-        ExecutionResult result = gradleRunner.run()
-        def mongoRunningDuringBuild = result.standardOutput.contains(MONGO_STARTED_MESSAGE)
+        BuildResult result = runGradle(args)
+        def mongoRunningDuringBuild = result.getOutput().contains(MONGO_STARTED_MESSAGE)
 
         then:
         !mongoRunningDuringBuild
@@ -118,18 +116,18 @@ class MongoPluginTasksSpec extends Specification {
     def 'mongo does not start when task is skipped during execution phase'() {
         given:
         buildScript("""
-                    apply plugin: $GradleMongoPlugin.name
+                    plugins { id 'com.sourcemuse.mongo' }
 
                     task A {
                         runWithMongoDb = true
                         onlyIf { false }
                     }
                     """)
-        gradleRunner.arguments << 'A'
+        def args = 'A'
 
         when:
-        ExecutionResult result = gradleRunner.run()
-        def mongoRunningDuringBuild = result.standardOutput.contains(MONGO_STARTED_MESSAGE)
+        BuildResult result = runGradle(args)
+        def mongoRunningDuringBuild = result.getOutput().contains(MONGO_STARTED_MESSAGE)
 
         then:
         !mongoRunningDuringBuild
@@ -138,7 +136,7 @@ class MongoPluginTasksSpec extends Specification {
     def 'a new mongo instance is not launched if an existing instance is already bound to the same port'() {
         given:
         buildScript("""
-                    apply plugin: $GradleMongoPlugin.name
+                    plugins { id 'com.sourcemuse.mongo' }
 
                     task A {
                         runWithMongoDb = true
@@ -149,20 +147,23 @@ class MongoPluginTasksSpec extends Specification {
                         runWithMongoDb = true
                     }
                     """)
-        gradleRunner.arguments << 'A'
+        def args = 'A'
 
         when:
-        ExecutionResult result = gradleRunner.run()
-        def ioExceptionDuringBuild = result.standardOutput.contains("IOException")
+        BuildResult result = runGradle(args)
+        def ioExceptionDuringBuild = result.getOutput().contains("IOException")
 
         then:
         !ioExceptionDuringBuild
+
+        cleanup:
+        ensureMongoIsStopped()
     }
 
     def 'when an existing mongo instance is reused by a task, mongo is not shutdown when the task completes'() {
         given:
         buildScript("""
-                    apply plugin: $GradleMongoPlugin.name
+                    plugins { id 'com.sourcemuse.mongo' }
 
                     task A {
                         runWithMongoDb = true
@@ -170,20 +171,23 @@ class MongoPluginTasksSpec extends Specification {
 
                     A.dependsOn startMongoDb
                     """)
-        gradleRunner.arguments << 'A'
+        def args = 'A'
 
         when:
-        gradleRunner.run()
+        runGradle(args)
         def mongoRunningAfterBuild = mongoInstanceRunning()
 
         then:
         mongoRunningAfterBuild
+
+        cleanup:
+        ensureMongoIsStopped()
     }
 
     def 'multiple mongo instances can be started if bound to separate ports'() {
         given:
         buildScript("""
-                    apply plugin: $GradleMongoPlugin.name
+                    plugins { id 'com.sourcemuse.mongo' }
 
                     task A {
                         runWithMongoDb = true
@@ -200,28 +204,29 @@ class MongoPluginTasksSpec extends Specification {
                         }
                     }
                     """)
-        gradleRunner.arguments << 'A'
+        def args = 'A'
 
         when:
-        ExecutionResult result = gradleRunner.run()
-        def ioExceptionDuringBuild = result.standardOutput.contains("IOException")
+        BuildResult result = runGradle(args)
+        def ioExceptionDuringBuild = result.getOutput().contains("IOException")
 
         then:
         !ioExceptionDuringBuild
 
         cleanup:
-        ensureMongoIsStopped(27017)
         ensureMongoIsStopped(27018)
+        assert !mongoInstanceRunning(27017)
+        assert !mongoInstanceRunning(27018)
     }
 
     def 'startManagedMongoDb starts a mongo instance, and then stops once the build has completed'() {
         given:
         generate(buildScript())
-        gradleRunner.arguments << TEST_START_MANAGED_MONGO_DB
+        def args = TEST_START_MANAGED_MONGO_DB
 
         when:
-        ExecutionResult result = gradleRunner.run()
-        def mongoRunningDuringBuild = result.standardOutput.contains(MONGO_RUNNING_FLAG)
+        BuildResult result = runGradle(args)
+        def mongoRunningDuringBuild = result.getOutput().contains(MONGO_RUNNING_FLAG)
         def mongoRunningAfterBuild = mongoInstanceRunning()
 
         then:
@@ -232,25 +237,28 @@ class MongoPluginTasksSpec extends Specification {
     def 'startMongoDb starts a mongo instance that continues running after the build has completed'() {
         given:
         generate(buildScript())
-        gradleRunner.arguments << TEST_START_MONGO_DB
+        def args = TEST_START_MONGO_DB
 
         when:
-        ExecutionResult result = gradleRunner.run()
-        def mongoRunningDuringBuild = result.standardOutput.contains(MONGO_RUNNING_FLAG)
+        BuildResult result = runGradle(args)
+        def mongoRunningDuringBuild = result.getOutput().contains(MONGO_RUNNING_FLAG)
         def mongoRunningAfterBuild = mongoInstanceRunning()
 
         then:
         mongoRunningDuringBuild
         mongoRunningAfterBuild
+
+        cleanup:
+        ensureMongoIsStopped()
     }
 
     def 'stopMongoDb stops the mongo instance'() {
         given:
         generate(buildScript())
-        gradleRunner.arguments << TEST_STOP_MONGO_DB
+        def args = TEST_STOP_MONGO_DB
 
         when:
-        gradleRunner.run()
+        runGradle(args)
         def mongoRunningAfterBuild = mongoInstanceRunning()
 
         then:
@@ -258,7 +266,15 @@ class MongoPluginTasksSpec extends Specification {
     }
 
     def cleanup() {
-        ensureMongoIsStopped()
+        assert !mongoInstanceRunning()
+    }
+
+    BuildResult runGradle(String args) {
+        return GradleRunner.create()
+            .withPluginClasspath()
+            .withProjectDir(tmp.root)
+            .withArguments(args)
+            .build()
     }
 
     void generate(BuildScriptBuilder buildScriptBuilder) {
@@ -267,6 +283,5 @@ class MongoPluginTasksSpec extends Specification {
 
     void buildScript(String buildScriptContent) {
         tmp.newFile('build.gradle') << buildScriptContent
-        gradleRunner.directory = tmp.root
     }
 }

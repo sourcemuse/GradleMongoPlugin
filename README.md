@@ -41,14 +41,17 @@ The `mongo` configuration block can be declared at either the project or the tas
 
 The following properties are configurable:
 
+* ```args```: A <String,String> map of mongod command-line options (value can be empty for arguments without values) (defaults to **[:]**)
 * ```artifactStorePath``` The location where Mongo will be downloaded to
+* ```auth```: Enables [access control](https://docs.mongodb.com/manual/tutorial/enable-authentication/) (defaults to **false**)
 * ```bindIp```: The ip address Mongo binds itself to (defaults to **'127.0.0.1'**)
 * ```downloadUrl```: The URL from where Mongo will be downloaded
 * ```journalingEnabled```: Toggles journaling (defaults to **false**)
 * ```logFilePath```: The desired log file path (defaults to **'embedded-mongo.log'**)
 * ```logging```: The type of logging to be produced: **'console'**, **'file'** or **'none'** (defaults to **'file'**)
-* ```mongodVerbosity```: The verbosity level of the mongod process. Supported options are as per the [mongod configuration documentation](http://docs.mongodb.org/manual/reference/program/mongod/#cmdoption--verbose) (default level is non-verbose)
+* ```mongodVerbosity```: The verbosity level of the mongod process. Supported options are as per the [mongod configuration documentation](http://docs.mongodb.org/manual/reference/program/mongod/#cmdoption-verbose) (default level is non-verbose)
 * ```mongoVersion```: The version of Mongo to run. Can be **'DEVELOPMENT'** or **'PRODUCTION'** for the latest versions of the respective branch, or take the form **'1.2-LATEST'** or **'1.2.3'** for specific versions
+* ```params```: A <String,String> map of [MongoDB Server Parameters](https://docs.mongodb.com/manual/reference/parameters/) (defaults to **[:]**)
 * ```port```: The port Mongo will listen on (defaults to **27017**). For random port assignment, set this value to **'RANDOM'** (the actual port value used will be available during the build through the **project.mongo.port** property)
 * ```proxyHost```: The proxy host name for Mongo downloads
 * ```proxyPort```: The proxy port for Mongo downloads

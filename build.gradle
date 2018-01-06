@@ -1,42 +1,46 @@
+import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
+
 buildscript {
     repositories {
         maven {
             url 'https://plugins.gradle.org/m2/'
         }
     }
-    dependencies {
-        classpath 'com.gradle.publish:plugin-publish-plugin:0.9.8'
-    }
 }
 
-apply plugin: 'groovy'
-apply plugin: 'idea'
-apply plugin: 'eclipse'
-apply plugin: 'maven'
-apply plugin: 'signing'
-apply plugin: 'com.gradle.plugin-publish'
+plugins {
+    id 'com.gradle.plugin-publish' version '0.9.9'
+    id 'groovy'
+    id 'idea'
+    id 'eclipse'
+    id 'maven'
+    id 'signing'
+    id 'java-gradle-plugin'
+}
 
 archivesBaseName = 'gradle-mongo-plugin'
 group = 'com.sourcemuse.gradle.plugin'
 version = '1.0.4-SNAPSHOT'
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     jcenter()
 }
 
 dependencies {
-    compile gradleApi()
-    compile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.50.5'
-    compile 'org.mongodb:mongo-java-driver:3.2.2'
+    compile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.0.0'
+    compile 'org.mongodb:mongo-java-driver:3.6.0'
 
-    testCompile files('libs/gradle-test-kit.jar')
-    testCompile 'org.spockframework:spock-core:1.0-groovy-2.3', {
+    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4', {
         exclude module: 'groovy-all'
     }
-    testCompile 'org.littleshoot:littleproxy:1.1.1'
+    testCompile 'org.littleshoot:littleproxy:1.1.2'
+}
+
+task wrapper(type: Wrapper) {
+    distributionType = DistributionType.ALL
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -116,6 +120,15 @@ pluginBundle {
         mongoPlugin {
             id = 'com.sourcemuse.mongo'
             displayName = 'Gradle Mongo plugin'
+        }
+    }
+}
+
+gradlePlugin {
+    plugins {
+        mongoPlugin {
+            id = 'com.sourcemuse.mongo'
+            implementationClass = 'com.sourcemuse.gradle.plugin.flapdoodle.gradle.GradleMongoPlugin'
         }
     }
 }
