@@ -3,7 +3,7 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.sourcemuse.gradle.plugin/gradle-mongo-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.sourcemuse.gradle.plugin/gradle-mongo-plugin)
 [![Build Status](https://travis-ci.org/sourcemuse/GradleMongoPlugin.svg?branch=master)](https://travis-ci.org/sourcemuse/GradleMongoPlugin)
 
-The Gradle Mongo Plugin allows you to run a managed instance of Mongo from your gradle build. It is based on the [Embedded MongoDb](https://github.com/flapdoodle-oss/de.flapdoodle.embed.mongo) project by Flapdoodle OSS.
+The Gradle Mongo Plugin allows you to run a managed instance of Mongo from your gradle build.
 
 Plugin is available on both [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22gradle-mongo-plugin%22) and the [Gradle Plugin Portal](https://plugins.gradle.org/plugin/com.sourcemuse.mongo).
 
@@ -13,7 +13,7 @@ Enable the plugin in your gradle build:
 
 ```groovy
 plugins {
-  id 'com.sourcemuse.mongo' version '1.0.4'
+  id 'com.sourcemuse.mongo' version '1.0.3'
 }
 ```
 
