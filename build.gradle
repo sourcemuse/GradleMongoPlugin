@@ -20,7 +20,7 @@ plugins {
 
 archivesBaseName = 'gradle-mongo-plugin'
 group = 'com.sourcemuse.gradle.plugin'
-version = '1.0.5-SNAPSHOT'
+version = '1.0.4'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    compile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.0.0'
+    compile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.0.1'
     compile 'org.mongodb:mongo-java-driver:3.6.0'
 
     testCompile 'org.spockframework:spock-core:1.1-groovy-2.4', {
