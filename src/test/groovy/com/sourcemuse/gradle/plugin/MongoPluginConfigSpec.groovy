@@ -1,6 +1,5 @@
 package com.sourcemuse.gradle.plugin
 
-import com.mongodb.MongoClient
 import com.mongodb.MongoCredential
 import de.flapdoodle.embed.mongo.distribution.Version
 import org.bson.Document
@@ -26,7 +25,7 @@ class MongoPluginConfigSpec extends Specification {
     def 'port is configurable'() {
         given:
         generate(buildScript.withPort(12345))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         runGradle(args)
@@ -39,7 +38,7 @@ class MongoPluginConfigSpec extends Specification {
     def 'logging can route to the console'() {
         given:
         generate(buildScript.withLogging('console'))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         def executionResult = runGradle(args)
@@ -51,7 +50,7 @@ class MongoPluginConfigSpec extends Specification {
     def 'logging can be switched off'() {
         given:
         generate(buildScript.withLogging('none'))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         def executionResult = runGradle(args)
@@ -64,7 +63,7 @@ class MongoPluginConfigSpec extends Specification {
         given:
         def tempFile = tmp.newFile()
         generate(buildScript.withLogging('file').withFilePath(tempFile.absolutePath))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         def executionResult = runGradle(args)
@@ -77,7 +76,7 @@ class MongoPluginConfigSpec extends Specification {
     def 'general version is configurable'() {
         given:
         generate(buildScript.withMongoVersion('PRODUCTION'))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         runGradle(args)
@@ -91,7 +90,7 @@ class MongoPluginConfigSpec extends Specification {
     def 'specific version is configurable'() {
         given:
         generate(buildScript.withMongoVersion('2.5.4'))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         runGradle(args)
@@ -104,7 +103,7 @@ class MongoPluginConfigSpec extends Specification {
     def 'latest branch version is configurable'() {
         given:
         generate(buildScript.withMongoVersion('3.5-LATEST'))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         runGradle(args)
@@ -119,7 +118,7 @@ class MongoPluginConfigSpec extends Specification {
         given:
         def version = '3.2.0'
         generate(buildScript.withMongoVersion(version))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         runGradle(args)
@@ -132,7 +131,7 @@ class MongoPluginConfigSpec extends Specification {
     def 'storage engine can be set to WiredTiger'() {
         given:
         generate(buildScript.withMongoVersion(Version.Main.V3_2.asInDownloadPath()).withStorageEngine('wiredTiger'))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         runGradle(args)
@@ -145,7 +144,7 @@ class MongoPluginConfigSpec extends Specification {
     def 'storage engine can be set to MMAPv1'() {
         given:
         generate(buildScript.withMongoVersion(Version.Main.V3_2.asInDownloadPath()).withStorageEngine('mmapv1'))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         runGradle(args)
@@ -158,7 +157,7 @@ class MongoPluginConfigSpec extends Specification {
     def 'the default storage engine is WiredTiger for versions after 3.2'() {
         given:
         generate(buildScript.withMongoVersion(Version.Main.V3_2.asInDownloadPath()))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         runGradle(args)
@@ -171,7 +170,7 @@ class MongoPluginConfigSpec extends Specification {
     def 'the default storage engine is MMAPv1 for versions before 3.0'() {
         given:
         generate(buildScript.withMongoVersion(Version.Main.V3_0.asInDownloadPath()))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         runGradle(args)
@@ -185,7 +184,7 @@ class MongoPluginConfigSpec extends Specification {
         given:
         def storageDir = tmp.newFolder()
         generate(buildScript.withStorageLocation(storageDir.toString()))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         runGradle(args)
@@ -198,7 +197,7 @@ class MongoPluginConfigSpec extends Specification {
         given:
         // From 2.6 onwards, journaled writes onto a non-journaled mongo db throw exceptions
         generate(buildScript.withJournalingEnabled().withMongoVersion('2.6.1'))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         runGradle(args)
@@ -211,7 +210,7 @@ class MongoPluginConfigSpec extends Specification {
     def 'logging can be made verbose'() {
         given:
         generate(buildScript.withVerboseLogging().withLogging('console'))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         def executionResult = runGradle(args)
@@ -224,7 +223,7 @@ class MongoPluginConfigSpec extends Specification {
     def 'by default logging is not verbose'() {
         given:
         generate(buildScript.withLogging('console'))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         def executionResult = runGradle(args)
@@ -236,7 +235,7 @@ class MongoPluginConfigSpec extends Specification {
     def 'a URL that does not resolve to a mongo binary will fail'() {
         given:
         generate(buildScript.withDownloadURL('http://www.google.com').withMongoVersion('1.6.5'))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         GradleRunner.create()
@@ -255,7 +254,7 @@ class MongoPluginConfigSpec extends Specification {
         String proxyHost = 'invalidHost'
         String path = tmp.newFolder().toString()
         generate(buildScript.withProxy(proxyHost, proxyPort).withArtifactStorePath(path))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         def executionResult = GradleRunner.create()
@@ -274,7 +273,7 @@ class MongoPluginConfigSpec extends Specification {
         DefaultHttpProxyServer.bootstrap().withPort(proxyPort).start()
         String path = tmp.newFolder().toString()
         generate(buildScript.withProxy('localhost', proxyPort).withArtifactStorePath(path))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         runGradle(args)
@@ -287,7 +286,7 @@ class MongoPluginConfigSpec extends Specification {
     def 'can start/stop with authentication enabled'() {
         given:
         generate(buildScript.withAuth())
-        def args = TEST_START_MANAGED_MONGO_DB
+        def args = START_MANAGED_MONGO_DB_FOR_TEST
 
         when:
         def result = runGradle(args)
@@ -305,7 +304,7 @@ class MongoPluginConfigSpec extends Specification {
         def cred = MongoCredential.createCredential('admin', 'admin', 'qwert123'.toCharArray())
 
         when:
-        runGradle(TEST_START_MONGO_DB)
+        runGradle(START_MONGO_DB_FOR_TEST)
         def cmd = new Document('createUser', 'admin')
         cmd.put('pwd', 'qwert123')
         cmd.put('roles', ['root'])
@@ -335,7 +334,7 @@ class MongoPluginConfigSpec extends Specification {
     def 'parameters can be set'() {
         given:
         generate(buildScript.withParams([cursorTimeoutMillis: '300000']))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         runGradle(args)
@@ -347,7 +346,7 @@ class MongoPluginConfigSpec extends Specification {
     def 'custom command line arguments can be set'() {
         given:
         generate(buildScript.withArgs([logappend: '', maxConns: '1000']))
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         runGradle(args)

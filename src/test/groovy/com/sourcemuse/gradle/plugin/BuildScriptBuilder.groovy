@@ -3,9 +3,9 @@ package com.sourcemuse.gradle.plugin
 class BuildScriptBuilder {
 
     static final DEFAULT_MONGOD_PORT = 27017
-    static final TEST_STOP_MONGO_DB = 'testStopMongoDb'
-    static final TEST_START_MONGO_DB = 'testStartMongoDb'
-    static final TEST_START_MANAGED_MONGO_DB = 'testStartManagedMongoDb'
+    static final STOP_MONGO_DB_FOR_TEST = 'stopMongoDbForTest'
+    static final START_MONGO_DB_FOR_TEST = 'startMongoDbForTest'
+    static final START_MANAGED_MONGO_DB_FOR_TEST = 'startManagedMongoDbForTest'
     static final MONGO_RUNNING_FLAG = 'mongo running!'
     static final MONGO_NOT_RUNNING_FLAG = 'mongo not running!'
 
@@ -33,9 +33,9 @@ class BuildScriptBuilder {
             |   else
             |       println "${MONGO_NOT_RUNNING_FLAG}"
             |}
-            |task ${TEST_START_MANAGED_MONGO_DB} (dependsOn: startManagedMongoDb) { doLast performMongoCheck }
-            |task ${TEST_START_MONGO_DB} (dependsOn: startMongoDb) { doLast performMongoCheck }
-            |task ${TEST_STOP_MONGO_DB} (dependsOn: [startMongoDb, stopMongoDb])
+            |task ${START_MANAGED_MONGO_DB_FOR_TEST} (dependsOn: startManagedMongoDb) { doLast performMongoCheck }
+            |task ${START_MONGO_DB_FOR_TEST} (dependsOn: startMongoDb) { doLast performMongoCheck }
+            |task ${STOP_MONGO_DB_FOR_TEST} (dependsOn: [startMongoDb, stopMongoDb])
             |
             |${mongoConfigBlock}
         """.stripMargin()

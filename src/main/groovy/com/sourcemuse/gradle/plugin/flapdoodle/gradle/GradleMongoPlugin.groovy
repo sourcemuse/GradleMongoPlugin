@@ -57,9 +57,11 @@ class GradleMongoPlugin implements Plugin<Project> {
 
     private static void addStartManagedMongoDbTask(Project project) {
         project.task(group: TASK_GROUP_NAME, description: 'Starts a local MongoDb instance which will stop when the build process completes', 'startManagedMongoDb').doFirst {
-            startMongoDb(project, STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS)
+            def mongoStartedByTask = startMongoDb(project, STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS)
 
-            ensureMongoDbStopsEvenIfGradleDaemonIsRunning(project)
+            if (mongoStartedByTask) {
+                ensureMongoDbStopsEvenIfGradleDaemonIsRunning(project)
+            }
         }
     }
 
@@ -82,9 +84,9 @@ class GradleMongoPlugin implements Plugin<Project> {
         }
     }
 
-    private static void startMongoDb(Project project, ManageProcessInstruction manageProcessInstruction) {
+    private static boolean startMongoDb(Project project, ManageProcessInstruction manageProcessInstruction) {
         def pluginExtension = project[PLUGIN_EXTENSION_NAME] as GradleMongoPluginExtension
-        startMongoDb(pluginExtension, project, manageProcessInstruction)
+        return startMongoDb(pluginExtension, project, manageProcessInstruction)
     }
 
     private static boolean startMongoDb(GradleMongoPluginExtension pluginExtension, Project project, ManageProcessInstruction manageProcessInstruction) {

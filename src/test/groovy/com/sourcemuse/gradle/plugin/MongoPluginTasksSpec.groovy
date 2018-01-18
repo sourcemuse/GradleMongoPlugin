@@ -222,7 +222,7 @@ class MongoPluginTasksSpec extends Specification {
     def 'startManagedMongoDb starts a mongo instance, and then stops once the build has completed'() {
         given:
         generate(buildScript())
-        def args = TEST_START_MANAGED_MONGO_DB
+        def args = START_MANAGED_MONGO_DB_FOR_TEST
 
         when:
         BuildResult result = runGradle(args)
@@ -237,7 +237,7 @@ class MongoPluginTasksSpec extends Specification {
     def 'startMongoDb starts a mongo instance that continues running after the build has completed'() {
         given:
         generate(buildScript())
-        def args = TEST_START_MONGO_DB
+        def args = START_MONGO_DB_FOR_TEST
 
         when:
         BuildResult result = runGradle(args)
@@ -252,10 +252,27 @@ class MongoPluginTasksSpec extends Specification {
         ensureMongoIsStopped()
     }
 
+    def 'if startManagedMongoDb reuses a mongo instance, then it does not stop that instance when the build completes'() {
+        given:
+        generate(buildScript())
+
+        when:
+        runGradle("startMongoDb")
+
+        and:
+        runGradle("startManagedMongoDb")
+
+        then:
+        mongoInstanceRunning()
+
+        cleanup:
+        ensureMongoIsStopped()
+    }
+
     def 'stopMongoDb stops the mongo instance'() {
         given:
         generate(buildScript())
-        def args = TEST_STOP_MONGO_DB
+        def args = STOP_MONGO_DB_FOR_TEST
 
         when:
         runGradle(args)
