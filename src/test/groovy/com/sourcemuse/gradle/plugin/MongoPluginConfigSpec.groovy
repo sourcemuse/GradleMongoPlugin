@@ -76,7 +76,7 @@ class MongoPluginConfigSpec extends Specification {
 
     def 'general version is configurable'() {
         given:
-        generate(buildScript.withMongoVersion('DEVELOPMENT'))
+        generate(buildScript.withMongoVersion('PRODUCTION'))
         def args = TEST_START_MONGO_DB
 
         when:
@@ -84,7 +84,7 @@ class MongoPluginConfigSpec extends Specification {
         def mongoVersion = getMongoVersionRunning(DEFAULT_MONGOD_PORT)
 
         then:
-        Version.Main.DEVELOPMENT.asInDownloadPath().equalsIgnoreCase(mongoVersion)
+        Version.Main.PRODUCTION.asInDownloadPath().equalsIgnoreCase(mongoVersion)
     }
 
     @SuppressWarnings('GrDeprecatedAPIUsage')
@@ -301,7 +301,7 @@ class MongoPluginConfigSpec extends Specification {
 
     def 'unauthenticated commands are rejected'() {
         given:
-        generate(buildScript.withAuth())
+        generate(buildScript.withAuth().withMongoVersion("3.4.0"))
         def cred = MongoCredential.createCredential('admin', 'admin', 'qwert123'.toCharArray())
 
         when:
