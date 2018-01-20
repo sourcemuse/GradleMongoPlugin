@@ -56,7 +56,7 @@ The following properties are configurable:
 * ```port```: The port Mongo will listen on (defaults to **27017**). For random port assignment, set this value to **'RANDOM'** (the actual port value used will be available during the build through the **project.mongo.port** property)
 * ```proxyHost```: The proxy host name for Mongo downloads
 * ```proxyPort```: The proxy port for Mongo downloads
-* ```storageEngine```: The name of the storage engine to use. Can be **'wiredTiger'** or **'mmapv1'** for MongoDB Community Edition (default is **'wiredTiger'** for Mongo 3.2 and later; otherwise it is **'mmapv1'**). Alternative distributions might support additional engines.
+* ```storageEngine```: The name of the storage engine to use. Can be **'wiredTiger'** or **'mmapv1'** for MongoDB Community Edition (default is **'wiredTiger'** for Mongo 3.2 and later; otherwise it is **'mmapv1'**). Alternative distributions might support additional engines
 * ```storageLocation```: The directory location from where embedded Mongo will run, such as ```/tmp/storage``` (defaults to a java temp directory)
 
 ### Tasks ###
