@@ -189,11 +189,19 @@ class GradleMongoPlugin implements Plugin<Project> {
 
     private static void stopMongoDb(int port, MongodProcess proc) {
         println "Shutting-down Mongod on port ${port}."
+        def force = (proc == null)
 
-        if (proc)
-            proc.stop()
-        else if (!Mongod.sendShutdown(InetAddress.getLoopbackAddress(), port))
+        if (proc) {
+            try {
+                proc.stop()
+            } catch (Exception e) {
+                force = true
+            }
+        }
+
+        if (force && !Mongod.sendShutdown(InetAddress.getLoopbackAddress(), port)) {
             println "Could not shut down mongo, is access control enabled?"
+        }
     }
 
     private static void disableFlapdoodleLogging() {
