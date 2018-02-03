@@ -89,7 +89,8 @@ class GradleMongoPlugin implements Plugin<Project> {
         return startMongoDb(pluginExtension, project, manageProcessInstruction)
     }
 
-    private static boolean startMongoDb(GradleMongoPluginExtension pluginExtension, Project project, ManageProcessInstruction manageProcessInstruction) {
+    private
+    static boolean startMongoDb(GradleMongoPluginExtension pluginExtension, Project project, ManageProcessInstruction manageProcessInstruction) {
         if (mongoInstanceAlreadyRunning(pluginExtension.bindIp, pluginExtension.port)) {
             println "Mongo instance already running at ${pluginExtension.bindIp}:${pluginExtension.port}. Reusing."
             return false
@@ -117,11 +118,11 @@ class GradleMongoPlugin implements Plugin<Project> {
         def mongodConfig = configBuilder.build()
 
         def runtimeConfig = new CustomFlapdoodleRuntimeConfig(version,
-                                                              pluginExtension.mongodVerbosity,
-                                                              pluginExtension.downloadUrl,
-                                                              pluginExtension.proxyHost,
-                                                              pluginExtension.proxyPort,
-                                                              pluginExtension.artifactStorePath)
+                pluginExtension.mongodVerbosity,
+                pluginExtension.downloadUrl,
+                pluginExtension.proxyHost,
+                pluginExtension.proxyPort,
+                pluginExtension.artifactStorePath)
                 .defaults(Command.MongoD)
                 .processOutput(processOutput)
                 .daemonProcess(manageProcessInstruction == STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS)
@@ -163,7 +164,8 @@ class GradleMongoPlugin implements Plugin<Project> {
         } finally {
             try {
                 socket.close()
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored) {
+            }
         }
     }
 
@@ -191,12 +193,10 @@ class GradleMongoPlugin implements Plugin<Project> {
         println "Shutting-down Mongod on port ${port}."
         def force = (proc == null)
 
-        if (proc) {
-            try {
-                proc.stop()
-            } catch (Exception e) {
-                force = true
-            }
+        try {
+            proc?.stop()
+        } catch (ignored) {
+            force = true
         }
 
         if (force && !Mongod.sendShutdown(InetAddress.getLoopbackAddress(), port)) {
@@ -266,8 +266,12 @@ class GradleMongoPlugin implements Plugin<Project> {
 
     private static void ensureMongoTaskTrackingPropertiesAreSet(Project rootProject) {
         if (!rootProject.extensions.extraProperties.has("mongoTaskDependenciesCountByPort")) {
-            rootProject.extensions.extraProperties.set("mongoTaskDependenciesCountByPort", new HashMap<Integer, AtomicInteger>().withDefault { new AtomicInteger() })
-            rootProject.extensions.extraProperties.set("mongoInstancesStartedDuringBuild", new HashMap<>().withDefault { false })
+            rootProject.extensions.extraProperties.set("mongoTaskDependenciesCountByPort", new HashMap<Integer, AtomicInteger>().withDefault {
+                new AtomicInteger()
+            })
+            rootProject.extensions.extraProperties.set("mongoInstancesStartedDuringBuild", new HashMap<>().withDefault {
+                false
+            })
         }
     }
 
