@@ -28,6 +28,7 @@ class GradleMongoPluginExtension {
     boolean auth = false
     Map<String, String> args = [:]
     Map<String, String> params = [:]
+    Integer syncDelay = null
 
     void setDownloadUrl(String url) {
         try {

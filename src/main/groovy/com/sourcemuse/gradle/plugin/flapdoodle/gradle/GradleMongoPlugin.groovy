@@ -170,11 +170,18 @@ class GradleMongoPlugin implements Plugin<Project> {
     }
 
     private static IMongoCmdOptions createMongoCommandOptions(GradleMongoPluginExtension pluginExtension) {
-        new MongoCmdOptionsBuilder()
+        def mongoCommandOptionsBuilder = new MongoCmdOptionsBuilder()
                 .useNoJournal(!pluginExtension.journalingEnabled)
                 .useStorageEngine(pluginExtension.storageEngine)
                 .enableAuth(pluginExtension.auth)
-                .build()
+
+        if (pluginExtension.syncDelay != null){
+            mongoCommandOptionsBuilder.syncDelay(pluginExtension.syncDelay)
+        } else {
+            mongoCommandOptionsBuilder.defaultSyncDelay()
+        }
+
+        mongoCommandOptionsBuilder.build()
     }
 
     private static void addStopMongoDbTask(Project project) {
