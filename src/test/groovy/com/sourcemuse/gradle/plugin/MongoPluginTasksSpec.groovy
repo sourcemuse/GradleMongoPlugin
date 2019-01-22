@@ -138,12 +138,11 @@ class MongoPluginTasksSpec extends Specification {
         buildScript("""
                     plugins { id 'com.sourcemuse.mongo' }
 
-                    task A {
+                    task B {
                         runWithMongoDb = true
-                        doFirst { B.execute() }
                     }
 
-                    task B {
+                    task A(dependsOn: B) {
                         runWithMongoDb = true
                     }
                     """)
@@ -189,18 +188,17 @@ class MongoPluginTasksSpec extends Specification {
         buildScript("""
                     plugins { id 'com.sourcemuse.mongo' }
 
-                    task A {
-                        runWithMongoDb = true
-                        doFirst { B.execute() }
-                        mongo {
-                            port = 27017
-                        }
-                    }
-
                     task B {
                         runWithMongoDb = true
                         mongo {
                             port = 27018
+                        }
+                    }
+
+                    task A(dependsOn: B) {
+                        runWithMongoDb = true
+                        mongo {
+                            port = 27017
                         }
                     }
                     """)
