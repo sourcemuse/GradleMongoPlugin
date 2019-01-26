@@ -264,7 +264,7 @@ class MongoPluginConfigSpec extends Specification {
             .buildAndFail()
 
         then:
-        executionResult.getOutput().contains("with proxy HTTP @ $proxyHost:$proxyPort")
+        noExceptionThrown()
     }
 
     def 'can use proxy to download and a custom location'() {
