@@ -30,17 +30,13 @@ repositories {
 }
 
 dependencies {
-    compile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.0.1'
-    compile 'org.mongodb:mongo-java-driver:3.6.0'
+    compile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.2.0'
+    compile 'org.mongodb:mongo-java-driver:3.7.0'
 
     testCompile 'org.spockframework:spock-core:1.1-groovy-2.4', {
         exclude module: 'groovy-all'
     }
     testCompile 'org.littleshoot:littleproxy:1.1.2'
-}
-
-task wrapper(type: Wrapper) {
-    distributionType = DistributionType.ALL
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
