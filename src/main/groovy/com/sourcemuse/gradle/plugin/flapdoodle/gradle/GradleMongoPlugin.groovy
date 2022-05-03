@@ -8,7 +8,7 @@ import com.sourcemuse.gradle.plugin.flapdoodle.adapters.ProcessOutputFactory
 import com.sourcemuse.gradle.plugin.flapdoodle.adapters.StorageFactory
 import com.sourcemuse.gradle.plugin.flapdoodle.adapters.VersionFactory
 import de.flapdoodle.embed.mongo.AbstractMongoProcess
-import de.flapdoodle.embed.mongo.Command
+import de.flapdoodle.embed.mongo.packageresolver.Command
 import de.flapdoodle.embed.mongo.MongodProcess
 import de.flapdoodle.embed.mongo.MongodStarter
 import de.flapdoodle.embed.mongo.config.ImmutableMongoCmdOptions
@@ -20,7 +20,8 @@ import org.bson.Document
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.execution.TaskExecutionListener
+import org.gradle.api.execution.TaskExecutionGraph
+import org.gradle.api.execution.TaskExecutionGraphListener
 import org.gradle.api.tasks.TaskState
 
 import java.util.concurrent.atomic.AtomicInteger
@@ -250,12 +251,12 @@ class GradleMongoPlugin implements Plugin<Project> {
                     }
                 }
 
-                project.gradle.taskGraph.addTaskExecutionListener(new TaskExecutionListener() {
-                    @Override
-                    void beforeExecute(Task t) {}
+                project.gradle.taskGraph.addTaskExecutionListener(new TaskExecutionGraphListener() {
 
                     @Override
-                    void afterExecute(Task t, TaskState state) {
+                    void graphPopulated(TaskExecutionGraph taskExecutionGraph) {
+						Task t = taskExecutionGraph.getAllTasks().get(0)
+						TaskState state = t.getState()
                         if (task == t && state.didWork) {
                             synchronized (rootProject) {
                                 def mongoDependencyCount = rootProject.mongoTaskDependenciesCountByPort.get(port).decrementAndGet()

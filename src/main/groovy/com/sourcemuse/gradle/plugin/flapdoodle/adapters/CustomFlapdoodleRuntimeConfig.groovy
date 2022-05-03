@@ -1,5 +1,5 @@
 package com.sourcemuse.gradle.plugin.flapdoodle.adapters
-import de.flapdoodle.embed.mongo.Command
+import de.flapdoodle.embed.mongo.packageresolver.Command
 import de.flapdoodle.embed.mongo.config.ArtifactStores;
 import de.flapdoodle.embed.mongo.config.Defaults.DownloadConfigDefaults;
 import de.flapdoodle.embed.mongo.config.Defaults.RuntimeConfigDefaults;

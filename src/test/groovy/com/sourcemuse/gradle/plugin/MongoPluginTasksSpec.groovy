@@ -2,7 +2,6 @@ package com.sourcemuse.gradle.plugin
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
 import spock.lang.Specification
 
@@ -15,7 +14,6 @@ class MongoPluginTasksSpec extends Specification {
     static final String MONGO_STARTED_MESSAGE = 'Mongod started'
     static final String STOPPING_MONGO_MESSAGE = 'Stopping Mongod'
 
-    @ExtendWith
     @TempDir
 	File tmp;
 

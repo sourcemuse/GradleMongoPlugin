@@ -5,7 +5,6 @@ import de.flapdoodle.embed.mongo.distribution.Version
 import org.bson.Document
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer
 import spock.lang.Issue
@@ -18,7 +17,6 @@ class MongoPluginConfigSpec extends Specification {
 
     def static final VERBOSE_LOGGING_SAMPLE = 'isMaster'
 
-    @ExtendWith
     @TempDir
 	File tmp;
     def buildScript = new BuildScriptBuilder()
@@ -87,7 +85,6 @@ class MongoPluginConfigSpec extends Specification {
         Version.Main.PRODUCTION.asInDownloadPath().equalsIgnoreCase(mongoVersion)
     }
 
-    @SuppressWarnings('GrDeprecatedAPIUsage')
     def 'specific version is configurable'() {
         given:
         generate(buildScript.withMongoVersion('2.5.4'))

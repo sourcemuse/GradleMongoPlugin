@@ -4,7 +4,7 @@ import com.mongodb.ServerAddress
 
 import java.util.regex.Pattern
 
-import static LogDestination.FILE
+import static com.sourcemuse.gradle.plugin.LogDestination.FILE
 import static java.lang.Integer.parseInt
 
 class GradleMongoPluginExtension {
