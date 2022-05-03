@@ -1,8 +1,8 @@
 package com.sourcemuse.gradle.plugin.flapdoodle.adapters
 
-import de.flapdoodle.embed.process.io.IStreamProcessor
+import de.flapdoodle.embed.process.io.StreamProcessor
 
-class FileOutputStreamProcessor implements IStreamProcessor {
+class FileOutputStreamProcessor implements StreamProcessor {
     File logFile
 
     FileOutputStreamProcessor(String filePath) {

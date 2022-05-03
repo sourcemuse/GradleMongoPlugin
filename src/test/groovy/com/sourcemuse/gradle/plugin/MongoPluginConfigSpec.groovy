@@ -5,8 +5,8 @@ import de.flapdoodle.embed.mongo.distribution.Version
 import org.bson.Document
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.io.TempDir
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer
 import spock.lang.Issue
 import spock.lang.Specification
@@ -18,8 +18,9 @@ class MongoPluginConfigSpec extends Specification {
 
     def static final VERBOSE_LOGGING_SAMPLE = 'isMaster'
 
-    @Rule
-    TemporaryFolder tmp
+    @ExtendWith
+    @TempDir
+	File tmp;
     def buildScript = new BuildScriptBuilder()
 
     def 'port is configurable'() {

@@ -1,5 +1,6 @@
 package com.sourcemuse.gradle.plugin.flapdoodle.gradle
 
+import de.flapdoodle.embed.mongo.config.ImmutableMongodConfig;
 import com.mongodb.MongoClient
 import com.sourcemuse.gradle.plugin.GradleMongoPluginExtension
 import com.sourcemuse.gradle.plugin.flapdoodle.adapters.CustomFlapdoodleRuntimeConfig
@@ -10,9 +11,7 @@ import de.flapdoodle.embed.mongo.AbstractMongoProcess
 import de.flapdoodle.embed.mongo.Command
 import de.flapdoodle.embed.mongo.MongodProcess
 import de.flapdoodle.embed.mongo.MongodStarter
-import de.flapdoodle.embed.mongo.config.IMongoCmdOptions
-import de.flapdoodle.embed.mongo.config.MongoCmdOptionsBuilder
-import de.flapdoodle.embed.mongo.config.MongodConfigBuilder
+import de.flapdoodle.embed.mongo.config.ImmutableMongoCmdOptions
 import de.flapdoodle.embed.mongo.config.Net
 import de.flapdoodle.embed.mongo.runtime.Mongod
 import de.flapdoodle.embed.process.runtime.Network
@@ -100,7 +99,7 @@ class GradleMongoPlugin implements Plugin<Project> {
         def version = new VersionFactory().getVersion(pluginExtension)
         def storage = new StorageFactory().getStorage(pluginExtension)
 
-        def configBuilder = new MongodConfigBuilder()
+        def configBuilder = new ImmutableMongodConfig()
                 .cmdOptions(createMongoCommandOptions(pluginExtension))
                 .version(version)
                 .replication(storage)
@@ -169,19 +168,19 @@ class GradleMongoPlugin implements Plugin<Project> {
         }
     }
 
-    private static IMongoCmdOptions createMongoCommandOptions(GradleMongoPluginExtension pluginExtension) {
-        def mongoCommandOptionsBuilder = new MongoCmdOptionsBuilder()
+    private static ImmutableMongoCmdOptions createMongoCommandOptions(GradleMongoPluginExtension pluginExtension) {
+        def immutableMongoCmdOptions = new ImmutableMongoCmdOptions()
                 .useNoJournal(!pluginExtension.journalingEnabled)
                 .useStorageEngine(pluginExtension.storageEngine)
                 .enableAuth(pluginExtension.auth)
 
         if (pluginExtension.syncDelay != null){
-            mongoCommandOptionsBuilder.syncDelay(pluginExtension.syncDelay)
+            immutableMongoCmdOptions.syncDelay(pluginExtension.syncDelay)
         } else {
-            mongoCommandOptionsBuilder.defaultSyncDelay()
+            immutableMongoCmdOptions.defaultSyncDelay()
         }
 
-        mongoCommandOptionsBuilder.build()
+        immutableMongoCmdOptions.build()
     }
 
     private static void addStopMongoDbTask(Project project) {

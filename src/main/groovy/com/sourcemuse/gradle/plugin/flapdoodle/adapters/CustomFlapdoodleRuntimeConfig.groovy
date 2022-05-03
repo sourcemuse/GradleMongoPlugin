@@ -1,23 +1,24 @@
 package com.sourcemuse.gradle.plugin.flapdoodle.adapters
 import de.flapdoodle.embed.mongo.Command
-import de.flapdoodle.embed.mongo.config.ArtifactStoreBuilder
-import de.flapdoodle.embed.mongo.config.DownloadConfigBuilder
-import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder
+import de.flapdoodle.embed.mongo.config.ArtifactStores;
+import de.flapdoodle.embed.mongo.config.Defaults.DownloadConfigDefaults;
+import de.flapdoodle.embed.mongo.config.Defaults.RuntimeConfigDefaults;
+import de.flapdoodle.embed.process.config.ImmutableRuntimeConfig
 import de.flapdoodle.embed.process.config.store.HttpProxyFactory
 import de.flapdoodle.embed.process.distribution.Distribution
-import de.flapdoodle.embed.process.distribution.IVersion
+import de.flapdoodle.embed.process.distribution.Version
 import de.flapdoodle.embed.process.io.directories.FixedPath
-import de.flapdoodle.embed.process.runtime.ICommandLinePostProcessor
+import de.flapdoodle.embed.process.runtime.CommandLinePostProcessor
 
-class CustomFlapdoodleRuntimeConfig extends RuntimeConfigBuilder {
-    private final IVersion version
+class CustomFlapdoodleRuntimeConfig extends RuntimeConfigDefaults {
+    private final Version version
     private final String mongodVerbosity
     private final String downloadUrl
     private final String proxyHost
     private final int proxyPort
     private final String artifactStorePath
 
-    CustomFlapdoodleRuntimeConfig(IVersion version,
+    CustomFlapdoodleRuntimeConfig(Version version,
                                   String mongodVerbosity,
                                   String downloadUrl,
                                   String proxyHost,
@@ -31,11 +32,10 @@ class CustomFlapdoodleRuntimeConfig extends RuntimeConfigBuilder {
         this.artifactStorePath = artifactStorePath
     }
 
-    @Override
-    RuntimeConfigBuilder defaults(Command command) {
+    ImmutableRuntimeConfig.Builder defaults(Command command) {
         super.defaults(command)
 
-        DownloadConfigBuilder downloadConfigBuilder = new DownloadConfigBuilder()
+        DownloadConfigDefaults downloadConfigBuilder = new DownloadConfigDefaults()
         downloadConfigBuilder.defaultsForCommand(command)
                              .progressListener(new CustomFlapdoodleProcessLogger(version))
 
@@ -51,7 +51,7 @@ class CustomFlapdoodleRuntimeConfig extends RuntimeConfigBuilder {
           downloadConfigBuilder.artifactStorePath(new FixedPath(artifactStorePath))
         }
 
-        commandLinePostProcessor(new ICommandLinePostProcessor() {
+        commandLinePostProcessor(new CommandLinePostProcessor() {
             @Override
             List<String> process(Distribution distribution, List<String> args) {
                 if (mongodVerbosity) args.add(mongodVerbosity)
@@ -59,7 +59,7 @@ class CustomFlapdoodleRuntimeConfig extends RuntimeConfigBuilder {
             }
         })
 
-        artifactStore().overwriteDefault(new ArtifactStoreBuilder().defaults(command).download(downloadConfigBuilder).build())
+        artifactStore().overwriteDefault(new ArtifactStores().defaults(command).download(downloadConfigBuilder).build())
 
         this
     }
