@@ -2,7 +2,6 @@ package com.sourcemuse.gradle.plugin
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.jupiter.api.io.TempDir
 import spock.lang.Specification
 
 import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.*
@@ -14,8 +13,7 @@ class MongoPluginTasksSpec extends Specification {
     static final String MONGO_STARTED_MESSAGE = 'Mongod started'
     static final String STOPPING_MONGO_MESSAGE = 'Stopping Mongod'
 
-    @TempDir
-	File tmp;
+	File tmp = File.createTempDir();
 
     def 'individual tasks can declare a dependency on a running mongo instance'() {
         given:
@@ -286,7 +284,7 @@ class MongoPluginTasksSpec extends Specification {
     BuildResult runGradle(String args) {
         return GradleRunner.create()
             .withPluginClasspath()
-            .withProjectDir(tmp.root)
+            .withProjectDir(tmp)
             .withArguments(args)
             .build()
     }
@@ -296,6 +294,8 @@ class MongoPluginTasksSpec extends Specification {
     }
 
     void buildScript(String buildScriptContent) {
-        tmp.newFile('build.gradle') << buildScriptContent
+		def newFile = new File(tmp.absolutePath + '/build.gradle')
+		newFile.createNewFile() 
+        newFile << buildScriptContent
     }
 }

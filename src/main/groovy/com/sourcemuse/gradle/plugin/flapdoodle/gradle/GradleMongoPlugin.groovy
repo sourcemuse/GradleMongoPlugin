@@ -251,7 +251,7 @@ class GradleMongoPlugin implements Plugin<Project> {
                     }
                 }
 
-                project.gradle.taskGraph.addTaskExecutionListener(new TaskExecutionGraphListener() {
+                project.gradle.taskGraph.addTaskExecutionGraphListener(new TaskExecutionGraphListener() {
 
                     @Override
                     void graphPopulated(TaskExecutionGraph taskExecutionGraph) {

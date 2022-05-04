@@ -5,6 +5,7 @@ import de.flapdoodle.embed.mongo.config.Defaults.DownloadConfigDefaults;
 import de.flapdoodle.embed.mongo.config.Defaults.RuntimeConfigDefaults;
 import de.flapdoodle.embed.process.config.ImmutableRuntimeConfig
 import de.flapdoodle.embed.process.config.store.HttpProxyFactory
+import de.flapdoodle.embed.process.config.store.ImmutableDownloadConfig
 import de.flapdoodle.embed.process.distribution.Distribution
 import de.flapdoodle.embed.process.distribution.Version
 import de.flapdoodle.embed.process.io.directories.FixedPath
@@ -33,11 +34,10 @@ class CustomFlapdoodleRuntimeConfig extends RuntimeConfigDefaults {
     }
 
     ImmutableRuntimeConfig.Builder defaults(Command command) {
-        super.defaults(command)
+        ImmutableRuntimeConfig.Builder runtimeConfigBuilder = super.defaults(command)
 
-        DownloadConfigDefaults downloadConfigBuilder = new DownloadConfigDefaults()
-        downloadConfigBuilder.defaultsForCommand(command)
-                             .progressListener(new CustomFlapdoodleProcessLogger(version))
+        ImmutableDownloadConfig.Builder downloadConfigBuilder = new DownloadConfigDefaults().defaultsForCommand(command)
+        downloadConfigBuilder.progressListener(new CustomFlapdoodleProcessLogger(version))
 
         if (downloadUrl) {
             downloadConfigBuilder.downloadPath(downloadUrl)
@@ -51,7 +51,7 @@ class CustomFlapdoodleRuntimeConfig extends RuntimeConfigDefaults {
           downloadConfigBuilder.artifactStorePath(new FixedPath(artifactStorePath))
         }
 
-        commandLinePostProcessor(new CommandLinePostProcessor() {
+        runtimeConfigBuilder.commandLinePostProcessor(new CommandLinePostProcessor() {
             @Override
             List<String> process(Distribution distribution, List<String> args) {
                 if (mongodVerbosity) args.add(mongodVerbosity)
@@ -59,7 +59,7 @@ class CustomFlapdoodleRuntimeConfig extends RuntimeConfigDefaults {
             }
         })
 
-        artifactStore().overwriteDefault(new ArtifactStores().defaults(command).download(downloadConfigBuilder).build())
+        runtimeConfigBuilder.artifactStore().overwriteDefault(new ArtifactStores().defaults(command).download(downloadConfigBuilder).build())
 
         this
     }
