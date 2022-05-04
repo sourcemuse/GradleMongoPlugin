@@ -59,7 +59,7 @@ class CustomFlapdoodleRuntimeConfig extends RuntimeConfigDefaults {
             }
         })
 
-        runtimeConfigBuilder.artifactStore().overwriteDefault(new ArtifactStores().defaults(command).download(downloadConfigBuilder).build())
+        runtimeConfigBuilder.artifactStore().overwriteDefault(new ArtifactStores().artifactStore(command).download(downloadConfigBuilder).build())
 
         this
     }
