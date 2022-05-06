@@ -100,7 +100,7 @@ class GradleMongoPlugin implements Plugin<Project> {
         def version = new VersionFactory().getVersion(pluginExtension)
         def storage = new StorageFactory().getStorage(pluginExtension)
 
-        def configBuilder = new ImmutableMongodConfig()
+        def configBuilder = ImmutableMongodConfig.builder()
                 .cmdOptions(createMongoCommandOptions(pluginExtension))
                 .version(version)
                 .replication(storage)
@@ -108,12 +108,12 @@ class GradleMongoPlugin implements Plugin<Project> {
 
         pluginExtension.args.each { k, v ->
             if (!v)
-                configBuilder.withLaunchArgument("--${k}")
+                configBuilder.putArgs("--${k}", null)
             else
-                configBuilder.withLaunchArgument("--${k}", v)
+                configBuilder.putArgs("--${k}", v)
         }
 
-        pluginExtension.params.each { k, v -> configBuilder.setParameter(k, v) }
+        pluginExtension.params.each { k, v -> configBuilder.putParams(k, v) }
 
         def mongodConfig = configBuilder.build()
 
@@ -125,7 +125,7 @@ class GradleMongoPlugin implements Plugin<Project> {
                 pluginExtension.artifactStorePath)
                 .defaults(Command.MongoD)
                 .processOutput(processOutput)
-                .daemonProcess(manageProcessInstruction == STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS)
+                .isDaemonProcess(manageProcessInstruction == STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS)
                 .build()
 
         def runtime = MongodStarter.getInstance(runtimeConfig)
@@ -170,18 +170,18 @@ class GradleMongoPlugin implements Plugin<Project> {
     }
 
     private static ImmutableMongoCmdOptions createMongoCommandOptions(GradleMongoPluginExtension pluginExtension) {
-        def immutableMongoCmdOptions = new ImmutableMongoCmdOptions()
+        def mongoCommandOptionsBuilder = ImmutableMongoCmdOptions.builder()
                 .useNoJournal(!pluginExtension.journalingEnabled)
-                .useStorageEngine(pluginExtension.storageEngine)
-                .enableAuth(pluginExtension.auth)
+                .storageEngine(pluginExtension.storageEngine)
+                .auth(pluginExtension.auth)
 
         if (pluginExtension.syncDelay != null){
-            immutableMongoCmdOptions.syncDelay(pluginExtension.syncDelay)
+            mongoCommandOptionsBuilder.syncDelay(pluginExtension.syncDelay)
         } else {
-            immutableMongoCmdOptions.defaultSyncDelay()
+            mongoCommandOptionsBuilder.useDefaultSyncDelay()
         }
 
-        immutableMongoCmdOptions.build()
+        mongoCommandOptionsBuilder.build()
     }
 
     private static void addStopMongoDbTask(Project project) {
@@ -212,8 +212,8 @@ class GradleMongoPlugin implements Plugin<Project> {
     }
 
     private static void disableFlapdoodleLogging() {
-        CachingArtifactStore._logger = NOP_LOGGER
-        Mongod.logger = NOP_LOGGER
+        CachingArtifactStore.logger = NOP_LOGGER
+        Mongod.LOGGER = NOP_LOGGER
         AbstractMongoProcess.logger = NOP_LOGGER
     }
 
