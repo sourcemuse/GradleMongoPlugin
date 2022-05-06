@@ -5,7 +5,6 @@ import de.flapdoodle.embed.mongo.distribution.Version
 import org.bson.Document
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.jupiter.api.io.TempDir
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer
 import spock.lang.Issue
 import spock.lang.Specification
@@ -17,8 +16,7 @@ class MongoPluginConfigSpec extends Specification {
 
     def static final VERBOSE_LOGGING_SAMPLE = 'isMaster'
 
-    @TempDir
-	File tmp;
+    File tmp = File.createTempDir();
     def buildScript = new BuildScriptBuilder()
 
     def 'port is configurable'() {
@@ -60,7 +58,7 @@ class MongoPluginConfigSpec extends Specification {
 
     def 'logging can be routed to a file'() {
         given:
-        def tempFile = tmp.newFile()
+        def tempFile = tmp.createTempFile("start", "end")
         generate(buildScript.withLogging('file').withFilePath(tempFile.absolutePath))
         def args = START_MONGO_DB_FOR_TEST
 
@@ -180,7 +178,7 @@ class MongoPluginConfigSpec extends Specification {
 
     def 'replication storage location is configurable'() {
         given:
-        def storageDir = tmp.newFolder()
+        def storageDir = tmp.createTempDir()
         generate(buildScript.withStorageLocation(storageDir.toString()))
         def args = START_MONGO_DB_FOR_TEST
 
@@ -238,7 +236,7 @@ class MongoPluginConfigSpec extends Specification {
         when:
         GradleRunner.create()
             .withPluginClasspath()
-            .withProjectDir(tmp.root)
+            .withProjectDir(tmp)
             .withArguments(args)
             .buildAndFail()
 
@@ -250,14 +248,14 @@ class MongoPluginConfigSpec extends Specification {
         given:
         int proxyPort = 9091
         String proxyHost = 'invalidHost'
-        String path = tmp.newFolder().toString()
+        String path = tmp.createTempDir().toString()
         generate(buildScript.withProxy(proxyHost, proxyPort).withArtifactStorePath(path))
         def args = START_MONGO_DB_FOR_TEST
 
         when:
         def executionResult = GradleRunner.create()
             .withPluginClasspath()
-            .withProjectDir(tmp.root)
+            .withProjectDir(tmp)
             .withArguments(args)
             .buildAndFail()
 
@@ -269,7 +267,7 @@ class MongoPluginConfigSpec extends Specification {
         given:
         int proxyPort = 9091
         DefaultHttpProxyServer.bootstrap().withPort(proxyPort).start()
-        String path = tmp.newFolder().toString()
+        String path = tmp.createTempDir()().toString()
         generate(buildScript.withProxy('localhost', proxyPort).withArtifactStorePath(path))
         def args = START_MONGO_DB_FOR_TEST
 
@@ -360,13 +358,15 @@ class MongoPluginConfigSpec extends Specification {
     BuildResult runGradle(String args) {
         return GradleRunner.create()
             .withPluginClasspath()
-            .withProjectDir(tmp.root)
+            .withProjectDir(tmp)
             .withArguments(args)
             .build()
     }
 
     void generate(BuildScriptBuilder buildScriptBuilder) {
         def buildScriptContent = buildScriptBuilder.build()
-        tmp.newFile('build.gradle') << buildScriptContent
+		def newFile = new File(tmp.absolutePath + '/build.gradle')
+		newFile.createNewFile()
+		newFile << buildScriptContent
     }
 }
