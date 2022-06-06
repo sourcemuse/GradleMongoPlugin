@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:3.4.5'
+    implementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:3.4.6'
     implementation 'org.mongodb:mongo-java-driver:3.12.11'
 
     testImplementation 'org.spockframework:spock-core:2.1-groovy-3.0', {
@@ -135,4 +135,11 @@ String getSonatypeUsername() {
 
 String getSonatypePassword() {
     properties['sonatypePassword'] ?: 'password'
+}
+
+test {
+  useJUnitPlatform()
+  testLogging {
+    events "passed", "skipped", "failed"
+  }
 }
