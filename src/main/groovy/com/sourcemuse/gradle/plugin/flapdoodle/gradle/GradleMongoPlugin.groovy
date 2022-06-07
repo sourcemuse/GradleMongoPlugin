@@ -178,7 +178,7 @@ class GradleMongoPlugin implements Plugin<Project> {
         if (pluginExtension.syncDelay != null){
             mongoCommandOptionsBuilder.syncDelay(pluginExtension.syncDelay)
         } else {
-            mongoCommandOptionsBuilder.useDefaultSyncDelay()
+            mongoCommandOptionsBuilder.useDefaultSyncDelay(true)
         }
 
         mongoCommandOptionsBuilder.build()
