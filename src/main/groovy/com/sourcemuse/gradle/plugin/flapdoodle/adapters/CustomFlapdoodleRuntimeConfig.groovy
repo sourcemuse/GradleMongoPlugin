@@ -3,7 +3,7 @@ import de.flapdoodle.embed.mongo.packageresolver.Command
 import de.flapdoodle.embed.mongo.config.ArtifactStores
 import de.flapdoodle.embed.mongo.config.Defaults.DownloadConfigDefaults
 import de.flapdoodle.embed.mongo.config.Defaults.RuntimeConfigDefaults
-import de.flapdoodle.embed.process.store.ExtractedArtifactStore
+import de.flapdoodle.embed.process.store.ArtifactStore
 import de.flapdoodle.embed.process.config.ImmutableRuntimeConfig
 import de.flapdoodle.embed.process.config.store.HttpProxyFactory
 import de.flapdoodle.embed.process.config.store.ImmutableDownloadConfig
@@ -60,8 +60,8 @@ class CustomFlapdoodleRuntimeConfig extends RuntimeConfigDefaults {
             }
         })
 
-        runtimeConfigBuilder.artifactStore().overwriteDefault(ExtractedArtifactStore.builder().downloadConfig(downloadConfigBuilder))
+        runtimeConfigBuilder.artifactStore(ArtifactStore.builder().downloadConfig(downloadConfigBuilder.build()).build())
 
-        this
+        runtimeConfigBuilder
     }
 }
