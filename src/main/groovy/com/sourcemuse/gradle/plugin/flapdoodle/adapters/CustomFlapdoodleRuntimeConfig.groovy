@@ -1,9 +1,7 @@
 package com.sourcemuse.gradle.plugin.flapdoodle.adapters
-import de.flapdoodle.embed.mongo.packageresolver.Command
-import de.flapdoodle.embed.mongo.config.ArtifactStores
 import de.flapdoodle.embed.mongo.config.Defaults.DownloadConfigDefaults
 import de.flapdoodle.embed.mongo.config.Defaults.RuntimeConfigDefaults
-import de.flapdoodle.embed.process.store.ArtifactStore
+import de.flapdoodle.embed.mongo.packageresolver.Command
 import de.flapdoodle.embed.process.config.ImmutableRuntimeConfig
 import de.flapdoodle.embed.process.config.store.HttpProxyFactory
 import de.flapdoodle.embed.process.config.store.ImmutableDownloadConfig
@@ -11,6 +9,10 @@ import de.flapdoodle.embed.process.distribution.Distribution
 import de.flapdoodle.embed.process.distribution.Version
 import de.flapdoodle.embed.process.io.directories.FixedPath
 import de.flapdoodle.embed.process.runtime.CommandLinePostProcessor
+import de.flapdoodle.embed.process.store.ArtifactStore
+import de.flapdoodle.embed.process.store.ImmutableArtifactStore
+import de.flapdoodle.embed.process.store.ImmutableArtifactStore.Builder
+import de.flapdoodle.embed.process.store.Downloader
 
 class CustomFlapdoodleRuntimeConfig extends RuntimeConfigDefaults {
     private final Version version
@@ -59,8 +61,14 @@ class CustomFlapdoodleRuntimeConfig extends RuntimeConfigDefaults {
                 return args
             }
         })
-
-        runtimeConfigBuilder.artifactStore(ArtifactStore.builder().downloadConfig(downloadConfigBuilder.build()).build())
+		
+		Builder builder = ArtifactStore.builder();
+		builder.downloadConfig(downloadConfigBuilder.build())
+		builder.downloader(Downloader.platformDefault())
+		builder.tempDirFactory(downloadConfigBuilder.artifactStorePath)
+		builder.executableNaming(downloadConfigBuilder.fileNaming)
+		ImmutableArtifactStore artifactStore = builder.build()
+        runtimeConfigBuilder.artifactStore(artifactStore)
 
         runtimeConfigBuilder
     }

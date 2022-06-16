@@ -130,8 +130,6 @@ class GradleMongoPlugin implements Plugin<Project> {
 
         def runtime = MongodStarter.getInstance(runtimeConfig)
 
-        disableFlapdoodleLogging()
-
         def mongodExecutable = runtime.prepare(mongodConfig)
         println "Starting Mongod ${version.asInDownloadPath()} on port ${pluginExtension.port}..."
         def mongoProc = mongodExecutable.start()
@@ -209,12 +207,6 @@ class GradleMongoPlugin implements Plugin<Project> {
         if (force && !Mongod.sendShutdown(InetAddress.getLoopbackAddress(), port)) {
             println "Could not shut down mongo, is access control enabled?"
         }
-    }
-
-    private static void disableFlapdoodleLogging() {
-        CachingArtifactStore.logger = NOP_LOGGER
-        Mongod.LOGGER = NOP_LOGGER
-        AbstractMongoProcess.logger = NOP_LOGGER
     }
 
     private static void extendAllTasksWithMongoOptions(Project project) {
