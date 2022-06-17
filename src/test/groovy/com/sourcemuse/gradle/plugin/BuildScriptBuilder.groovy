@@ -1,4 +1,4 @@
-package com.sourcemuse.gradle.plugin
+ package com.sourcemuse.gradle.plugin
 
 class BuildScriptBuilder {
 
