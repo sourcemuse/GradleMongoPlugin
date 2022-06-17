@@ -18,7 +18,7 @@ class GradleMongoPluginExtension {
     String logging = FILE as String
     String logFilePath = 'embedded-mongo.log'
     String mongoVersion = 'PRODUCTION'
-    String storageEngine = 'wildTiger'
+    String storageEngine = 'wiredTiger'
     String storageLocation = EPHEMERAL_TEMPORARY_FOLDER
     String mongodVerbosity = ''
     String downloadUrl = ''
