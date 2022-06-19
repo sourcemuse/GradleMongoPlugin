@@ -341,7 +341,7 @@ class MongoPluginConfigSpec extends Specification {
 
     def 'custom command line arguments can be set'() {
         given:
-        generate(buildScript.withArgs([logappend: '', maxConns: '1000']))
+        generate(buildScript.withArgs([slowms: '10', maxConns: '1000']))
         def args = START_MONGO_DB_FOR_TEST
 
         when:
