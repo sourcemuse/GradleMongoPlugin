@@ -267,7 +267,7 @@ class MongoPluginConfigSpec extends Specification {
         given:
         int proxyPort = 9091
         DefaultHttpProxyServer.bootstrap().withPort(proxyPort).start()
-        String path = tmp.createTempDir()().toString()
+        String path = tmp.toString()
         generate(buildScript.withProxy('localhost', proxyPort).withArtifactStorePath(path))
         def args = START_MONGO_DB_FOR_TEST
 
