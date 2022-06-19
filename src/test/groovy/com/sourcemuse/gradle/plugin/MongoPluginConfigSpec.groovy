@@ -14,7 +14,7 @@ import static com.sourcemuse.gradle.plugin.MongoUtils.*
 
 class MongoPluginConfigSpec extends Specification {
 
-    def static final VERBOSE_LOGGING_SAMPLE = 'isMaster'
+    def static final VERBOSE_LOGGING_SAMPLE = 'ismaster'
 
     File tmp = File.createTempDir();
     def buildScript = new BuildScriptBuilder()
@@ -85,7 +85,7 @@ class MongoPluginConfigSpec extends Specification {
 
     def 'specific version is configurable'() {
         given:
-        generate(buildScript.withMongoVersion('2.5.4'))
+        generate(buildScript.withMongoVersion('3.4.5'))
         def args = START_MONGO_DB_FOR_TEST
 
         when:
@@ -93,12 +93,12 @@ class MongoPluginConfigSpec extends Specification {
         def mongoVersion = getMongoVersionRunning(DEFAULT_MONGOD_PORT)
 
         then:
-        Version.V2_5_4.asInDownloadPath().equalsIgnoreCase(mongoVersion)
+        Version.V3_4_5.asInDownloadPath().equalsIgnoreCase(mongoVersion)
     }
 
     def 'latest branch version is configurable'() {
         given:
-        generate(buildScript.withMongoVersion('3.5-LATEST'))
+        generate(buildScript.withMongoVersion('5.0-LATEST'))
         def args = START_MONGO_DB_FOR_TEST
 
         when:
@@ -106,7 +106,7 @@ class MongoPluginConfigSpec extends Specification {
         def mongoVersion = getMongoVersionRunning(DEFAULT_MONGOD_PORT)
 
         then:
-        Version.Main.V3_5.asInDownloadPath().equalsIgnoreCase(mongoVersion)
+        Version.Main.V5_0.asInDownloadPath().equalsIgnoreCase(mongoVersion)
     }
 
     @Issue('https://github.com/sourcemuse/GradleMongoPlugin/issues/15')
@@ -150,7 +150,7 @@ class MongoPluginConfigSpec extends Specification {
         noExceptionThrown()
     }
 
-    def 'the default storage engine is WiredTiger for versions after 3.2'() {
+    def 'the default storage engine is WiredTiger for versions before 3.2'() {
         given:
         generate(buildScript.withMongoVersion(Version.Main.V3_2.asInDownloadPath()))
         def args = START_MONGO_DB_FOR_TEST
@@ -163,16 +163,16 @@ class MongoPluginConfigSpec extends Specification {
         noExceptionThrown()
     }
 
-    def 'the default storage engine is MMAPv1 for versions before 3.0'() {
+    def 'the default storage engine is wiredTiger for versions after 5.0'() {
         given:
-        generate(buildScript.withMongoVersion(Version.Main.V3_0.asInDownloadPath()))
+        generate(buildScript.withMongoVersion(Version.Main.V5_0.asInDownloadPath()))
         def args = START_MONGO_DB_FOR_TEST
 
         when:
         runGradle(args)
 
         then:
-        mongoServerStatus().storageEngine.name == 'mmapv1'
+        mongoServerStatus().storageEngine.name == 'wiredTiger'
         noExceptionThrown()
     }
 
