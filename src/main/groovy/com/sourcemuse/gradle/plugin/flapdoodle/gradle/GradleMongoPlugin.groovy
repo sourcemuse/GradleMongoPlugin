@@ -74,7 +74,7 @@ class GradleMongoPlugin implements Plugin<Project> {
 
     private static void ensureMongoDbStopsEvenIfGradleDaemonIsRunning(Project project) {
         boolean stopMongoDbTaskPresent = project.gradle.taskGraph.allTasks.find { it.name == 'stopMongoDb' }
-		stopMongoDb(project)
+
         if (!stopMongoDbTaskPresent) {
             def lastTask = project.gradle.taskGraph.allTasks[-1]
             project.gradle.taskGraph.afterTask { task, taskState ->
