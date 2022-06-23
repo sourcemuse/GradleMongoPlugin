@@ -1,19 +1,22 @@
 package com.sourcemuse.gradle.plugin
 
+import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.*
+import static com.sourcemuse.gradle.plugin.MongoUtils.ensureMongoIsStopped
+import static com.sourcemuse.gradle.plugin.MongoUtils.mongoInstanceRunning
+
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
-import spock.lang.Specification
 
-import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.*
-import static com.sourcemuse.gradle.plugin.MongoUtils.mongoInstanceRunning
-import static com.sourcemuse.gradle.plugin.MongoUtils.ensureMongoIsStopped
+import spock.lang.Specification
+import spock.lang.TempDir
 
 class MongoPluginTasksSpec extends Specification {
 
     static final String MONGO_STARTED_MESSAGE = 'Mongod started'
     static final String STOPPING_MONGO_MESSAGE = 'Stopping Mongod'
 
-	File tmp = File.createTempDir();
+	@TempDir
+	File tmp;
 
     def 'individual tasks can declare a dependency on a running mongo instance'() {
         given:

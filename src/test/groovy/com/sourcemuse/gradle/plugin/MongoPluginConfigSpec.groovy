@@ -1,22 +1,27 @@
 package com.sourcemuse.gradle.plugin
 
-import com.mongodb.MongoCredential
-import de.flapdoodle.embed.mongo.distribution.Version
+import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.*
+import static com.sourcemuse.gradle.plugin.MongoUtils.*
+
 import org.bson.Document
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer
+
+import com.mongodb.MongoCredential
+
+import de.flapdoodle.embed.mongo.distribution.Version
 import spock.lang.Issue
 import spock.lang.Specification
-
-import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.*
-import static com.sourcemuse.gradle.plugin.MongoUtils.*
+import spock.lang.TempDir
 
 class MongoPluginConfigSpec extends Specification {
 
     def static final VERBOSE_LOGGING_SAMPLE = 'ismaster'
 
-    File tmp = File.createTempDir();
+	@TempDir
+	File tmp;
+	
     def buildScript = new BuildScriptBuilder()
 
     def 'port is configurable'() {
