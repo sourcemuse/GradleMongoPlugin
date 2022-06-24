@@ -77,11 +77,28 @@ class GradleMongoPlugin implements Plugin<Project> {
 
         if (!stopMongoDbTaskPresent) {
             def lastTask = project.gradle.taskGraph.allTasks[-1]
-            project.gradle.taskGraph.afterTask { task, taskState ->
-                if (task == lastTask) {
-                    stopMongoDb(project)
-                }
-            }
+			
+			project.gradle.addBuildListener(new BuildListener() {
+			
+				@Override
+				public void buildFinished(BuildResult buildResult) {
+					buildResult.gradle.rootProject.tasks.each {
+						if (it == lastTask) {
+							stopMongoDb(project)
+						}
+					}
+				}
+			
+				@Override
+				public void projectsEvaluated(Gradle gradle) {}
+			
+				@Override
+				public void projectsLoaded(Gradle gradle) {}
+			
+				@Override
+				public void settingsEvaluated(Settings gradle) {}
+								
+			})
         }
     }
 
