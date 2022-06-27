@@ -20,7 +20,7 @@ class MongoPluginConfigSpec extends Specification {
     def static final VERBOSE_LOGGING_SAMPLE = 'ismaster'
 
 	@TempDir
-	File tmp;
+	File tmp
 	
     def buildScript = new BuildScriptBuilder()
 

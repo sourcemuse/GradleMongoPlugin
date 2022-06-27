@@ -62,7 +62,7 @@ class CustomFlapdoodleRuntimeConfig extends RuntimeConfigDefaults {
             }
         })
 		
-		Builder builder = ArtifactStore.builder();
+		Builder builder = ArtifactStore.builder()
 		builder.downloadConfig(downloadConfigBuilder.build())
 		builder.downloader(Downloader.platformDefault())
 		builder.tempDirFactory(downloadConfigBuilder.artifactStorePath)

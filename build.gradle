@@ -18,7 +18,7 @@ plugins {
     id 'java-gradle-plugin'
 }
 
-archivesBaseName = 'gradle-mongo-plugin'
+name = 'gradle-mongo-plugin'
 group = 'com.sourcemuse.gradle.plugin'
 version = '1.0.8-SNAPSHOT'
 
@@ -66,6 +66,7 @@ publishing {
         mavenJava(MavenPublication) {
 
 			pom {
+				artifactId = 'gradle-mongo-plugin'
 				name = 'Gradle Mongo Plugin'
 				description = 'Gradle plugin for managing a local instance of MongoDb'
 				url = 'https://github.com/sourcemuse/GradleMongoPlugin'

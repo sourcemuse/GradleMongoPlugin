@@ -16,7 +16,7 @@ class MongoPluginTasksSpec extends Specification {
     static final String STOPPING_MONGO_MESSAGE = 'Stopping Mongod'
 
 	@TempDir
-	File tmp;
+	File tmp
 
     def 'individual tasks can declare a dependency on a running mongo instance'() {
         given:
