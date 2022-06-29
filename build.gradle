@@ -18,7 +18,6 @@ plugins {
     id 'java-gradle-plugin'
 }
 
-name = 'gradle-mongo-plugin'
 group = 'com.sourcemuse.gradle.plugin'
 version = '1.0.8-SNAPSHOT'
 
