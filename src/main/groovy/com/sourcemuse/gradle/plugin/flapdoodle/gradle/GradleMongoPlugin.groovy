@@ -1,34 +1,35 @@
 package com.sourcemuse.gradle.plugin.flapdoodle.gradle
 
+import static com.sourcemuse.gradle.plugin.flapdoodle.gradle.ManageProcessInstruction.CONTINUE_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
+import static com.sourcemuse.gradle.plugin.flapdoodle.gradle.ManageProcessInstruction.STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
+
+import java.util.concurrent.atomic.AtomicInteger
+
+import org.bson.Document
+import org.gradle.BuildListener
+import org.gradle.BuildResult
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.api.Task
+import org.gradle.api.initialization.Settings
+import org.gradle.api.invocation.Gradle
+import org.gradle.api.tasks.TaskState
+
 import com.mongodb.MongoClient
 import com.sourcemuse.gradle.plugin.GradleMongoPluginExtension
 import com.sourcemuse.gradle.plugin.flapdoodle.adapters.CustomFlapdoodleRuntimeConfig
 import com.sourcemuse.gradle.plugin.flapdoodle.adapters.ProcessOutputFactory
 import com.sourcemuse.gradle.plugin.flapdoodle.adapters.StorageFactory
 import com.sourcemuse.gradle.plugin.flapdoodle.adapters.VersionFactory
-import de.flapdoodle.embed.mongo.AbstractMongoProcess
-import de.flapdoodle.embed.mongo.Command
+
 import de.flapdoodle.embed.mongo.MongodProcess
 import de.flapdoodle.embed.mongo.MongodStarter
-import de.flapdoodle.embed.mongo.config.IMongoCmdOptions
-import de.flapdoodle.embed.mongo.config.MongoCmdOptionsBuilder
-import de.flapdoodle.embed.mongo.config.MongodConfigBuilder
+import de.flapdoodle.embed.mongo.config.ImmutableMongoCmdOptions
+import de.flapdoodle.embed.mongo.config.ImmutableMongodConfig;
 import de.flapdoodle.embed.mongo.config.Net
+import de.flapdoodle.embed.mongo.packageresolver.Command
 import de.flapdoodle.embed.mongo.runtime.Mongod
 import de.flapdoodle.embed.process.runtime.Network
-import de.flapdoodle.embed.process.store.CachingArtifactStore
-import org.bson.Document
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import org.gradle.api.Task
-import org.gradle.api.execution.TaskExecutionListener
-import org.gradle.api.tasks.TaskState
-
-import java.util.concurrent.atomic.AtomicInteger
-
-import static com.sourcemuse.gradle.plugin.flapdoodle.gradle.ManageProcessInstruction.CONTINUE_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
-import static com.sourcemuse.gradle.plugin.flapdoodle.gradle.ManageProcessInstruction.STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS
-import static org.slf4j.helpers.NOPLogger.NOP_LOGGER
 
 class GradleMongoPlugin implements Plugin<Project> {
 
@@ -58,7 +59,7 @@ class GradleMongoPlugin implements Plugin<Project> {
     private static void addStartManagedMongoDbTask(Project project) {
         project.task(group: TASK_GROUP_NAME, description: 'Starts a local MongoDb instance which will stop when the build process completes', 'startManagedMongoDb').doFirst {
             def mongoStartedByTask = startMongoDb(project, STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS)
-
+			
             if (mongoStartedByTask) {
                 ensureMongoDbStopsEvenIfGradleDaemonIsRunning(project)
             }
@@ -76,11 +77,28 @@ class GradleMongoPlugin implements Plugin<Project> {
 
         if (!stopMongoDbTaskPresent) {
             def lastTask = project.gradle.taskGraph.allTasks[-1]
-            project.gradle.taskGraph.afterTask { task, taskState ->
-                if (task == lastTask) {
-                    stopMongoDb(project)
-                }
-            }
+			
+			project.gradle.addBuildListener(new BuildListener() {
+			
+				@Override
+				public void buildFinished(BuildResult buildResult) {
+					buildResult.gradle.rootProject.tasks.each {
+						if (it == lastTask) {
+							stopMongoDb(project)
+						}
+					}
+				}
+			
+				@Override
+				public void projectsEvaluated(Gradle gradle) {}
+			
+				@Override
+				public void projectsLoaded(Gradle gradle) {}
+			
+				@Override
+				public void settingsEvaluated(Settings gradle) {}
+								
+			})
         }
     }
 
@@ -100,7 +118,7 @@ class GradleMongoPlugin implements Plugin<Project> {
         def version = new VersionFactory().getVersion(pluginExtension)
         def storage = new StorageFactory().getStorage(pluginExtension)
 
-        def configBuilder = new MongodConfigBuilder()
+        def configBuilder = ImmutableMongodConfig.builder()
                 .cmdOptions(createMongoCommandOptions(pluginExtension))
                 .version(version)
                 .replication(storage)
@@ -108,12 +126,12 @@ class GradleMongoPlugin implements Plugin<Project> {
 
         pluginExtension.args.each { k, v ->
             if (!v)
-                configBuilder.withLaunchArgument("--${k}")
+                configBuilder.putArgs("--${k}", null)
             else
-                configBuilder.withLaunchArgument("--${k}", v)
+                configBuilder.putArgs("--${k}", v)
         }
 
-        pluginExtension.params.each { k, v -> configBuilder.setParameter(k, v) }
+        pluginExtension.params.each { k, v -> configBuilder.putParams(k, v) }
 
         def mongodConfig = configBuilder.build()
 
@@ -125,12 +143,10 @@ class GradleMongoPlugin implements Plugin<Project> {
                 pluginExtension.artifactStorePath)
                 .defaults(Command.MongoD)
                 .processOutput(processOutput)
-                .daemonProcess(manageProcessInstruction == STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS)
+                .isDaemonProcess(manageProcessInstruction == STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS)
                 .build()
 
         def runtime = MongodStarter.getInstance(runtimeConfig)
-
-        disableFlapdoodleLogging()
 
         def mongodExecutable = runtime.prepare(mongodConfig)
         println "Starting Mongod ${version.asInDownloadPath()} on port ${pluginExtension.port}..."
@@ -169,16 +185,16 @@ class GradleMongoPlugin implements Plugin<Project> {
         }
     }
 
-    private static IMongoCmdOptions createMongoCommandOptions(GradleMongoPluginExtension pluginExtension) {
-        def mongoCommandOptionsBuilder = new MongoCmdOptionsBuilder()
+    private static ImmutableMongoCmdOptions createMongoCommandOptions(GradleMongoPluginExtension pluginExtension) {
+        def mongoCommandOptionsBuilder = ImmutableMongoCmdOptions.builder()
                 .useNoJournal(!pluginExtension.journalingEnabled)
-                .useStorageEngine(pluginExtension.storageEngine)
-                .enableAuth(pluginExtension.auth)
+                .storageEngine(pluginExtension.storageEngine)
+                .auth(pluginExtension.auth)
 
         if (pluginExtension.syncDelay != null){
             mongoCommandOptionsBuilder.syncDelay(pluginExtension.syncDelay)
         } else {
-            mongoCommandOptionsBuilder.defaultSyncDelay()
+            mongoCommandOptionsBuilder.useDefaultSyncDelay(true)
         }
 
         mongoCommandOptionsBuilder.build()
@@ -211,12 +227,6 @@ class GradleMongoPlugin implements Plugin<Project> {
         }
     }
 
-    private static void disableFlapdoodleLogging() {
-        CachingArtifactStore._logger = NOP_LOGGER
-        Mongod.logger = NOP_LOGGER
-        AbstractMongoProcess.logger = NOP_LOGGER
-    }
-
     private static void extendAllTasksWithMongoOptions(Project project) {
         project.tasks.each {
             extend(it)
@@ -246,29 +256,43 @@ class GradleMongoPlugin implements Plugin<Project> {
                         def mongoDependencyCount = rootProject.mongoTaskDependenciesCountByPort.get(port).getAndIncrement()
                         def mongoStartedByTask = startMongoDb(mergedPluginExtension, project, STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS)
                         if (mongoDependencyCount == 0) {
-                            rootProject.mongoInstancesStartedDuringBuild.put(port, mongoStartedByTask)
+                           rootProject.mongoInstancesStartedDuringBuild.put(port, mongoStartedByTask)
                         }
                     }
                 }
-
-                project.gradle.taskGraph.addTaskExecutionListener(new TaskExecutionListener() {
-                    @Override
-                    void beforeExecute(Task t) {}
-
-                    @Override
-                    void afterExecute(Task t, TaskState state) {
-                        if (task == t && state.didWork) {
-                            synchronized (rootProject) {
-                                def mongoDependencyCount = rootProject.mongoTaskDependenciesCountByPort.get(port).decrementAndGet()
-                                if (mongoDependencyCount == 0 && rootProject.mongoInstancesStartedDuringBuild.get(port)) {
-                                    stopMongoDb(port, rootProject.mongoPortToProcessMap.remove(port))
-                                }
-                            }
-                        }
-                    }
-                })
             }
         }
+		
+		project.gradle.addBuildListener(new BuildListener() {
+		
+			@Override
+			public void buildFinished(BuildResult buildResult) {
+				buildResult.gradle.rootProject.tasks.each {
+					TaskState state = it.state
+					if (it.runWithMongoDb && state.didWork) {
+						def rootProject = it.project
+						def mergedPluginExtension = getTaskSpecificMongoConfiguration(it, project)
+						def port = mergedPluginExtension.port
+						synchronized (rootProject) {
+							def mongoDependencyCount = rootProject.mongoTaskDependenciesCountByPort.get(port).decrementAndGet()
+							if (mongoDependencyCount == 0 && rootProject.mongoInstancesStartedDuringBuild.get(port)) {
+								stopMongoDb(port, rootProject.mongoPortToProcessMap.remove(port))
+							}
+						}
+					}
+				}
+			}
+		
+			@Override
+			public void projectsEvaluated(Gradle gradle) {}
+		
+			@Override
+			public void projectsLoaded(Gradle gradle) {}
+		
+			@Override
+			public void settingsEvaluated(Settings gradle) {}
+							
+		})
     }
 
     private static void ensureMongoTaskTrackingPropertiesAreSet(Project rootProject) {

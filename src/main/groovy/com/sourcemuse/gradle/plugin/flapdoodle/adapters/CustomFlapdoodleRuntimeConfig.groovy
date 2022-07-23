@@ -1,23 +1,28 @@
 package com.sourcemuse.gradle.plugin.flapdoodle.adapters
-import de.flapdoodle.embed.mongo.Command
-import de.flapdoodle.embed.mongo.config.ArtifactStoreBuilder
-import de.flapdoodle.embed.mongo.config.DownloadConfigBuilder
-import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder
+import de.flapdoodle.embed.mongo.config.Defaults.DownloadConfigDefaults
+import de.flapdoodle.embed.mongo.config.Defaults.RuntimeConfigDefaults
+import de.flapdoodle.embed.mongo.packageresolver.Command
+import de.flapdoodle.embed.process.config.ImmutableRuntimeConfig
 import de.flapdoodle.embed.process.config.store.HttpProxyFactory
+import de.flapdoodle.embed.process.config.store.ImmutableDownloadConfig
 import de.flapdoodle.embed.process.distribution.Distribution
-import de.flapdoodle.embed.process.distribution.IVersion
+import de.flapdoodle.embed.process.distribution.Version
 import de.flapdoodle.embed.process.io.directories.FixedPath
-import de.flapdoodle.embed.process.runtime.ICommandLinePostProcessor
+import de.flapdoodle.embed.process.runtime.CommandLinePostProcessor
+import de.flapdoodle.embed.process.store.ArtifactStore
+import de.flapdoodle.embed.process.store.ImmutableArtifactStore
+import de.flapdoodle.embed.process.store.ImmutableArtifactStore.Builder
+import de.flapdoodle.embed.process.store.Downloader
 
-class CustomFlapdoodleRuntimeConfig extends RuntimeConfigBuilder {
-    private final IVersion version
+class CustomFlapdoodleRuntimeConfig extends RuntimeConfigDefaults {
+    private final Version version
     private final String mongodVerbosity
     private final String downloadUrl
     private final String proxyHost
     private final int proxyPort
     private final String artifactStorePath
 
-    CustomFlapdoodleRuntimeConfig(IVersion version,
+    CustomFlapdoodleRuntimeConfig(Version version,
                                   String mongodVerbosity,
                                   String downloadUrl,
                                   String proxyHost,
@@ -31,13 +36,11 @@ class CustomFlapdoodleRuntimeConfig extends RuntimeConfigBuilder {
         this.artifactStorePath = artifactStorePath
     }
 
-    @Override
-    RuntimeConfigBuilder defaults(Command command) {
-        super.defaults(command)
+    ImmutableRuntimeConfig.Builder defaults(Command command) {
+        ImmutableRuntimeConfig.Builder runtimeConfigBuilder = super.defaults(command)
 
-        DownloadConfigBuilder downloadConfigBuilder = new DownloadConfigBuilder()
-        downloadConfigBuilder.defaultsForCommand(command)
-                             .progressListener(new CustomFlapdoodleProcessLogger(version))
+        ImmutableDownloadConfig.Builder downloadConfigBuilder = new DownloadConfigDefaults().defaultsForCommand(command)
+        downloadConfigBuilder.progressListener(new CustomFlapdoodleProcessLogger(version))
 
         if (downloadUrl) {
             downloadConfigBuilder.downloadPath(downloadUrl)
@@ -51,16 +54,22 @@ class CustomFlapdoodleRuntimeConfig extends RuntimeConfigBuilder {
           downloadConfigBuilder.artifactStorePath(new FixedPath(artifactStorePath))
         }
 
-        commandLinePostProcessor(new ICommandLinePostProcessor() {
+        runtimeConfigBuilder.commandLinePostProcessor(new CommandLinePostProcessor() {
             @Override
             List<String> process(Distribution distribution, List<String> args) {
                 if (mongodVerbosity) args.add(mongodVerbosity)
                 return args
             }
         })
+		
+		Builder builder = ArtifactStore.builder()
+		builder.downloadConfig(downloadConfigBuilder.build())
+		builder.downloader(Downloader.platformDefault())
+		builder.tempDirFactory(downloadConfigBuilder.artifactStorePath)
+		builder.executableNaming(downloadConfigBuilder.fileNaming)
+		ImmutableArtifactStore artifactStore = builder.build()
+        runtimeConfigBuilder.artifactStore(artifactStore)
 
-        artifactStore().overwriteDefault(new ArtifactStoreBuilder().defaults(command).download(downloadConfigBuilder).build())
-
-        this
+        runtimeConfigBuilder
     }
 }

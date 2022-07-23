@@ -4,7 +4,7 @@ import com.mongodb.ServerAddress
 
 import java.util.regex.Pattern
 
-import static LogDestination.FILE
+import static com.sourcemuse.gradle.plugin.LogDestination.FILE
 import static java.lang.Integer.parseInt
 
 class GradleMongoPluginExtension {
@@ -18,7 +18,7 @@ class GradleMongoPluginExtension {
     String logging = FILE as String
     String logFilePath = 'embedded-mongo.log'
     String mongoVersion = 'PRODUCTION'
-    String storageEngine = null
+    String storageEngine = 'wiredTiger'
     String storageLocation = EPHEMERAL_TEMPORARY_FOLDER
     String mongodVerbosity = ''
     String downloadUrl = ''

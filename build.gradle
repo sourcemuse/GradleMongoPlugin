@@ -10,33 +10,33 @@ buildscript {
 
 plugins {
     id 'com.gradle.plugin-publish' version '0.9.9'
+    id 'maven-publish'
     id 'groovy'
     id 'idea'
     id 'eclipse'
-    id 'maven'
     id 'signing'
     id 'java-gradle-plugin'
 }
 
-archivesBaseName = 'gradle-mongo-plugin'
 group = 'com.sourcemuse.gradle.plugin'
 version = '1.0.8-SNAPSHOT'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 17
+targetCompatibility = 17
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
-    compile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.2.0'
-    compile 'org.mongodb:mongo-java-driver:3.7.0'
+    implementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:3.4.6'
+    implementation 'org.mongodb:mongo-java-driver:3.12.11'
 
-    testCompile 'org.spockframework:spock-core:1.1-groovy-2.4', {
+    testImplementation 'org.spockframework:spock-core:2.1-groovy-3.0', {
         exclude module: 'groovy-all'
     }
-    testCompile 'org.littleshoot:littleproxy:1.1.2'
+    testImplementation 'org.littleshoot:littleproxy:1.1.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -60,48 +60,48 @@ signing {
     sign configurations.archives
 }
 
-uploadArchives {
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+
+			pom {
+				artifactId = 'gradle-mongo-plugin'
+				name = 'Gradle Mongo Plugin'
+				description = 'Gradle plugin for managing a local instance of MongoDb'
+				url = 'https://github.com/sourcemuse/GradleMongoPlugin'
+				
+				licenses {
+					license {
+						name = 'The Apache License, Version 2.0'
+						url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+					}
+				}
+				developers {
+					developer {
+						id = 'roberttaylor426'
+						name = 'Robert Taylor'
+						email = 'john.doe@example.com'
+					}
+					developer {
+						id = 'flashboss'
+						name = 'Luca Stancapiano'
+						email = 'luca.stancapiano@vige.it'
+					}
+				}
+				scm {
+					connection = 'scm:git@github.com:sourcemuse/GradleMongoPlugin.git'
+					developerConnection = 'scm:git@github.com:sourcemuse/GradleMongoPlugin.git'
+					url = 'scm:git@github.com:sourcemuse/GradleMongoPlugin.git'
+				}
+			}
+		}
+    }	
     repositories {
-        mavenDeployer {
-            beforeDeployment { signing.signPom(it) }
-
-            repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/') {
-                authentication(userName: getSonatypeUsername(), password: getSonatypePassword())
-            }
-
-            snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots/') {
-                authentication(userName: getSonatypeUsername(), password: getSonatypePassword())
-            }
-
-            pom.project {
-                name 'Gradle Mongo Plugin'
-                packaging jar
-                description 'Gradle plugin for managing a local instance of MongoDb'
-                url 'https://github.com/sourcemuse/GradleMongoPlugin'
-
-                scm {
-                    url 'scm:git@github.com:sourcemuse/GradleMongoPlugin.git'
-                    connection 'scm:git@github.com:sourcemuse/GradleMongoPlugin.git'
-                    developerConnection 'scm:git@github.com:sourcemuse/GradleMongoPlugin.git'
-                }
-
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution 'repo'
-                    }
-                }
-
-                developers {
-                    developer {
-                        name 'Mashooq Badar'
-                    }
-                    developer {
-                        name 'Robert Taylor'
-                    }
-                }
-            }
+        maven {
+            name = 'oss.sonatype'
+            def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+            def snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
         }
     }
 }
@@ -135,4 +135,11 @@ String getSonatypeUsername() {
 
 String getSonatypePassword() {
     properties['sonatypePassword'] ?: 'password'
+}
+
+test {
+  useJUnitPlatform()
+  testLogging {
+    events "passed", "skipped", "failed"
+  }
 }

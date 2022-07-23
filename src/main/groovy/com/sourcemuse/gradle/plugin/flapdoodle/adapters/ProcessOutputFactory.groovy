@@ -6,11 +6,13 @@ import static com.sourcemuse.gradle.plugin.LogDestination.NONE
 
 import com.sourcemuse.gradle.plugin.GradleMongoPluginExtension
 import com.sourcemuse.gradle.plugin.LogDestination
-import de.flapdoodle.embed.mongo.Command
+import de.flapdoodle.embed.mongo.packageresolver.Command
 import de.flapdoodle.embed.mongo.config.MongodProcessOutputConfig
-import de.flapdoodle.embed.process.config.io.ProcessOutput
+import de.flapdoodle.embed.process.config.process.ProcessOutput
 import de.flapdoodle.embed.process.io.NamedOutputStreamProcessor
 import de.flapdoodle.embed.process.io.NullProcessor
+import de.flapdoodle.embed.process.io.Processors
+import de.flapdoodle.embed.process.io.Slf4jLevel
 import groovy.transform.TupleConstructor
 import org.gradle.api.GradleScriptException
 import org.gradle.api.Project
@@ -33,15 +35,20 @@ class ProcessOutputFactory {
 
             def fileOutputStreamProcessor = new FileOutputStreamProcessor(logFilePath)
 
-            return new ProcessOutput(
-                    new NamedOutputStreamProcessor('[mongod output]', fileOutputStreamProcessor),
-                    new NamedOutputStreamProcessor('[mongod error]', fileOutputStreamProcessor),
-                    new NamedOutputStreamProcessor('[mongod commands]', fileOutputStreamProcessor));
+            return ProcessOutput.builder()
+				.output(new NamedOutputStreamProcessor('[mongod output]', fileOutputStreamProcessor))
+                .error(new NamedOutputStreamProcessor('[mongod error]', fileOutputStreamProcessor))
+                .commands(new NamedOutputStreamProcessor('[mongod commands]', fileOutputStreamProcessor))
+				.build();
         }
 
         if (logDestination == NONE) {
             def nullProcessor = new NullProcessor()
-            return new ProcessOutput(nullProcessor, nullProcessor, nullProcessor)
+            return ProcessOutput.builder()
+				.output(nullProcessor)
+				.error(nullProcessor)
+				.commands(nullProcessor)
+				.build();
         }
 
         throw new GradleScriptException(

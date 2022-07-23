@@ -1,13 +1,13 @@
 package com.sourcemuse.gradle.plugin.flapdoodle.adapters
 
-import de.flapdoodle.embed.process.distribution.IVersion
-import de.flapdoodle.embed.process.io.progress.IProgressListener
+import de.flapdoodle.embed.process.distribution.Version
+import de.flapdoodle.embed.process.io.progress.ProgressListener
 
 
-class CustomFlapdoodleProcessLogger implements IProgressListener {
-    private final IVersion version
+class CustomFlapdoodleProcessLogger implements ProgressListener {
+    private final Version version
 
-    CustomFlapdoodleProcessLogger(IVersion version) {
+    CustomFlapdoodleProcessLogger(Version version) {
         this.version = version
     }
 

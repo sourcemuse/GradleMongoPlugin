@@ -1,22 +1,22 @@
 package com.sourcemuse.gradle.plugin
 
+import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.*
+import static com.sourcemuse.gradle.plugin.MongoUtils.ensureMongoIsStopped
+import static com.sourcemuse.gradle.plugin.MongoUtils.mongoInstanceRunning
+
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import spock.lang.Specification
 
-import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.*
-import static com.sourcemuse.gradle.plugin.MongoUtils.mongoInstanceRunning
-import static com.sourcemuse.gradle.plugin.MongoUtils.ensureMongoIsStopped
+import spock.lang.Specification
+import spock.lang.TempDir
 
 class MongoPluginTasksSpec extends Specification {
 
     static final String MONGO_STARTED_MESSAGE = 'Mongod started'
     static final String STOPPING_MONGO_MESSAGE = 'Stopping Mongod'
 
-    @Rule
-    TemporaryFolder tmp
+	@TempDir
+	File tmp
 
     def 'individual tasks can declare a dependency on a running mongo instance'() {
         given:
@@ -287,7 +287,7 @@ class MongoPluginTasksSpec extends Specification {
     BuildResult runGradle(String args) {
         return GradleRunner.create()
             .withPluginClasspath()
-            .withProjectDir(tmp.root)
+            .withProjectDir(tmp)
             .withArguments(args)
             .build()
     }
@@ -297,6 +297,8 @@ class MongoPluginTasksSpec extends Specification {
     }
 
     void buildScript(String buildScriptContent) {
-        tmp.newFile('build.gradle') << buildScriptContent
+		def newFile = new File(tmp.absolutePath + '/build.gradle')
+		newFile.createNewFile() 
+        newFile << buildScriptContent
     }
 }
