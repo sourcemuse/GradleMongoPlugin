@@ -108,21 +108,15 @@ publishing {
 pluginBundle {
     website = 'https://github.com/sourcemuse/GradleMongoPlugin'
     vcsUrl = 'https://github.com/sourcemuse/GradleMongoPlugin'
-    description = 'Gradle plugin for running a managed instance of Mongo.'
     tags = ['mongo', 'mongodb']
-
-    plugins {
-        mongoPlugin {
-            id = 'com.sourcemuse.mongo'
-            displayName = 'Gradle Mongo plugin'
-        }
-    }
 }
 
 gradlePlugin {
     plugins {
         mongoPlugin {
             id = 'com.sourcemuse.mongo'
+            displayName = 'Gradle Mongo plugin'
+            description = 'Gradle plugin for running a managed instance of Mongo.'
             implementationClass = 'com.sourcemuse.gradle.plugin.flapdoodle.gradle.GradleMongoPlugin'
         }
     }
