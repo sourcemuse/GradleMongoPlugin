@@ -258,7 +258,7 @@ class MongoPluginConfigSpec extends Specification {
         def args = START_MONGO_DB_FOR_TEST
 
         when:
-        def executionResult = GradleRunner.create()
+        GradleRunner.create()
             .withPluginClasspath()
             .withProjectDir(tmp)
             .withArguments(args)
