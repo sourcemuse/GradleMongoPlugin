@@ -79,9 +79,8 @@ class GradleMongoPlugin implements Plugin<Project> {
             def lastTask = project.gradle.taskGraph.allTasks[-1]
 			
 			project.gradle.addBuildListener(new BuildListener() {
-			
 				@Override
-				public void buildFinished(BuildResult buildResult) {
+				void buildFinished(BuildResult buildResult) {
 					buildResult.gradle.rootProject.tasks.each {
 						if (it == lastTask) {
 							stopMongoDb(project)
@@ -90,14 +89,13 @@ class GradleMongoPlugin implements Plugin<Project> {
 				}
 			
 				@Override
-				public void projectsEvaluated(Gradle gradle) {}
+				void projectsEvaluated(Gradle gradle) {}
 			
 				@Override
-				public void projectsLoaded(Gradle gradle) {}
+				void projectsLoaded(Gradle gradle) {}
 			
 				@Override
-				public void settingsEvaluated(Settings gradle) {}
-								
+				void settingsEvaluated(Settings gradle) {}
 			})
         }
     }
@@ -264,9 +262,8 @@ class GradleMongoPlugin implements Plugin<Project> {
         }
 		
 		project.gradle.addBuildListener(new BuildListener() {
-		
 			@Override
-			public void buildFinished(BuildResult buildResult) {
+			void buildFinished(BuildResult buildResult) {
 				buildResult.gradle.rootProject.tasks.each {
 					TaskState state = it.state
 					if (it.runWithMongoDb && state.didWork) {
@@ -284,14 +281,13 @@ class GradleMongoPlugin implements Plugin<Project> {
 			}
 		
 			@Override
-			public void projectsEvaluated(Gradle gradle) {}
+			void projectsEvaluated(Gradle gradle) {}
 		
 			@Override
-			public void projectsLoaded(Gradle gradle) {}
+			void projectsLoaded(Gradle gradle) {}
 		
 			@Override
-			public void settingsEvaluated(Settings gradle) {}
-							
+			void settingsEvaluated(Settings gradle) {}
 		})
     }
 
