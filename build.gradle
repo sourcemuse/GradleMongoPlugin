@@ -80,7 +80,6 @@ publishing {
 					developer {
 						id = 'roberttaylor426'
 						name = 'Robert Taylor'
-						email = 'john.doe@example.com'
 					}
 					developer {
 						id = 'flashboss'
