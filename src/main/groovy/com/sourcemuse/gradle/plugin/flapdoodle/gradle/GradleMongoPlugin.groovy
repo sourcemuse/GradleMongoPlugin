@@ -240,7 +240,7 @@ class GradleMongoPlugin implements Plugin<Project> {
         task.extensions.add(PLUGIN_EXTENSION_NAME, GradleMongoPluginExtension)
     }
 
-    private static Iterable<Task> configureTasksRequiringMongoDb(Project project) {
+    private static void configureTasksRequiringMongoDb(Project project) {
         project.tasks.each {
             def task = it
             if (task.runWithMongoDb) {
