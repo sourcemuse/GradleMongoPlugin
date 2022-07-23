@@ -2,7 +2,7 @@
 
 class BuildScriptBuilder {
 
-    static final public DEFAULT_MONGOD_PORT = 27017
+    static final DEFAULT_MONGOD_PORT = 27017
     static final STOP_MONGO_DB_FOR_TEST = 'stopMongoDbForTest'
     static final START_MONGO_DB_FOR_TEST = 'startMongoDbForTest'
     static final START_MANAGED_MONGO_DB_FOR_TEST = 'startManagedMongoDbForTest'
