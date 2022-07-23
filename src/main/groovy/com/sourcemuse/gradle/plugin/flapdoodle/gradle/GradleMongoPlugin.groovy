@@ -25,7 +25,7 @@ import com.sourcemuse.gradle.plugin.flapdoodle.adapters.VersionFactory
 import de.flapdoodle.embed.mongo.MongodProcess
 import de.flapdoodle.embed.mongo.MongodStarter
 import de.flapdoodle.embed.mongo.config.ImmutableMongoCmdOptions
-import de.flapdoodle.embed.mongo.config.ImmutableMongodConfig;
+import de.flapdoodle.embed.mongo.config.ImmutableMongodConfig
 import de.flapdoodle.embed.mongo.config.Net
 import de.flapdoodle.embed.mongo.packageresolver.Command
 import de.flapdoodle.embed.mongo.runtime.Mongod

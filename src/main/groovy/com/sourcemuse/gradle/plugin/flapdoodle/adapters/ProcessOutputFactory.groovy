@@ -39,7 +39,7 @@ class ProcessOutputFactory {
 				.output(new NamedOutputStreamProcessor('[mongod output]', fileOutputStreamProcessor))
                 .error(new NamedOutputStreamProcessor('[mongod error]', fileOutputStreamProcessor))
                 .commands(new NamedOutputStreamProcessor('[mongod commands]', fileOutputStreamProcessor))
-				.build();
+				.build()
         }
 
         if (logDestination == NONE) {
@@ -48,7 +48,7 @@ class ProcessOutputFactory {
 				.output(nullProcessor)
 				.error(nullProcessor)
 				.commands(nullProcessor)
-				.build();
+				.build()
         }
 
         throw new GradleScriptException(
