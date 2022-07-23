@@ -10,8 +10,6 @@ import de.flapdoodle.embed.process.distribution.Version
 import de.flapdoodle.embed.process.io.directories.FixedPath
 import de.flapdoodle.embed.process.runtime.CommandLinePostProcessor
 import de.flapdoodle.embed.process.store.ArtifactStore
-import de.flapdoodle.embed.process.store.ImmutableArtifactStore
-import de.flapdoodle.embed.process.store.ImmutableArtifactStore.Builder
 import de.flapdoodle.embed.process.store.Downloader
 
 class CustomFlapdoodleRuntimeConfig extends RuntimeConfigDefaults {
@@ -61,14 +59,13 @@ class CustomFlapdoodleRuntimeConfig extends RuntimeConfigDefaults {
                 return args
             }
         })
-		
-		Builder builder = ArtifactStore.builder()
-		builder.downloadConfig(downloadConfigBuilder.build())
-		builder.downloader(Downloader.platformDefault())
-		builder.tempDirFactory(downloadConfigBuilder.artifactStorePath)
-		builder.executableNaming(downloadConfigBuilder.fileNaming)
-		ImmutableArtifactStore artifactStore = builder.build()
-        runtimeConfigBuilder.artifactStore(artifactStore)
+
+        runtimeConfigBuilder.artifactStore(ArtifactStore.builder()
+                .downloadConfig(downloadConfigBuilder.build())
+                .downloader(Downloader.platformDefault())
+                .tempDirFactory(downloadConfigBuilder.artifactStorePath)
+                .executableNaming(downloadConfigBuilder.fileNaming)
+                .build())
 
         runtimeConfigBuilder
     }
