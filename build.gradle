@@ -55,11 +55,6 @@ artifacts {
     archives sourcesJar
 }
 
-signing {
-    required { !version.endsWith('SNAPSHOT') }
-    sign publishing.publications.mavenJava
-}
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -103,6 +98,11 @@ publishing {
             url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
         }
     }
+}
+
+signing {
+    required { !version.endsWith('SNAPSHOT') }
+    sign publishing.publications.mavenJava
 }
 
 pluginBundle {
