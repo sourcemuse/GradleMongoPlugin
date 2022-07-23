@@ -122,14 +122,6 @@ gradlePlugin {
     }
 }
 
-String getSonatypeUsername() {
-    properties['sonatypeUsername'] ?: 'username'
-}
-
-String getSonatypePassword() {
-    properties['sonatypePassword'] ?: 'password'
-}
-
 test {
   useJUnitPlatform()
   testLogging {
