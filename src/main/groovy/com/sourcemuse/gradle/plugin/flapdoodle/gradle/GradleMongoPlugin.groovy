@@ -2,7 +2,6 @@ package com.sourcemuse.gradle.plugin.flapdoodle.gradle
 
 import com.mongodb.MongoClient
 import com.sourcemuse.gradle.plugin.GradleMongoPluginExtension
-import com.sourcemuse.gradle.plugin.flapdoodle.adapters.CustomFlapdoodleProcessLogger
 import com.sourcemuse.gradle.plugin.flapdoodle.adapters.ProcessOutputFactory
 import com.sourcemuse.gradle.plugin.flapdoodle.adapters.VersionFactory
 import de.flapdoodle.embed.mongo.commands.ImmutableMongodArguments
@@ -15,7 +14,6 @@ import de.flapdoodle.embed.mongo.types.DatabaseDir
 import de.flapdoodle.embed.mongo.types.DistributionBaseUrl
 import de.flapdoodle.embed.process.config.DownloadConfig
 import de.flapdoodle.embed.process.io.directories.PersistentDir
-import de.flapdoodle.embed.process.io.progress.ProgressListener
 import de.flapdoodle.embed.process.net.HttpProxyFactory
 import de.flapdoodle.embed.process.runtime.Network
 import de.flapdoodle.embed.process.transitions.DownloadPackage
@@ -132,11 +130,6 @@ class GradleMongoPlugin implements Plugin<Project> {
         builder.processConfig(
           Start.to(ProcessConfig.class)
             .initializedWith(ProcessConfig.defaults().withDaemonProcess(manageProcessInstruction == STOP_MONGO_PROCESS_WHEN_BUILD_PROCESS_STOPS))
-        )
-
-        builder.progressListener(
-          Start.to(ProgressListener.class)
-            .initializedWith(new CustomFlapdoodleProcessLogger(version))
         )
 
         if (pluginExtension.storageLocation) {
