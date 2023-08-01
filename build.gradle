@@ -27,14 +27,14 @@ repositories {
 }
 
 dependencies {
-    implementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.6.1'
-    implementation 'org.mongodb:mongo-java-driver:3.12.11'
+    implementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.7.2'
+    implementation 'org.mongodb:mongo-java-driver:3.12.14'
 
     testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0', {
         exclude module: 'groovy-all'
     }
     testImplementation 'org.littleshoot:littleproxy:1.1.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
