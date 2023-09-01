@@ -13,7 +13,11 @@ class MongoUtils {
     private static final String DATABASE_NAME = 'test'
 
     static void ensureMongoIsStopped(int port = DEFAULT_MONGOD_PORT) {
-        Mongod.sendShutdown(InetAddress.getLoopbackAddress(), port)
+        if (mongoInstanceRunning(port)) {
+            // try shutdown command for older versions first
+            Mongod.sendShutdownLegacy(InetAddress.getLoopbackAddress(), port)
+              || Mongod.sendShutdown(InetAddress.getLoopbackAddress(), port)
+        }
     }
 
     static MongoDatabase mongoDatabase(int port) {
