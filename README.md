@@ -26,6 +26,18 @@ task integrationTest(type: Test) {
 
 ```
 
+If you're using Gradle with Kotlin (build.gradle.kts), use can enable and use the plugin like this:
+
+```kotlin
+plugins {
+    id("com.sourcemuse.mongo") version "2.0.0"
+}
+// ...
+tasks.withType<Test> {
+    extra.set("runWithMongoDb", true)
+}
+```
+
 ### Configuration ###
 
 Configure your Mongo instances inside a ```mongo``` block:
