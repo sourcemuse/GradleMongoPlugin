@@ -1,5 +1,7 @@
 package com.sourcemuse.gradle.plugin
 
+import spock.util.concurrent.PollingConditions
+
 import static com.sourcemuse.gradle.plugin.BuildScriptBuilder.*
 import static com.sourcemuse.gradle.plugin.MongoUtils.ensureMongoIsStopped
 import static com.sourcemuse.gradle.plugin.MongoUtils.mongoInstanceRunning
@@ -13,7 +15,6 @@ import spock.lang.TempDir
 class MongoPluginTasksSpec extends Specification {
 
     static final String MONGO_STARTED_MESSAGE = 'Mongod started'
-    static final String STOPPING_MONGO_MESSAGE = 'Stopping Mongod'
 
 	@TempDir
 	File tmp
@@ -69,7 +70,9 @@ class MongoPluginTasksSpec extends Specification {
         given:
         buildScript("""
                     plugins { id 'com.sourcemuse.mongo' }
-
+                    mongo {
+                      port = '43341'
+                    }
                     task A {
                         runWithMongoDb = true
                     }
@@ -86,11 +89,10 @@ class MongoPluginTasksSpec extends Specification {
         BuildResult result = runGradle(args)
 
         then:
-        mongoStoppedWhenTaskBExecutes(result)
-    }
-
-    private static boolean mongoStoppedWhenTaskBExecutes(BuildResult result) {
-        result.getOutput().indexOf(STOPPING_MONGO_MESSAGE) < result.getOutput().indexOf('Running task B')
+        result.getOutput().contains(MONGO_STARTED_MESSAGE)
+        new PollingConditions(timeout: 5).eventually {
+          !mongoInstanceRunning(43341)
+        }
     }
 
     def 'mongo does not start when task is skipped during configuration phase'() {

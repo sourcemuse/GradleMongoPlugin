@@ -59,6 +59,7 @@ The following properties are configurable:
 * ```storageEngine```: The name of the storage engine to use. Can be **'wiredTiger'** or **'mmapv1'** for MongoDB Community Edition (default is **'wiredTiger'** for Mongo 3.2 and later; otherwise it is **'mmapv1'**). Alternative distributions might support additional engines
 * ```storageLocation```: The directory location from where embedded Mongo will run, such as ```/tmp/storage``` (defaults to a java temp directory)
 * ```syncDelay```: The interval in seconds between fsync operations where mongod flushes its working memory to disk. See [syncdelay parameter](https://docs.mongodb.com/manual/reference/parameters/#param.syncdelay) for more information
+* ```replicaSet```: Initializes a replica set with the specified name after mongod started (defaults to **null**)
 
 ### Tasks ###
 

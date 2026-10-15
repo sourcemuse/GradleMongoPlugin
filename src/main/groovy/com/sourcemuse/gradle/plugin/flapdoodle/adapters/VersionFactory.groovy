@@ -1,69 +1,39 @@
 package com.sourcemuse.gradle.plugin.flapdoodle.adapters
 
+import com.sourcemuse.gradle.plugin.GradleMongoPluginExtension
+import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
+import de.flapdoodle.embed.mongo.distribution.Version
+import de.flapdoodle.embed.mongo.distribution.Versions
+import de.flapdoodle.embed.process.distribution.ImmutableGenericVersion
+
 import static de.flapdoodle.embed.mongo.distribution.Version.Main.DEVELOPMENT
 import static de.flapdoodle.embed.mongo.distribution.Version.Main.PRODUCTION
 
-import com.sourcemuse.gradle.plugin.GradleMongoPluginExtension
-import de.flapdoodle.embed.mongo.distribution.IFeatureAwareVersion
-import de.flapdoodle.embed.process.distribution.Version.GenericVersion
-import de.flapdoodle.embed.mongo.packageresolver.Feature
-import de.flapdoodle.embed.mongo.distribution.Version
-import de.flapdoodle.embed.mongo.distribution.Versions
-import de.flapdoodle.embed.mongo.distribution.Versions.GenericFeatureAwareVersion
-
-
 class VersionFactory {
 
-    static final String LATEST_VERSION = '-LATEST'
+  static final String LATEST_VERSION = '-LATEST'
 
-    IFeatureAwareVersion getVersion(GradleMongoPluginExtension pluginExtension) {
+    static IFeatureAwareVersion getVersion(GradleMongoPluginExtension pluginExtension) {
         def suppliedVersion = pluginExtension.mongoVersion
 
-        if (versionIsDevOrProd(suppliedVersion)) {
-            return suppliedVersion as Version.Main
+        if (suppliedVersion == "DEVELOPMENT") {
+            return DEVELOPMENT
+        } else if (suppliedVersion == "PRODUCTION") {
+            return PRODUCTION
+        } else if (suppliedVersion == "latest") {
+          return Version.LATEST_NIGHTLY
         }
 
-        return parseVersionNumber(suppliedVersion)
-    }
-
-    private static boolean versionIsDevOrProd(String suppliedVersion) {
-        try {
-            (suppliedVersion as Version.Main) in [DEVELOPMENT, PRODUCTION]
-        } catch (ignored) {}
-    }
-
-    private static IFeatureAwareVersion parseVersionNumber(String suppliedVersion) {
-        String mongoVersion = convertToFlapdoodleVersion(suppliedVersion)
-
-        if (mongoVersion.endsWith(LATEST_VERSION)) {
-            mongoVersion = mongoVersion.substring(0, mongoVersion.length() - LATEST_VERSION.length())
-
-            if (versionMatchesMainBranchVersion(mongoVersion)) {
-                return mongoVersion as Version.Main
+        if (suppliedVersion.endsWith(LATEST_VERSION)) {
+          def mainVersion = "V" + suppliedVersion.substring(0, suppliedVersion.length() - LATEST_VERSION.length()).replace(".", "_")
+          for (def v in Version.Main.values()) {
+            if (v.name() == mainVersion) {
+              return v
             }
-        } else if (versionMatchesSpecificVersion(mongoVersion)) {
-            return mongoVersion as Version
-        } else {
-            // we'll just assume that the version is newer and supports all features
-            return new GenericFeatureAwareVersion(GenericVersion.of(suppliedVersion))
+          }
         }
-    }
 
-    private static boolean versionMatchesMainBranchVersion(String mongoVersion) {
-        try {
-            mongoVersion in Version.Main.values().collect { it.toString() }
-        } catch (ignored) {}
-    }
-
-    private static String convertToFlapdoodleVersion(String suppliedVersion) {
-        def mongoVersion = 'V' + suppliedVersion
-        mongoVersion = mongoVersion.replace('.', '_')
-        mongoVersion
-    }
-
-    private static Version versionMatchesSpecificVersion(String mongoVersion) {
-        try {
-            mongoVersion as Version
-        } catch (ignored) {}
+        // for some reason with gradle 8.8 and jdk 17 groovy is unable to use the static interface method Version.of
+        return new Versions.GenericFeatureAwareVersion(new ImmutableGenericVersion(suppliedVersion))
     }
 }

@@ -29,6 +29,7 @@ class GradleMongoPluginExtension {
     Map<String, String> args = [:]
     Map<String, String> params = [:]
     Integer syncDelay = null
+    String replicaSet = null
 
     void setDownloadUrl(String url) {
         try {

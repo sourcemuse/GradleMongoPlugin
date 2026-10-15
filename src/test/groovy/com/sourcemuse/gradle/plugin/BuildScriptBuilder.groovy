@@ -106,6 +106,11 @@ class BuildScriptBuilder {
         this
     }
 
+    BuildScriptBuilder withReplicaSet(String name) {
+        configProperties.replicaSet = asStringProperty(name)
+        this
+    }
+
     BuildScriptBuilder withParams(Map<String, String> params) {
         configProperties.params = params.inspect()
         this
